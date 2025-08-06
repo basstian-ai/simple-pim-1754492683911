@@ -1,0 +1,1 @@
+import { products } from '../../../data/products.json'; export default (req, res) => { if (req.method === 'POST') { const product = { id: Date.now(), ...req.body }; products.push(product); res.status(200).json(product); } else { res.status(200).json(products); } };
