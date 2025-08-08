@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+module.exports = {
   reactStrictMode: true,
-  output: 'standalone', // Added this line to fix the routes-manifest.json issue
+  poweredByHeader: false,
+  trailingSlash: false
+  // IMPORTANT:
+  // - Do NOT set `distDir`
+  // - Do NOT set `target`
+  // - Do NOT use static export here
 };
-
-module.exports = nextConfig;
