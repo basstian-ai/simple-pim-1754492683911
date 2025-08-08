@@ -1,22 +1,16 @@
-diff --git a/package.json b/package.json
-new file mode 100644
-index 0000000..1111111
---- /dev/null
-+++ b/package.json
-@@ -0,0 +1,22 @@
-+{
-+  "name": "next-pim-app",
-+  "private": true,
-+  "scripts": {
-+    "dev": "next dev",
-+    "build": "next build",
-+    "start": "next start"
-+  },
-+  "dependencies": {
-+    "next": "10.2.3",
-+    "react": "^17.0.2",
-+    "react-dom": "^17.0.2",
-+    "axios": "^1.6.8",
-+    "isomorphic-unfetch": "^3.1.0"
-+  }
-+}
+{
+  "name": "next-pim-app",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "10.2.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "axios": "^1.6.8",
+    "isomorphic-unfetch": "^3.1.0"
+  }
+}
