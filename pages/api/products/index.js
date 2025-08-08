@@ -17,7 +17,10 @@ export default async (req, res) => {
     products.push(product);
     await fs.writeFile(path.join(process.cwd(), 'data', 'products.json'), JSON.stringify(products, null, 2));
     res.status(200).json(product);
-  } else {
+  } else if (req.method === 'GET') {
     res.status(200).json(products);
+  } else {
+    res.setHeader('Allow', ['GET', 'POST']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };
