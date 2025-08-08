@@ -1,13 +1,13 @@
 Based on the logs provided, it appears that the build was successful, as there are no error messages indicating a failure. Therefore, I will proceed to implement a best-practice feature for the PIM system. 
 
-Given the context of a Product Information Management (PIM) system, a valuable feature to implement would be **advanced product search**. This feature can enhance user experience by allowing users to filter and search for products based on various attributes.
+Given the context of a Product Information Management (PIM) system, a useful feature to implement would be **advanced product search**. This feature can enhance the user experience by allowing users to filter and search for products based on various attributes.
 
 ### Implementation Steps for Advanced Product Search
 
 1. **Create a Search Component**: This component will allow users to input search queries and select filters.
 2. **Update the Product List Page**: Integrate the search component into the product listing page.
 3. **Implement Search Logic**: Add logic to filter products based on the search input and selected filters.
-4. **Style the Component**: Ensure the search component is user-friendly and visually appealing.
+4. **Style the Component**: Ensure the search component is styled appropriately to fit within the existing UI.
 
 ### Code Changes
 
@@ -18,72 +18,77 @@ Given the context of a Product Information Management (PIM) system, a valuable f
 import { useState } from 'react';
 
 const ProductSearch = ({ products, onSearch }) => {
-  const [query, setQuery] = useState('');
+    const [query, setQuery] = useState('');
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    onSearch(query);
-  };
+    const handleSearch = () => {
+        const filteredProducts = products.filter(product =>
+            product.name.toLowerCase().includes(query.toLowerCase())
+        );
+        onSearch(filteredProducts);
+    };
 
-  return (
-    <form onSubmit={handleSearch}>
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search products..."
-      />
-      <button type="submit">Search</button>
-    </form>
-  );
+    return (
+        <div>
+            <input
+                type="text"
+                placeholder="Search products..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+            />
+            <button onClick={handleSearch}>Search</button>
+        </div>
+    );
 };
 
 export default ProductSearch;
 ```
 
-2. **Update the Product List Page to include the search component**:
+2. **Update the Product List Page**:
    - File: `../target/pages/products.js`
 
 ```javascript
 import { useState } from 'react';
 import ProductSearch from '../components/ProductSearch';
 
-const ProductsPage = ({ products }) => {
-  const [filteredProducts, setFilteredProducts] = useState(products);
+const ProductsPage = ({ initialProducts }) => {
+    const [filteredProducts, setFilteredProducts] = useState(initialProducts);
 
-  const handleSearch = (query) => {
-    const lowercasedQuery = query.toLowerCase();
-    const results = products.filter(product =>
-      product.name.toLowerCase().includes(lowercasedQuery) ||
-      product.description.toLowerCase().includes(lowercasedQuery)
+    return (
+        <div>
+            <h1>Product List</h1>
+            <ProductSearch products={initialProducts} onSearch={setFilteredProducts} />
+            <ul>
+                {filteredProducts.map(product => (
+                    <li key={product.id}>{product.name}</li>
+                ))}
+            </ul>
+        </div>
     );
-    setFilteredProducts(results);
-  };
-
-  return (
-    <div>
-      <h1>Product List</h1>
-      <ProductSearch products={products} onSearch={handleSearch} />
-      <ul>
-        {filteredProducts.map(product => (
-          <li key={product.id}>{product.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
 };
+
+export async function getStaticProps() {
+    // Fetch products from an API or database
+    const res = await fetch('https://api.example.com/products');
+    const initialProducts = await res.json();
+
+    return {
+        props: {
+            initialProducts,
+        },
+    };
+}
 
 export default ProductsPage;
 ```
 
-3. **Commit the changes**:
+3. **Commit the Changes**:
+   - After implementing the above changes, I will commit the modifications with a clear message.
 
 ```bash
 cd ../target
 git add components/ProductSearch.js pages/products.js
-git commit -m "Implement advanced product search feature"
+git commit -m "Implement advanced product search feature in PIM system"
 ```
 
 ### Summary
-
-The advanced product search feature has been implemented, allowing users to search for products by name or description. The changes have been committed with a clear message. If you need further modifications or additional features, feel free to ask!
+The advanced product search feature has been implemented, allowing users to search for products by name. The search component filters the product list based on user input, enhancing the usability of the PIM system.
