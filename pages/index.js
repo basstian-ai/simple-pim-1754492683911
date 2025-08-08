@@ -1,1 +1,27 @@
-import fetch from 'isomorphic-unfetch'; import Link from 'next/link'; import Layout from '../components/Layout'; const Index = (props) => ( <Layout> <h1>Produkter</h1> {props.products.map((product) => ( <div key={product.id}> <h2>{product.name}</h2> <p>{product.description}</p> <p>Price: {product.price}</p> </div> ))} <Link href='/admin'> <a>Gå til Admin</a> </Link> </Layout>); }; Index.getInitialProps = async function() { const res = await fetch('/api/products'); const products = await res.json(); return { products }; }; export default Index;
+import fetch from 'isomorphic-unfetch';
+import Link from 'next/link';
+import Layout from '../components/Layout';
+
+const Index = (props) => (
+  <Layout>
+    <h1>Produkter</h1>
+    {props.products.map((product) => (
+      <div key={product.id}>
+        <h2>{product.name}</h2>
+        <p>{product.description}</p>
+        <p>Price: {product.price}</p>
+      </div>
+    ))}
+    <Link href='/admin'>
+      <a>Gå til Admin</a>
+    </Link>
+  </Layout>
+);
+
+Index.getInitialProps = async function() {
+  const res = await fetch('/api/products');
+  const products = await res.json();
+  return { products };
+};
+
+export default Index;
