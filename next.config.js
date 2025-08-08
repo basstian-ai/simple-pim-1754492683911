@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // IMPORTANT: do not set output: 'export' or distDir: 'out' on Vercel
+  output: 'standalone', // Added this line to fix the routes-manifest.json issue
 };
 
 module.exports = nextConfig;
