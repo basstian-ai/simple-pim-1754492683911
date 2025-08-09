@@ -1,31 +1,22 @@
-import { getGroups, createGroup } from '../../../lib/memoryStore';
+import { listGroups, createGroup } from '../../../lib/attributeGroups';
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
-
-  if (req.method === 'GET') {
-    const groups = getGroups();
-    res.status(200).json(groups);
-    return;
-  }
-
-  if (req.method === 'POST') {
-    try {
-      const { name } = req.body || {};
-      const cleanName = String(name || '').trim();
-      if (!cleanName) {
-        res.status(400).json({ error: 'Name is required' });
-        return;
-      }
-      const group = createGroup({ name: cleanName });
-      res.status(201).json(group);
-      return;
-    } catch (e) {
-      res.status(500).json({ error: 'Failed to create attribute group' });
+  try {
+    if (req.method === 'GET') {
+      const all = listGroups();
+      res.status(200).send(JSON.stringify({ data: all }));
       return;
     }
+    if (req.method === 'POST') {
+      const created = createGroup(req.body || {});
+      res.status(201).send(JSON.stringify({ data: created }));
+      return;
+    }
+    res.setHeader('Allow', 'GET, POST');
+    res.status(405).send(JSON.stringify({ error: 'Method Not Allowed' }));
+  } catch (e) {
+    const status = e && e.statusCode ? e.statusCode : 500;
+    res.status(status).send(JSON.stringify({ error: e.message || 'Server error' }));
   }
-
-  res.setHeader('Allow', 'GET, POST');
-  res.status(405).json({ error: 'Method Not Allowed' });
 }
