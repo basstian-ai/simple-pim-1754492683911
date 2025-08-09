@@ -1,4 +1,3 @@
-// pages/index.js
 import React, { useEffect, useState } from 'react';
 import ProductList from '../components/ProductList';
 
@@ -14,7 +13,12 @@ const Home = () => {
     fetchProducts();
   }, []);
 
-  return <ProductList products={products} />;
+  return (
+    <div>
+      <h1>Welcome to Simple PIM</h1>
+      <ProductList products={products} />
+    </div>
+  );
 };
 
 export default Home;
