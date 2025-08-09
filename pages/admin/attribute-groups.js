@@ -1,186 +1,137 @@
-import React, { useEffect, useState } from 'react';
-const { listGroups, createGroup, updateGroup, deleteGroup } = require('../../lib/attributeGroups');
+import { useEffect, useState } from 'react';
 
-export default function AttributeGroupsAdminPage() {
+export default function AttributeGroupsAdmin() {
   const [groups, setGroups] = useState([]);
-  const [loaded, setLoaded] = useState(false);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [editName, setEditName] = useState('');
-  const [editDescription, setEditDescription] = useState('');
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [newName, setNewName] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editingName, setEditingName] = useState('');
 
-  useEffect(() => {
-    // Client-only load
+  async function load() {
+    setLoading(true);
+    setError('');
     try {
-      const data = listGroups();
+      const res = await fetch('/api/attribute-groups');
+      if (!res.ok) throw new Error('Failed to load');
+      const data = await res.json();
       setGroups(data);
     } catch (e) {
-      // ignore
+      setError('Failed to load attribute groups');
     } finally {
-      setLoaded(true);
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
+    load();
   }, []);
 
-  function refresh() {
-    const data = listGroups();
-    setGroups(data);
-  }
-
-  async function onAdd(e) {
+  async function createGroup(e) {
     e.preventDefault();
-    setError('');
-    if (!name.trim()) {
-      setError('Name is required');
-      return;
-    }
-    setSaving(true);
+    const name = newName.trim();
+    if (!name) return;
     try {
-      createGroup({ name: name.trim(), description: description.trim() });
-      setName('');
-      setDescription('');
-      refresh();
+      const res = await fetch('/api/attribute-groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) throw new Error('Failed to create');
+      setNewName('');
+      await load();
     } catch (e) {
-      setError(e.message || 'Failed to create');
-    } finally {
-      setSaving(false);
+      alert('Failed to create group');
     }
   }
 
-  function startEdit(g) {
-    setEditingId(g.id);
-    setEditName(g.name);
-    setEditDescription(g.description || '');
-  }
-
-  function cancelEdit() {
-    setEditingId(null);
-    setEditName('');
-    setEditDescription('');
-  }
-
-  function saveEdit(id) {
-    setError('');
-    if (!editName.trim()) {
-      setError('Name is required');
-      return;
-    }
+  async function saveEdit(id) {
+    const name = editingName.trim();
+    if (!name) return;
     try {
-      updateGroup(id, { name: editName.trim(), description: editDescription });
-      cancelEdit();
-      refresh();
+      const res = await fetch(`/api/attribute-groups/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      setEditingId(null);
+      setEditingName('');
+      await load();
     } catch (e) {
-      setError(e.message || 'Update failed');
+      alert('Failed to update group');
     }
   }
 
-  function onDelete(id) {
+  async function remove(id) {
     if (!confirm('Delete this attribute group?')) return;
     try {
-      deleteGroup(id);
-      refresh();
+      const res = await fetch(`/api/attribute-groups/${id}`, { method: 'DELETE' });
+      if (!res.ok && res.status !== 204) throw new Error('Failed to delete');
+      await load();
     } catch (e) {
-      setError(e.message || 'Delete failed');
+      alert('Failed to delete group');
     }
   }
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.h1}>Attribute Groups</h1>
-      <p style={styles.muted}>Manage groups of attributes to organize your product data. Stored locally in your browser.</p>
+    <div style={{ maxWidth: 800, margin: '40px auto', padding: 16 }}>
+      <h1>Attribute Groups</h1>
 
-      <form onSubmit={onAdd} style={styles.card}>
-        <h2 style={styles.h2}>Create New Group</h2>
-        {error ? <div style={styles.error}>{error}</div> : null}
-        <div style={styles.row}>
-          <label style={styles.label}>Name</label>
-          <input
-            style={styles.input}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Dimensions"
-          />
-        </div>
-        <div style={styles.row}>
-          <label style={styles.label}>Description</label>
-          <input
-            style={styles.input}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Optional description"
-          />
-        </div>
-        <button type="submit" disabled={saving} style={styles.buttonPrimary}>
-          {saving ? 'Creating…' : 'Add Group'}
-        </button>
+      <form onSubmit={createGroup} style={{ marginBottom: 16 }}>
+        <input
+          type="text"
+          placeholder="New group name"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          style={{ padding: 8, width: '60%', marginRight: 8 }}
+        />
+        <button type="submit">Add Group</button>
       </form>
 
-      <div style={styles.card}>
-        <h2 style={styles.h2}>Existing Groups</h2>
-        {!loaded ? (
-          <div>Loading…</div>
-        ) : groups.length === 0 ? (
-          <div style={styles.muted}>No attribute groups yet. Create one above.</div>
-        ) : (
-          <ul style={styles.list}>
-            {groups.map((g) => (
-              <li key={g.id} style={styles.listItem}>
-                {editingId === g.id ? (
-                  <div style={styles.editContainer}>
-                    <input
-                      style={styles.input}
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                    />
-                    <input
-                      style={styles.input}
-                      value={editDescription}
-                      onChange={(e) => setEditDescription(e.target.value)}
-                    />
-                    <div>
-                      <button onClick={() => saveEdit(g.id)} style={styles.buttonPrimary}>Save</button>
-                      <button onClick={cancelEdit} style={styles.button}>Cancel</button>
-                    </div>
-                  </div>
-                ) : (
-                  <div style={styles.itemRow}>
-                    <div>
-                      <div style={styles.itemTitle}>{g.name}</div>
-                      {g.description ? <div style={styles.itemDesc}>{g.description}</div> : null}
-                    </div>
-                    <div>
-                      <button onClick={() => startEdit(g)} style={styles.button}>Edit</button>
-                      <button onClick={() => onDelete(g.id)} style={styles.buttonDanger}>Delete</button>
-                    </div>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      {loading && <div>Loading…</div>}
+      {error && <div style={{ color: 'red' }}>{error}</div>}
+
+      {!loading && groups.length === 0 && <div>No attribute groups yet.</div>}
+
+      <ul style={{ listStyle: 'none', padding: 0 }}>
+        {groups.map((g) => (
+          <li key={g.id} style={{ border: '1px solid #ddd', padding: 12, borderRadius: 6, marginBottom: 8 }}>
+            {editingId === g.id ? (
+              <div>
+                <input
+                  type="text"
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  style={{ padding: 6, width: '60%', marginRight: 8 }}
+                />
+                <button onClick={() => saveEdit(g.id)} style={{ marginRight: 8 }}>Save</button>
+                <button onClick={() => { setEditingId(null); setEditingName(''); }}>Cancel</button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <strong>{g.name}</strong>
+                  <div style={{ color: '#666', fontSize: 12 }}>{g.attributes?.length || 0} attributes</div>
+                </div>
+                <div>
+                  <button
+                    onClick={() => { setEditingId(g.id); setEditingName(g.name); }}
+                    style={{ marginRight: 8 }}
+                  >
+                    Rename
+                  </button>
+                  <button onClick={() => remove(g.id)} style={{ color: '#b00' }}>Delete</button>
+                </div>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <p style={{ color: '#888', fontSize: 12 }}>
+        Data is stored in-memory per server instance for demo purposes.
+      </p>
     </div>
   );
 }
-
-const styles = {
-  container: { maxWidth: 800, margin: '2rem auto', padding: '0 1rem', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif' },
-  h1: { margin: '0 0 1rem 0' },
-  h2: { margin: '0 0 1rem 0', fontSize: '1.1rem' },
-  muted: { color: '#666' },
-  card: { background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16, margin: '1rem 0' },
-  row: { display: 'flex', flexDirection: 'column', marginBottom: 12 },
-  label: { fontSize: 12, color: '#333', marginBottom: 4 },
-  input: { padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd', width: '100%', boxSizing: 'border-box', marginBottom: 8 },
-  buttonPrimary: { background: '#0070f3', color: '#fff', border: '1px solid #0070f3', borderRadius: 6, padding: '8px 12px', cursor: 'pointer', marginRight: 8 },
-  button: { background: '#f5f5f5', color: '#111', border: '1px solid #ddd', borderRadius: 6, padding: '8px 12px', cursor: 'pointer', marginRight: 8 },
-  buttonDanger: { background: '#fff0f0', color: '#b00020', border: '1px solid #ffb3b3', borderRadius: 6, padding: '8px 12px', cursor: 'pointer' },
-  list: { listStyle: 'none', margin: 0, padding: 0 },
-  listItem: { borderTop: '1px solid #eee', padding: '12px 0' },
-  itemRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  itemTitle: { fontWeight: 600 },
-  itemDesc: { color: '#555', fontSize: 13, marginTop: 4 },
-  editContainer: { display: 'grid', gridTemplateColumns: '2fr 3fr auto', gap: 8, alignItems: 'center' },
-};
