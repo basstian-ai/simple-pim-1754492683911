@@ -1,12 +1,28 @@
+```diff
 diff --git a/pages/index.js b/pages/index.js
-index 1c2d3e4..5f6g7h8 100644
+index e69de29..d95f3ad 100644
 --- a/pages/index.js
 +++ b/pages/index.js
-@@ -10,6 +10,7 @@ const Index = (props) => (
-         <p>Stock: {product.stock || 'N/A'}</p>
-         <p>Category: {product.category || 'N/A'}</p>
-       </div>
-+      <hr />
-     ))}
-     <Link href='/admin'>
-       <a>Gå til Admin</a>
+@@ -0,0 +1,20 @@
++import React from 'react';
++import products from '../data/products.json';
++
++const HomePage = () => {
++  return (
++    <div>
++      <h1>Product Inventory Management</h1>
++      <ul>
++        {products.map((product) => (
++          <li key={product.id}>
++            <h2>{product.name}</h2>
++            <p>{product.description}</p>
++            <p>Price: ${product.price}</p>
++          </li>
++        ))}
++      </ul>
++    </div>
++  );
++};
++
++export default HomePage;
+```
