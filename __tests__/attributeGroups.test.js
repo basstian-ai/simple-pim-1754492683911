@@ -1,45 +1,36 @@
-import { addGroupPure, updateGroupPure, deleteGroupPure, moveGroupPure, slugify } from '../lib/attributeGroups';
+/*
+  Simple test for lib/attributeGroups using a minimal in-memory localStorage polyfill.
+  This file is intentionally framework-agnostic; if Jest is present, you can run it.
+*/
 
-describe('attributeGroups utils', () => {
-  test('slugify produces URL-safe codes', () => {
-    expect(slugify('Color Name')).toBe('color-name');
-    expect(slugify('  Size/Weight ')).toBe('size-weight');
-    expect(slugify('ÄÖÜ - ñ')).toBe('aou-n');
-  });
+const assert = require('assert');
 
-  test('addGroupPure adds a group with generated code', () => {
-    const groups = [];
-    const next = addGroupPure(groups, { name: 'Basic Info' });
-    expect(next).toHaveLength(1);
-    expect(next[0].name).toBe('Basic Info');
-    expect(next[0].code).toBe('basic-info');
-    expect(next[0].id).toBeTruthy();
-  });
+class MemoryStorage {
+  constructor() { this._s = {}; }
+  getItem(k) { return Object.prototype.hasOwnProperty.call(this._s, k) ? this._s[k] : null; }
+  setItem(k, v) { this._s[k] = String(v); }
+  removeItem(k) { delete this._s[k]; }
+  clear() { this._s = {}; }
+}
 
-  test('updateGroupPure updates fields and slugifies code', () => {
-    const initial = addGroupPure([], { name: 'Details', code: 'custom code' });
-    const id = initial[0].id;
-    const updated = updateGroupPure(initial, id, { name: 'More Details', code: 'New Code' });
-    expect(updated[0].name).toBe('More Details');
-    expect(updated[0].code).toBe('new-code');
-  });
+global.localStorage = new MemoryStorage();
 
-  test('deleteGroupPure removes by id', () => {
-    const a = addGroupPure([], { name: 'A' });
-    const b = addGroupPure(a, { name: 'B' });
-    const idToRemove = a[0].id;
-    const next = deleteGroupPure(b, idToRemove);
-    expect(next).toHaveLength(1);
-    expect(next[0].name).toBe('B');
-  });
+const ag = require('../lib/attributeGroups');
 
-  test('moveGroupPure reorders items safely', () => {
-    const a = addGroupPure([], { name: 'A' });
-    const b = addGroupPure(a, { name: 'B' });
-    const c = addGroupPure(b, { name: 'C' });
-    const moved = moveGroupPure(c, 0, 2);
-    expect(moved.map((g) => g.name)).toEqual(['B', 'C', 'A']);
-    const noChange = moveGroupPure(moved, -1, 5);
-    expect(noChange.map((g) => g.name)).toEqual(['B', 'C', 'A']);
-  });
-});
+(function testSaveLoad() {
+  const groups = ag.loadAttributeGroups();
+  assert(Array.isArray(groups) && groups.length === 0, 'Should start empty');
+
+  const { list, group } = ag.upsertGroup([], { name: 'Basic', description: 'Common fields' });
+  assert(group.id, 'Group should have id');
+  assert(list.length === 1, 'List should have one group');
+  ag.saveAttributeGroups(list);
+
+  const loaded = ag.loadAttributeGroups();
+  assert(loaded.length === 1 && loaded[0].name === 'Basic', 'Should persist and load same group');
+
+  const g2 = ag.upsertAttribute(loaded[0], { code: 'brand', label: 'Brand', type: 'text' });
+  assert(g2.attributes.length === 1 && g2.attributes[0].code === 'brand', 'Attribute should be added');
+
+  console.log('attributeGroups: OK');
+})();
