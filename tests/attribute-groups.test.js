@@ -1,20 +1,43 @@
-const assert = require('assert');
-const { getAttributeGroups } = require('../lib/attributeGroups');
+"use strict";
 
-const groups = getAttributeGroups();
+const assert = require("assert");
+const store = require("../lib/attributeGroupsStore");
 
-assert(Array.isArray(groups), 'groups should be an array');
-assert(groups.length >= 1, 'should have at least one group');
+(function run() {
+  // reset to known state
+  store.__reset();
 
-for (const g of groups) {
-  assert(typeof g.id === 'string' && g.id, 'group.id should be a non-empty string');
-  assert(typeof g.name === 'string' && g.name, 'group.name should be a non-empty string');
-  assert(Array.isArray(g.attributes), 'group.attributes should be an array');
-  for (const a of g.attributes) {
-    assert(typeof a.code === 'string' && a.code, 'attribute.code should be a non-empty string');
-    assert(typeof a.label === 'string' && a.label, 'attribute.label should be a non-empty string');
-    assert(typeof a.type === 'string' && a.type, 'attribute.type should be a non-empty string');
-  }
-}
+  const startCount = store.listGroups().length;
+  assert.ok(startCount >= 1, "should have at least one default group");
 
-console.log('OK: attribute groups structure looks valid');
+  // create
+  const created = store.createGroup({
+    name: "Sizes",
+    attributes: [
+      { code: "size", label: "Size", type: "text" },
+      { code: "waist", label: "Waist", type: "number" },
+    ],
+  });
+
+  assert.ok(created && created.id, "created group should have id");
+  assert.strictEqual(created.name, "Sizes");
+  assert.ok(Array.isArray(created.attributes) && created.attributes.length === 2);
+
+  // update
+  const updated = store.updateGroup(created.id, { name: "Size & Fit" });
+  assert.strictEqual(updated.name, "Size & Fit");
+  assert.ok(updated.updatedAt !== updated.createdAt);
+
+  // get
+  const fetched = store.getGroup(created.id);
+  assert.ok(fetched && fetched.id === created.id);
+
+  // delete
+  const deleted = store.deleteGroup(created.id);
+  assert.strictEqual(deleted, true);
+
+  const deletedAgain = store.deleteGroup(created.id);
+  assert.strictEqual(deletedAgain, false);
+
+  console.log("attribute-groups tests: OK");
+})();

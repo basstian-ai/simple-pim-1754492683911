@@ -42,6 +42,7 @@ Page                             Size     First Load JS
 ├ ○ /admin/quick-add             1.55 kB        65.2 kB
 ├ ○ /admin/sku                   3.18 kB        66.8 kB
 ├ λ /api/attribute-groups        0 B            63.6 kB
+├ λ /api/attribute-groups/[id]   0 B            63.6 kB
 ├ λ /api/products                0 B            63.6 kB
 ├ λ /api/products/export         0 B            63.6 kB
 ├ λ /api/sku                     0 B            63.6 kB
