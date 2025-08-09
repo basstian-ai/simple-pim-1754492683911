@@ -1,42 +1,12 @@
-diff --git a/pages/admin.js b/pages/admin.js
-index 5c1e1f2..b1c3e4d 100644
---- a/pages/admin.js
-+++ b/pages/admin.js
-@@ -1,6 +1,7 @@
- import { useState } from 'react';
- import axios from 'axios';
- import Layout from '../components/Layout';
-+import { useRouter } from 'next/router';
-
- const Admin = () => {
-   const [product, setProduct] = useState({ name: '', description: '', price: '' });
-   const router = useRouter();
- 
-   const handleInputChange = (event) => {
-     setProduct({ ...product, [event.target.name]: event.target.value });
-   };
- 
-   const handleSubmit = (event) => {
-     event.preventDefault();
-     axios.post('/api/products', product)
-       .then(() => {
-         setProduct({ name: '', description: '', price: '' });
-         router.push('/'); // Redirect to home after adding product
-       })
-       .catch((err) => console.error(err));
-   };
- 
-   return (
-     <Layout>
-       <h1>Admin</h1>
-       <form onSubmit={handleSubmit}>
-         <input type='text' name='name' placeholder='Name' onChange={handleInputChange} value={product.name} required aria-label='Product Name' />
-         <input type='text' name='description' placeholder='Description' onChange={handleInputChange} value={product.description} required aria-label='Product Description' />
-         <input type='number' name='price' placeholder='Price' onChange={handleInputChange} value={product.price} required aria-label='Product Price' />
-         <button type='submit'>Legg til produkt</button>
-       </form>
-     </Layout>
-   );
- };
- 
- export default Admin;
+diff --git a/pages/index.js b/pages/index.js
+index 1c2d3e4..5f6g7h8 100644
+--- a/pages/index.js
++++ b/pages/index.js
+@@ -10,6 +10,7 @@ const Index = (props) => (
+     {props.products.map((product) => (
+       <div key={product.id}>
+         <h2>{product.name}</h2>
++        <p>SKU: {product.sku}</p>
+         <p>{product.description}</p>
+         <p>Price: {product.price}</p>
+       </div>
