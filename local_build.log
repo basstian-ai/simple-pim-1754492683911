@@ -25,20 +25,22 @@ info  - Checking validity of types...
 info  - Creating an optimized production build...
 info  - Compiled successfully
 info  - Collecting page data...
-info  - Generating static pages (0/5)
-info  - Generating static pages (1/5)
-info  - Generating static pages (2/5)
-info  - Generating static pages (3/5)
-info  - Generating static pages (5/5)
+info  - Generating static pages (0/6)
+info  - Generating static pages (1/6)
+info  - Generating static pages (2/6)
+info  - Generating static pages (4/6)
+info  - Generating static pages (6/6)
 info  - Finalizing page optimization...
 
 Page                             Size     First Load JS
-┌ ○ /                            672 B          64.3 kB
+┌ ○ /                            695 B          64.3 kB
 ├ ○ /404                         3.06 kB        66.7 kB
 ├ ○ /admin                       21.9 kB        85.5 kB
+├ ○ /admin/ai-tools              1.51 kB        65.1 kB
 ├ ○ /admin/attribute-groups      1.84 kB        65.5 kB
 ├ λ /api/attribute-groups        0 B            63.6 kB
-└ λ /api/products                0 B            63.6 kB
+├ λ /api/products                0 B            63.6 kB
+└ λ /api/suggest-name            0 B            63.6 kB
 + First Load JS shared by all    63.6 kB
   ├ chunks/framework.64eb71.js   42.1 kB
   ├ chunks/main.fc3edc.js        19.5 kB
