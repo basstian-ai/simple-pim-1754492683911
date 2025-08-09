@@ -1,92 +1,135 @@
-import { useEffect, useState } from 'react';
-import Head from 'next/head';
+import React from "react";
 
-export default function AttributeGroupsAdmin() {
-  const [q, setQ] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [groups, setGroups] = useState([]);
+function useAttributeGroups() {
+  const [groups, setGroups] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
 
-  useEffect(() => {
-    let canceled = false;
-    async function run() {
+  const fetchGroups = React.useCallback(async () => {
+    try {
       setLoading(true);
       setError(null);
-      try {
-        const params = q ? `?q=${encodeURIComponent(q)}` : '';
-        const res = await fetch(`/api/attribute-groups${params}`);
-        const json = await res.json();
-        if (!canceled) {
-          if (!res.ok || !json.ok) {
-            throw new Error(json && json.error ? json.error : 'Failed to load');
-          }
-          setGroups(Array.isArray(json.groups) ? json.groups : []);
-        }
-      } catch (e) {
-        if (!canceled) setError(e.message || 'Error');
-      } finally {
-        if (!canceled) setLoading(false);
-      }
+      const res = await fetch("/api/attribute-groups");
+      if (!res.ok) throw new Error("Failed to load attribute groups");
+      const data = await res.json();
+      setGroups(data);
+    } catch (e) {
+      setError(e.message || String(e));
+    } finally {
+      setLoading(false);
     }
-    run();
-    return () => {
-      canceled = true;
-    };
-  }, [q]);
+  }, []);
+
+  React.useEffect(() => {
+    fetchGroups();
+  }, [fetchGroups]);
+
+  return { groups, loading, error, refresh: fetchGroups };
+}
+
+export default function AttributeGroupsAdminPage() {
+  const { groups, loading, error, refresh } = useAttributeGroups();
+  const [code, setCode] = React.useState("");
+  const [name, setName] = React.useState("");
+  const [submitting, setSubmitting] = React.useState(false);
+  const [formError, setFormError] = React.useState(null);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setFormError(null);
+    if (!code.trim() || !name.trim()) {
+      setFormError("Code and Name are required");
+      return;
+    }
+    try {
+      setSubmitting(true);
+      const res = await fetch("/api/attribute-groups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim(), name: name.trim(), attributes: [] })
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data && data.error ? data.error : `Request failed (${res.status})`);
+      }
+      setCode("");
+      setName("");
+      await refresh();
+    } catch (e) {
+      setFormError(e.message || String(e));
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
-    <div style={{ padding: '1.5rem', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
-      <Head>
-        <title>Attribute Groups · Admin</title>
-      </Head>
-      <h1 style={{ margin: 0, fontSize: '1.75rem' }}>Attribute Groups</h1>
-      <p style={{ color: '#555', marginTop: '0.25rem' }}>Organize product attributes into logical groups.</p>
+    <div style={{ maxWidth: 900, margin: "20px auto", padding: 16, fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" }}>
+      <h1 style={{ marginBottom: 8 }}>Attribute Groups</h1>
+      <p style={{ color: "#555", marginTop: 0 }}>Create simple attribute groups to organize your product attributes.</p>
 
-      <div style={{ margin: '1rem 0', display: 'flex', gap: '0.5rem' }}>
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search groups (e.g. core, seo)"
-          aria-label="Search attribute groups"
-          style={{ flex: 1, padding: '0.5rem 0.75rem', border: '1px solid #ddd', borderRadius: 6 }}
-        />
-        {q ? (
-          <button onClick={() => setQ('')} style={{ padding: '0.5rem 0.75rem', borderRadius: 6, border: '1px solid #ddd', background: '#fafafa' }}>Clear</button>
-        ) : null}
-      </div>
+      <section style={{ border: "1px solid #eee", borderRadius: 8, padding: 16, marginBottom: 24 }}>
+        <h2 style={{ marginTop: 0, fontSize: 18 }}>Add New Group</h2>
+        <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
+          <label style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ fontSize: 12, color: "#666" }}>Code</span>
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="e.g. specs"
+              style={{ padding: 8, border: "1px solid #ccc", borderRadius: 4, minWidth: 180 }}
+            />
+          </label>
+          <label style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ fontSize: 12, color: "#666" }}>Name</span>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Specifications"
+              style={{ padding: 8, border: "1px solid #ccc", borderRadius: 4, minWidth: 220 }}
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{ padding: "10px 12px", borderRadius: 4, border: "1px solid #333", background: "#111", color: "#fff", cursor: "pointer" }}
+          >
+            {submitting ? "Adding..." : "Add Group"}
+          </button>
+        </form>
+        {formError ? <div style={{ color: "#b00", marginTop: 8 }}>{formError}</div> : null}
+      </section>
 
-      {loading && <div style={{ color: '#666' }}>Loading…</div>}
-      {error && <div style={{ color: '#c00' }}>{error}</div>}
-
-      {!loading && !error && (
-        groups.length ? (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.75rem' }}>
-            {groups.map((g) => (
-              <li key={g.id} style={{ border: '1px solid #eee', borderRadius: 8, padding: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <strong>{g.name}</strong>
-                  <span style={{ color: '#666', fontSize: 12 }}>{g.attributes?.length || 0} attrs</span>
-                </div>
-                {g.description ? (
-                  <div style={{ color: '#555', fontSize: 14, marginTop: 4 }}>{g.description}</div>
-                ) : null}
-                {Array.isArray(g.attributes) && g.attributes.length ? (
-                  <div style={{ marginTop: 8 }}>
-                    <div style={{ color: '#666', fontSize: 12, marginBottom: 4 }}>Attributes</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                      {g.attributes.map((a) => (
-                        <code key={a} style={{ background: '#f6f6f6', border: '1px solid #eee', borderRadius: 6, padding: '2px 6px', fontSize: 12 }}>{a}</code>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div style={{ color: '#666' }}>No attribute groups found.</div>
-        )
-      )}
+      <section>
+        <h2 style={{ marginTop: 0, fontSize: 18 }}>Existing Groups</h2>
+        {loading && <div>Loading groups...</div>}
+        {error && <div style={{ color: "#b00" }}>{error}</div>}
+        {!loading && !error && groups.length === 0 && <div>No attribute groups yet.</div>}
+        <div style={{ display: "grid", gap: 12 }}>
+          {groups.map((g) => (
+            <div key={g.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 12 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                <strong>{g.name}</strong>
+                <code style={{ color: "#666" }}>{g.code}</code>
+              </div>
+              <div style={{ marginTop: 6, fontSize: 14, color: "#555" }}>
+                {g.attributes && g.attributes.length > 0 ? (
+                  <ul style={{ margin: 0, paddingLeft: 18 }}>
+                    {g.attributes.map((a) => (
+                      <li key={`${g.id}:${a.code}`}>
+                        <span>{a.name}</span>
+                        <span style={{ color: "#888" }}> ({a.code})</span>
+                        <span style={{ color: "#aaa" }}> · {a.type}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <em style={{ color: "#777" }}>No attributes yet</em>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
