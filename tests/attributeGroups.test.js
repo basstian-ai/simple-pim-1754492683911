@@ -1,28 +1,20 @@
-const assert = require("assert");
-const {
-  normalizeAttributeKey,
-  addGroup,
-  addAttribute
-} = require("../lib/attributeGroups");
+/*
+  Minimal test that can be run with: `node tests/attributeGroups.test.js`
+  This avoids introducing new dev dependencies while still asserting core behavior.
+*/
 
-// normalizeAttributeKey
-assert.strictEqual(normalizeAttributeKey(" Color Name "), "color-name");
-assert.strictEqual(normalizeAttributeKey("Size"), "size");
-assert.strictEqual(normalizeAttributeKey("SEO Title!"), "seo-title");
-assert.strictEqual(normalizeAttributeKey("  --  "), "");
+const assert = require('assert');
+const { getAttributeGroups, findAttributeGroup, listAllAttributesFlat } = require('../lib/attributeGroups');
 
-// addGroup
-let groups = [];
-groups = addGroup(groups, "Basic");
-assert.strictEqual(groups.length, 1);
-assert.ok(groups[0].id && groups[0].name === "Basic");
-
-// addAttribute (dedupe by key)
-const gid = groups[0].id;
-groups = addAttribute(groups, gid, "Color");
-assert.strictEqual(groups[0].attributes.length, 1);
-// Same key should not duplicate
-groups = addAttribute(groups, gid, "color");
-assert.strictEqual(groups[0].attributes.length, 1);
-
-console.log("attributeGroups tests passed");
+(function run() {
+  const groups = getAttributeGroups();
+  assert(Array.isArray(groups), 'getAttributeGroups should return an array');
+  assert(groups.length >= 1, 'should expose at least one attribute group');
+  const core = findAttributeGroup('core');
+  assert(core && core.name === 'Core', 'findAttributeGroup should resolve by id');
+  assert(Array.isArray(core.attributes) && core.attributes.some(a => a.code === 'name'), 'core group should contain name attribute');
+  const flat = listAllAttributesFlat();
+  assert(flat.length >= core.attributes.length, 'flattened list should be >= largest group');
+  assert(flat.every(a => a.groupId && a.code && a.type), 'flattened attributes should expose basic fields');
+  console.log('OK attributeGroups.test.js');
+})();
