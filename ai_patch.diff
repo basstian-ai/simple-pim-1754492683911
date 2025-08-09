@@ -1,42 +1,12 @@
-diff --git a/pages/index.js b/pages/index.js
-index 1234567..89abcdef 100644
---- a/pages/index.js
-+++ b/pages/index.js
-@@ -1,6 +1,7 @@
- import React, { useState } from 'react';
- import products from '../data/products.json';
+diff --git a/pages/api/products.js b/pages/api/products.js
+index 1c2d3e4..5f6g7h8 100644
+--- a/pages/api/products.js
++++ b/pages/api/products.js
+@@ -1,5 +1,6 @@
+ import { getProducts } from '../../lib/products';
  
- const HomePage = () => {
-+  const [searchTerm, setSearchTerm] = useState('');
-   
-   return (
-     <div>
-       <h1>Product Inventory Management</h1>
-+      <input
-+        type="text"
-+        placeholder="Search products..."
-+        value={searchTerm}
-+        onChange={(e) => setSearchTerm(e.target.value)}
-+      />
-       <ul>
-         {products.filter(product => product.name.toLowerCase().includes(searchTerm.toLowerCase())).map((product) => (
-           <li key={product.id}>
-             <h2>{product.name}</h2>
-             <p>{product.description}</p>
-             <p>Price: ${product.price}</p>
-             {product.variants && product.variants.length > 0 && (
-               <div>
-                 <h3>Variants:</h3>
-                 <ul>
-                   {product.variants.map((variant) => (
-                     <li key={variant.id}>{variant.name} - Price: ${variant.price}</li>
-                   ))}
-                 </ul>
-               </div>
-             )}
-           </li>
-         ))}
-       </ul>
-     </div>
-   );
- };
+ export default async function handler(req, res) {
++  res.setHeader('Content-Type', 'application/json');
+   const products = await getProducts();
+   res.status(200).json(products);
+ }

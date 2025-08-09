@@ -1,0 +1,50 @@
+--- pages/admin.js
++++ pages/admin.js
+@@ -1,6 +1,7 @@
+ import { useState } from 'react';
+ import axios from 'axios';
+ import Layout from '../components/Layout';
++import { useRouter } from 'next/router';
+ 
+ const Admin = () => {
+   const [product, setProduct] = useState({ name: '', description: '', price: '' });
+@@ -1,6 +1,7 @@
+ import { useState } from 'react';
+ import axios from 'axios';
+ import Layout from '../components/Layout';
++import { useRouter } from 'next/router';
+ 
+ const Admin = () => {
+   const [product, setProduct] = useState({ name: '', description: '', price: '' });
+@@ -1,6 +1,7 @@
+ import { useState } from 'react';
+ import axios from 'axios';
+ import Layout from '../components/Layout';
++import { useRouter } from 'next/router';
+ 
+ const Admin = () => {
+   const [product, setProduct] = useState({ name: '', description: '', price: '' });
+@@ -1,6 +1,7 @@
+ import { useState } from 'react';
+ import axios from 'axios';
+ import Layout from '../components/Layout';
++import { useRouter } from 'next/router';
+ 
+ const Admin = () => {
+   const [product, setProduct] = useState({ name: '', description: '', price: '' });
+@@ -1,6 +1,7 @@
+ import { useState } from 'react';
+ import axios from 'axios';
+ import Layout from '../components/Layout';
++import { useRouter } from 'next/router';
+ 
+ const Admin = () => {
+   const [product, setProduct] = useState({ name: '', description: '', price: '' });
+@@ -1,6 +1,7 @@
+ import { useState } from 'react';
+ import axios from 'axios';
+ import Layout from '../components/Layout';
++import { useRouter } from 'next/router';
+ 
+ const Admin = () => {
+ 

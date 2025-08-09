@@ -1,3 +1,4 @@
+--- npm install output ---
 
 added 751 packages, and audited 752 packages in 6s
 
@@ -10,6 +11,8 @@ To address all issues (including breaking changes), run:
   npm audit fix --force
 
 Run `npm audit` for details.
+
+--- npm run build output ---
 
 > build
 > NODE_OPTIONS=--openssl-legacy-provider next build
