@@ -1,8 +1,7 @@
---- npm install output ---
 
-added 296 packages, and audited 297 packages in 3s
+added 751 packages, and audited 752 packages in 8s
 
-49 packages are looking for funding
+97 packages are looking for funding
   run `npm fund` for details
 
 8 vulnerabilities (2 moderate, 2 high, 4 critical)
@@ -11,8 +10,6 @@ To address all issues (including breaking changes), run:
   npm audit fix --force
 
 Run `npm audit` for details.
-
---- npm run build output ---
 
 > build
 > NODE_OPTIONS=--openssl-legacy-provider next build
@@ -28,20 +25,23 @@ info  - Checking validity of types...
 info  - Creating an optimized production build...
 info  - Compiled successfully
 info  - Collecting page data...
-info  - Generating static pages (0/3)
-info  - Generating static pages (3/3)
+info  - Generating static pages (0/4)
+info  - Generating static pages (1/4)
+info  - Generating static pages (2/4)
+info  - Generating static pages (3/4)
+info  - Generating static pages (4/4)
 info  - Finalizing page optimization...
 
 Page                             Size     First Load JS
-┌ λ /                            2.13 kB        65.8 kB
-├ ○ /404                         3.06 kB        66.7 kB
+┌ ○ /                            517 B          64.1 kB
+├ ○ /404                         3.06 kB        66.6 kB
 ├ ○ /admin                       21.9 kB        85.5 kB
 └ λ /api/products                0 B            63.6 kB
 + First Load JS shared by all    63.6 kB
   ├ chunks/framework.64eb71.js   42.1 kB
   ├ chunks/main.fc3edc.js        19.5 kB
   ├ chunks/pages/_app.587c4e.js  1.02 kB
-  └ chunks/webpack.189c53.js     1 kB
+  └ chunks/webpack.2a5a41.js     961 B
 
 λ  (Server)  server-side renders at runtime (uses getInitialProps or getServerSideProps)
 ○  (Static)  automatically rendered as static HTML (uses no initial props)
