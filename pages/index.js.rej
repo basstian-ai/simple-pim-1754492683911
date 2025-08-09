@@ -1,0 +1,10 @@
+--- pages/index.js
++++ pages/index.js
+@@ -1,6 +1,7 @@
+ import fetch from 'isomorphic-unfetch';
+ import Link from 'next/link';
+ import Layout from '../components/Layout';
++import { useState } from 'react';
+ 
+ const Index = (props) => (
+   <Layout>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import Layout from '../components/Layout';
+import { useRouter } from 'next/router';
 
 const Admin = () => {
   const [product, setProduct] = useState({ name: '', description: '', price: '' });
