@@ -1,92 +1,92 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import Head from 'next/head';
 
-export default function AttributeGroupsAdminPage() {
-  const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function AttributeGroupsAdmin() {
+  const [q, setQ] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [query, setQuery] = useState('');
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
-    let cancelled = false;
-    async function load() {
+    let canceled = false;
+    async function run() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch('/api/attribute-groups');
-        if (!res.ok) throw new Error(`Failed to load: ${res.status}`);
-        const data = await res.json();
-        if (!cancelled) setGroups(Array.isArray(data.groups) ? data.groups : []);
+        const params = q ? `?q=${encodeURIComponent(q)}` : '';
+        const res = await fetch(`/api/attribute-groups${params}`);
+        const json = await res.json();
+        if (!canceled) {
+          if (!res.ok || !json.ok) {
+            throw new Error(json && json.error ? json.error : 'Failed to load');
+          }
+          setGroups(Array.isArray(json.groups) ? json.groups : []);
+        }
       } catch (e) {
-        if (!cancelled) setError(e.message || 'Failed to load');
+        if (!canceled) setError(e.message || 'Error');
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!canceled) setLoading(false);
       }
     }
-    load();
+    run();
     return () => {
-      cancelled = true;
+      canceled = true;
     };
-  }, []);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return groups;
-    return groups
-      .map((g) => ({
-        ...g,
-        attributes: (g.attributes || []).filter(
-          (a) => a.code.toLowerCase().includes(q) || (a.label || '').toLowerCase().includes(q)
-        )
-      }))
-      .filter((g) => g.name.toLowerCase().includes(q) || (g.attributes || []).length > 0);
-  }, [groups, query]);
+  }, [q]);
 
   return (
-    <div style={{ maxWidth: 960, margin: '24px auto', padding: '0 16px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
-      <h1 style={{ marginBottom: 12 }}>Attribute Groups</h1>
-      <p style={{ color: '#555', marginTop: 0 }}>Browse product attribute groups. Use search to quickly find attributes across groups.</p>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '16px 0 24px' }}>
+    <div style={{ padding: '1.5rem', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
+      <Head>
+        <title>Attribute Groups · Admin</title>
+      </Head>
+      <h1 style={{ margin: 0, fontSize: '1.75rem' }}>Attribute Groups</h1>
+      <p style={{ color: '#555', marginTop: '0.25rem' }}>Organize product attributes into logical groups.</p>
+
+      <div style={{ margin: '1rem 0', display: 'flex', gap: '0.5rem' }}>
         <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search groups or attributes..."
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search groups (e.g. core, seo)"
           aria-label="Search attribute groups"
-          style={{ flex: 1, padding: '8px 12px', borderRadius: 6, border: '1px solid #ddd' }}
+          style={{ flex: 1, padding: '0.5rem 0.75rem', border: '1px solid #ddd', borderRadius: 6 }}
         />
-        {query && (
-          <button onClick={() => setQuery('')} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #ddd', background: '#f6f6f6' }}>
-            Clear
-          </button>
-        )}
+        {q ? (
+          <button onClick={() => setQ('')} style={{ padding: '0.5rem 0.75rem', borderRadius: 6, border: '1px solid #ddd', background: '#fafafa' }}>Clear</button>
+        ) : null}
       </div>
 
-      {loading && <div>Loading attribute groups…</div>}
-      {error && (
-        <div style={{ color: '#b00020', marginBottom: 16 }}>Error loading attribute groups: {String(error)}</div>
-      )}
+      {loading && <div style={{ color: '#666' }}>Loading…</div>}
+      {error && <div style={{ color: '#c00' }}>{error}</div>}
 
-      {!loading && !error && filtered.length === 0 && (
-        <div style={{ color: '#666' }}>No attribute groups match your search.</div>
+      {!loading && !error && (
+        groups.length ? (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.75rem' }}>
+            {groups.map((g) => (
+              <li key={g.id} style={{ border: '1px solid #eee', borderRadius: 8, padding: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <strong>{g.name}</strong>
+                  <span style={{ color: '#666', fontSize: 12 }}>{g.attributes?.length || 0} attrs</span>
+                </div>
+                {g.description ? (
+                  <div style={{ color: '#555', fontSize: 14, marginTop: 4 }}>{g.description}</div>
+                ) : null}
+                {Array.isArray(g.attributes) && g.attributes.length ? (
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ color: '#666', fontSize: 12, marginBottom: 4 }}>Attributes</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {g.attributes.map((a) => (
+                        <code key={a} style={{ background: '#f6f6f6', border: '1px solid #eee', borderRadius: 6, padding: '2px 6px', fontSize: 12 }}>{a}</code>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div style={{ color: '#666' }}>No attribute groups found.</div>
+        )
       )}
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
-        {filtered.map((group) => (
-          <section key={group.id} style={{ border: '1px solid #eee', borderRadius: 8, padding: 12 }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <h2 style={{ fontSize: 16, margin: 0 }}>{group.name}</h2>
-              <span style={{ fontSize: 12, color: '#666' }}>{(group.attributes || []).length} attrs</span>
-            </header>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {(group.attributes || []).map((a) => (
-                <li key={a.code} style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #f0f0f0', marginBottom: 6 }}>
-                  <div style={{ fontSize: 13, color: '#333' }}>{a.label || a.code}</div>
-                  <div style={{ fontSize: 12, color: '#888' }}>Code: {a.code}</div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
-      </div>
     </div>
   );
 }

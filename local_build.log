@@ -37,7 +37,7 @@ Page                             Size     First Load JS
 ├ ○ /404                         3.06 kB        66.7 kB
 ├ ○ /admin                       21.9 kB        85.5 kB
 ├ ○ /admin/ai-tools              1.51 kB        65.1 kB
-├ ○ /admin/attribute-groups      1.84 kB        65.5 kB
+├ ○ /admin/attribute-groups      1.8 kB         65.4 kB
 ├ λ /api/attribute-groups        0 B            63.6 kB
 ├ λ /api/products                0 B            63.6 kB
 └ λ /api/suggest-name            0 B            63.6 kB
