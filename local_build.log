@@ -15,7 +15,7 @@ Run `npm audit` for details.
 --- npm run build output ---
 
 > build
-> next build
+> NODE_OPTIONS=--openssl-legacy-provider next build
 
 info  - Using webpack 5. Reason: no custom webpack configuration in next.config.js https://nextjs.org/docs/messages/webpack5
 warn  - No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
@@ -26,26 +26,25 @@ https://nextjs.org/telemetry
 
 info  - Checking validity of types...
 info  - Creating an optimized production build...
-node:internal/crypto/hash:79
-  this[kHandle] = new _Hash(algorithm, xofLen, algorithmId, getHashCache());
-                  ^
+info  - Compiled successfully
+info  - Collecting page data...
+info  - Generating static pages (0/3)
+info  - Generating static pages (3/3)
+info  - Finalizing page optimization...
 
-Error: error:0308010C:digital envelope routines::unsupported
-    at new Hash (node:internal/crypto/hash:79:19)
-    at Object.createHash (node:crypto:139:10)
-    at BulkUpdateDecorator.hashFactory (/home/runner/work/Automation-test/Automation-test/target/node_modules/next/dist/compiled/webpack/bundle5.js:133790:18)
-    at BulkUpdateDecorator.update (/home/runner/work/Automation-test/Automation-test/target/node_modules/next/dist/compiled/webpack/bundle5.js:133692:50)
-    at /home/runner/work/Automation-test/Automation-test/target/node_modules/next/dist/compiled/webpack/bundle5.js:56905:9
-    at processTicksAndRejections (node:internal/process/task_queues:82:21)
-    at runNextTicks (node:internal/process/task_queues:64:3)
-    at process.processImmediate (node:internal/timers:454:9) {
-  opensslErrorStack: [
-    'error:03000086:digital envelope routines::initialization error',
-    'error:0308010C:digital envelope routines::unsupported'
-  ],
-  library: 'digital envelope routines',
-  reason: 'unsupported',
-  code: 'ERR_OSSL_EVP_UNSUPPORTED'
-}
+Page                             Size     First Load JS
+┌ λ /                            2.09 kB        65.7 kB
+├ ○ /404                         3.06 kB        66.7 kB
+├ ○ /admin                       21.9 kB        85.5 kB
+└ λ /api/products                0 B            63.6 kB
++ First Load JS shared by all    63.6 kB
+  ├ chunks/framework.64eb71.js   42.1 kB
+  ├ chunks/main.fc3edc.js        19.5 kB
+  ├ chunks/pages/_app.587c4e.js  1.02 kB
+  └ chunks/webpack.189c53.js     1 kB
 
-Node.js v20.19.4
+λ  (Server)  server-side renders at runtime (uses getInitialProps or getServerSideProps)
+○  (Static)  automatically rendered as static HTML (uses no initial props)
+●  (SSG)     automatically generated as static HTML + JSON (uses getStaticProps)
+   (ISR)     incremental static regeneration (uses revalidate in getStaticProps)
+

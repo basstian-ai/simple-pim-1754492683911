@@ -1,15 +1,36 @@
-diff --git a/package.json b/package.json
-index 5c5e1f2..c3b1e3a 100644
---- a/package.json
-+++ b/package.json
-@@ -1,7 +1,7 @@
- {
-   "name": "next-pim-app",
-   "private": true,
-   "scripts": {
-     "dev": "next dev",
--    "build": "next build",
-+    "build": "NODE_OPTIONS=--openssl-legacy-provider next build",
-     "start": "next start"
-   },
-   "dependencies": {
+diff --git a/pages/index.js b/pages/index.js
+index 5c1e1c2..b1c3d4e 100644
+--- a/pages/index.js
++++ b/pages/index.js
+@@ -1,6 +1,7 @@
+ import fetch from 'isomorphic-unfetch';
+ import Link from 'next/link';
+ import Layout from '../components/Layout';
++import { useEffect } from 'react';
+
+ const Index = (props) => (
+   <Layout>
+     <h1>Produkter</h1>
+@@ -4,6 +5,7 @@ const Index = (props) => (
+     {props.products.map((product) => (
+       <div key={product.id}>
+         <h2>{product.name}</h2>
+         <p>{product.description}</p>
+         <p>Price: {product.price}</p>
+       </div>
+     ))}
+     <Link href='/admin'>
+       <a>Gå til Admin</a>
+     </Link>
+   </Layout>
+ );
+
++useEffect(() => {
++  console.log('Index page loaded');
++}, []);
+
+ Index.getInitialProps = async function() {
+   const res = await fetch('/api/products');
+   const products = await res.json();
+   return { products };
+ };

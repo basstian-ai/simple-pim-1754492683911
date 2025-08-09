@@ -1,6 +1,7 @@
 import fetch from 'isomorphic-unfetch';
 import Link from 'next/link';
 import Layout from '../components/Layout';
+import { useEffect } from 'react';
 
 const Index = (props) => (
   <Layout>
