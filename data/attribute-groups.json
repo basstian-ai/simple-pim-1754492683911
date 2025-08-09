@@ -1,6 +1,15 @@
 {
-  "groups": [
-    { "id": "basic", "name": "Basic Info", "attributes": ["name", "sku", "price"] },
-    { "id": "dimensions", "name": "Dimensions", "attributes": ["width", "height", "depth", "weight"] }
-  ]
+  "items": [
+    {
+      "id": "color",
+      "name": "Color",
+      "attributes": ["Red", "Blue", "Green"]
+    },
+    {
+      "id": "size",
+      "name": "Size",
+      "attributes": ["S", "M", "L", "XL"]
+    }
+  ],
+  "updatedAt": "2024-01-01T00:00:00.000Z"
 }
