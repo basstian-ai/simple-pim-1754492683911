@@ -43,6 +43,7 @@ Page                             Size     First Load JS
 ├ ○ /admin/sku                   3.18 kB        66.8 kB
 ├ λ /api/attribute-groups        0 B            63.6 kB
 ├ λ /api/products                0 B            63.6 kB
+├ λ /api/products/export         0 B            63.6 kB
 ├ λ /api/sku                     0 B            63.6 kB
 ├ λ /api/suggest-name            0 B            63.6 kB
 └ ○ /tools/slugify               2 kB           65.6 kB
