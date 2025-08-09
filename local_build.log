@@ -25,11 +25,11 @@ info  - Checking validity of types...
 info  - Creating an optimized production build...
 info  - Compiled successfully
 info  - Collecting page data...
-info  - Generating static pages (0/8)
-info  - Generating static pages (2/8)
-info  - Generating static pages (4/8)
-info  - Generating static pages (6/8)
-info  - Generating static pages (8/8)
+info  - Generating static pages (0/9)
+info  - Generating static pages (2/9)
+info  - Generating static pages (4/9)
+info  - Generating static pages (6/9)
+info  - Generating static pages (9/9)
 info  - Finalizing page optimization...
 
 Page                             Size     First Load JS
@@ -38,6 +38,7 @@ Page                             Size     First Load JS
 ├ ○ /admin                       21.9 kB        85.5 kB
 ├ ○ /admin/ai-tools              1.51 kB        65.1 kB
 ├ ○ /admin/attribute-groups      1.8 kB         65.4 kB
+├ ○ /admin/attributes            4.54 kB        68.2 kB
 ├ ○ /admin/quick-add             1.55 kB        65.2 kB
 ├ λ /api/attribute-groups        0 B            63.6 kB
 ├ λ /api/products                0 B            63.6 kB
