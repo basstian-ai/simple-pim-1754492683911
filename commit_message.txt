@@ -1,0 +1,1 @@
+FEATURE: Add Attribute Groups API (GET/POST), simple UI page to list/create groups, and a minimal Node test for API handler

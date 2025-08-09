@@ -25,11 +25,11 @@ info  - Checking validity of types...
 info  - Creating an optimized production build...
 info  - Compiled successfully
 info  - Collecting page data...
-info  - Generating static pages (0/11)
-info  - Generating static pages (2/11)
-info  - Generating static pages (5/11)
-info  - Generating static pages (8/11)
-info  - Generating static pages (11/11)
+info  - Generating static pages (0/12)
+info  - Generating static pages (3/12)
+info  - Generating static pages (6/12)
+info  - Generating static pages (9/12)
+info  - Generating static pages (12/12)
 info  - Finalizing page optimization...
 
 Page                             Size     First Load JS
@@ -48,7 +48,7 @@ Page                             Size     First Load JS
 ├ λ /api/products/export         0 B            63.6 kB
 ├ λ /api/sku                     0 B            63.6 kB
 ├ λ /api/suggest-name            0 B            63.6 kB
-├ λ /attribute-groups            972 B          64.6 kB
+├ ○ /attribute-groups            2.56 kB        66.2 kB
 ├ ○ /attributes                  719 B          64.3 kB
 └ ○ /tools/slugify               2 kB           65.6 kB
 + First Load JS shared by all    63.6 kB
