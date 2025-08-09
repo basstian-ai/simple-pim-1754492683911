@@ -13,12 +13,7 @@ const Home = () => {
     fetchProducts();
   }, []);
 
-  return (
-    <div>
-      <h1>Welcome to Simple PIM</h1>
-      <ProductList products={products} />
-    </div>
-  );
+  return <ProductList products={products} />;
 };
 
 export default Home;

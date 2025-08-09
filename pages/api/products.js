@@ -1,8 +1,6 @@
-export default async function handler(req, res) {
-  const products = [
-    { id: 1, name: 'Product 1', description: 'Description 1', price: 10 },
-    { id: 2, name: 'Product 2', description: 'Description 2', price: 20 },
-  ];
+import { getProducts } from '../../lib/products';
 
+export default async function handler(req, res) {
+  const products = await getProducts();
   res.status(200).json(products);
 }
