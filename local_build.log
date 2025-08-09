@@ -33,16 +33,16 @@ info  - Generating static pages (5/5)
 info  - Finalizing page optimization...
 
 Page                             Size     First Load JS
-┌ ○ /                            672 B          65.3 kB
-├ ○ /404                         3.06 kB        67.7 kB
-├ ○ /admin                       21.9 kB        86.6 kB
-├ ○ /admin/attribute-groups      3.07 kB        67.7 kB
-└ λ /api/products                0 B            64.6 kB
-+ First Load JS shared by all    64.6 kB
-  ├ chunks/framework.c559f5.js   42.3 kB
+┌ ○ /                            672 B          64.3 kB
+├ ○ /404                         3.06 kB        66.7 kB
+├ ○ /admin                       21.9 kB        85.5 kB
+├ ○ /admin/attribute-groups      1.95 kB        65.6 kB
+└ λ /api/products                0 B            63.6 kB
++ First Load JS shared by all    63.6 kB
+  ├ chunks/framework.64eb71.js   42.1 kB
   ├ chunks/main.fc3edc.js        19.5 kB
   ├ chunks/pages/_app.587c4e.js  1.02 kB
-  └ chunks/webpack.97768a.js     1.82 kB
+  └ chunks/webpack.189c53.js     1 kB
 
 λ  (Server)  server-side renders at runtime (uses getInitialProps or getServerSideProps)
 ○  (Static)  automatically rendered as static HTML (uses no initial props)
