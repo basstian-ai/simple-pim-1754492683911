@@ -1,1 +1,1 @@
-FEATURE: Add Attribute Groups admin UI (localStorage-based) with CRUD utilities and a small unit test
+FEATURE: Add client-side Attribute Groups admin (create/edit/reorder/import/export) with localStorage persistence and utility unit tests.

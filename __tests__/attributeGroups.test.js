@@ -1,51 +1,45 @@
-const assert = require('assert');
-const {
-  memoryStorage,
-  loadGroups,
-  saveGroups,
-  createGroup,
-  upsertGroup,
-  deleteGroup,
-  clearAll,
-} = require('../lib/attributeGroups');
+import { addGroupPure, updateGroupPure, deleteGroupPure, moveGroupPure, slugify } from '../lib/attributeGroups';
 
-// Basic unit tests for attribute group helpers
-(function run() {
-  const store = { ...memoryStorage }; // shallow copy methods but independent storage not guaranteed; create a fresh one instead
-  // create a fresh memory storage
-  const createStore = () => {
-    const map = new Map();
-    return {
-      getItem: (k) => (map.has(k) ? map.get(k) : null),
-      setItem: (k, v) => map.set(k, String(v)),
-      removeItem: (k) => map.delete(k),
-      clear: () => map.clear(),
-    };
-  };
+describe('attributeGroups utils', () => {
+  test('slugify produces URL-safe codes', () => {
+    expect(slugify('Color Name')).toBe('color-name');
+    expect(slugify('  Size/Weight ')).toBe('size-weight');
+    expect(slugify('ÄÖÜ - ñ')).toBe('aou-n');
+  });
 
-  const s = createStore();
-  clearAll(s);
+  test('addGroupPure adds a group with generated code', () => {
+    const groups = [];
+    const next = addGroupPure(groups, { name: 'Basic Info' });
+    expect(next).toHaveLength(1);
+    expect(next[0].name).toBe('Basic Info');
+    expect(next[0].code).toBe('basic-info');
+    expect(next[0].id).toBeTruthy();
+  });
 
-  assert.deepStrictEqual(loadGroups(s), [], 'initial groups should be empty');
+  test('updateGroupPure updates fields and slugifies code', () => {
+    const initial = addGroupPure([], { name: 'Details', code: 'custom code' });
+    const id = initial[0].id;
+    const updated = updateGroupPure(initial, id, { name: 'More Details', code: 'New Code' });
+    expect(updated[0].name).toBe('More Details');
+    expect(updated[0].code).toBe('new-code');
+  });
 
-  const g1 = createGroup({ name: 'Dimensions', description: 'Physical measures', attributes: ['Width', 'Height', 'Depth'] });
-  const afterInsert = upsertGroup(g1, s);
-  assert.strictEqual(afterInsert.length, 1, 'one group after insert');
-  assert.strictEqual(afterInsert[0].name, 'Dimensions');
+  test('deleteGroupPure removes by id', () => {
+    const a = addGroupPure([], { name: 'A' });
+    const b = addGroupPure(a, { name: 'B' });
+    const idToRemove = a[0].id;
+    const next = deleteGroupPure(b, idToRemove);
+    expect(next).toHaveLength(1);
+    expect(next[0].name).toBe('B');
+  });
 
-  const g1Updated = { ...g1, description: 'Size related', attributes: ['Width', 'Height'] };
-  const afterUpdate = upsertGroup(g1Updated, s);
-  assert.strictEqual(afterUpdate[0].description, 'Size related', 'updated description persists');
-  assert.deepStrictEqual(afterUpdate[0].attributes, ['Width', 'Height'], 'updated attributes persist');
-
-  const afterDelete = deleteGroup(g1.id, s);
-  assert.strictEqual(afterDelete.length, 0, 'group deleted');
-
-  // Save and load roundtrip
-  saveGroups([g1], s);
-  const loaded = loadGroups(s);
-  assert.strictEqual(loaded.length, 1, 'roundtrip load works');
-
-  // If reached here without throwing, test passed
-  console.log('attributeGroups tests passed');
-})();
+  test('moveGroupPure reorders items safely', () => {
+    const a = addGroupPure([], { name: 'A' });
+    const b = addGroupPure(a, { name: 'B' });
+    const c = addGroupPure(b, { name: 'C' });
+    const moved = moveGroupPure(c, 0, 2);
+    expect(moved.map((g) => g.name)).toEqual(['B', 'C', 'A']);
+    const noChange = moveGroupPure(moved, -1, 5);
+    expect(noChange.map((g) => g.name)).toEqual(['B', 'C', 'A']);
+  });
+});
