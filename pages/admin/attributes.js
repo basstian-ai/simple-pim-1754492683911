@@ -1,102 +1,126 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-export default function AttributeGroupsAdmin() {
-  const [data, setData] = useState(null);
+function groupBy(arr, keyFn) {
+  return (arr || []).reduce((acc, item) => {
+    const k = keyFn(item);
+    if (!acc[k]) acc[k] = [];
+    acc[k].push(item);
+    return acc;
+  }, {});
+}
+
+export default function AdminAttributes() {
+  const [attributes, setAttributes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [expanded, setExpanded] = useState({});
+
+  const [draft, setDraft] = useState({ code: '', label: '', type: 'text', group: '' });
 
   useEffect(() => {
-    let isMounted = true;
+    let cancelled = false;
     async function load() {
+      setLoading(true);
+      setError(null);
       try {
         const res = await fetch('/api/attributes');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        if (isMounted) setData(json);
+        if (!res.ok) throw new Error('Failed to load attributes');
+        const data = await res.json();
+        if (!cancelled) setAttributes(Array.isArray(data.attributes) ? data.attributes : []);
       } catch (e) {
-        if (isMounted) setError(e.message || 'Failed to load');
+        if (!cancelled) setError(e.message || 'Error loading attributes');
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
     load();
     return () => {
-      isMounted = false;
+      cancelled = true;
     };
   }, []);
 
-  const toggle = (id) => {
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
+  const grouped = useMemo(() => groupBy(attributes, a => a.group || 'Ungrouped'), [attributes]);
+
+  function onDraftChange(e) {
+    const { name, value } = e.target;
+    setDraft(prev => ({ ...prev, [name]: value }));
+  }
+
+  function addDraftAttribute(e) {
+    e.preventDefault();
+    // client-side only; not persisted on server
+    if (!draft.code || !draft.label) return;
+    const exists = attributes.some(a => a.code === draft.code);
+    if (exists) {
+      alert('Attribute code must be unique');
+      return;
+    }
+    setAttributes(prev => [...prev, { ...draft }]);
+    setDraft({ code: '', label: '', type: 'text', group: '' });
+  }
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Attribute Groups</h1>
-      <p style={styles.subtitle}>Predefined attribute groups to describe products and variants.</p>
-      {error && <div style={styles.error}>Error: {error}</div>}
-      {!data && !error && <div style={styles.loading}>Loading…</div>}
-      {data && (
-        <div>
-          <div style={styles.meta}>Updated: {new Date(data.updatedAt).toLocaleString()}</div>
-          <div style={styles.list}>
-            {data.groups.map((g) => (
-              <div key={g.id} style={styles.card}>
-                <div style={styles.cardHeader}>
-                  <button style={styles.expandBtn} onClick={() => toggle(g.id)} aria-expanded={!!expanded[g.id]} aria-controls={`group-${g.id}`}>
-                    {expanded[g.id] ? '▾' : '▸'}
-                  </button>
-                  <div style={{ flex: 1 }}>
-                    <div style={styles.groupTitle}>{g.label}</div>
-                    <div style={styles.groupDesc}>{g.description}</div>
-                  </div>
-                  <div style={styles.badge}>{g.attributes.length} fields</div>
-                </div>
-                {expanded[g.id] && (
-                  <div id={`group-${g.id}`} style={styles.cardBody}>
-                    {g.attributes.map((a) => (
-                      <div key={a.code} style={styles.attrRow}>
-                        <div style={styles.attrMain}>
-                          <div style={styles.attrCode}>{a.code}</div>
-                          <div style={styles.attrLabel}>{a.label}</div>
-                        </div>
-                        <div style={styles.attrMeta}>
-                          <span style={styles.typeTag}>{a.type}</span>
-                          {a.required && <span style={styles.requiredTag}>required</span>}
-                          {Array.isArray(a.options) && a.options.length > 0 && (
-                            <span style={styles.optionsTag}>{a.options.join(', ')}</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+    <div style={{ padding: '24px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
+      <h1 style={{ marginBottom: 0 }}>Attribute Manager</h1>
+      <p style={{ color: '#666', marginTop: 4 }}>Manage basic product attributes and groups. Changes made here are not persisted (demo).</p>
+
+      <section style={{ margin: '16px 0', padding: 12, border: '1px solid #eee', borderRadius: 6 }}>
+        <h2 style={{ fontSize: 18, marginTop: 0 }}>Add Attribute (local only)</h2>
+        <form onSubmit={addDraftAttribute} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(160px, 1fr))', gap: 12 }}>
+          <label style={{ display: 'grid', gap: 6 }}>
+            <span style={{ fontSize: 12, color: '#555' }}>Code</span>
+            <input name="code" value={draft.code} onChange={onDraftChange} placeholder="e.g. sku" required style={{ padding: 8, border: '1px solid #ddd', borderRadius: 4 }} />
+          </label>
+          <label style={{ display: 'grid', gap: 6 }}>
+            <span style={{ fontSize: 12, color: '#555' }}>Label</span>
+            <input name="label" value={draft.label} onChange={onDraftChange} placeholder="e.g. SKU" required style={{ padding: 8, border: '1px solid #ddd', borderRadius: 4 }} />
+          </label>
+          <label style={{ display: 'grid', gap: 6 }}>
+            <span style={{ fontSize: 12, color: '#555' }}>Type</span>
+            <select name="type" value={draft.type} onChange={onDraftChange} style={{ padding: 8, border: '1px solid #ddd', borderRadius: 4 }}>
+              <option value="text">Text</option>
+              <option value="select">Select</option>
+              <option value="number">Number</option>
+              <option value="boolean">Boolean</option>
+            </select>
+          </label>
+          <label style={{ display: 'grid', gap: 6 }}>
+            <span style={{ fontSize: 12, color: '#555' }}>Group</span>
+            <input name="group" value={draft.group} onChange={onDraftChange} placeholder="e.g. Basics" style={{ padding: 8, border: '1px solid #ddd', borderRadius: 4 }} />
+          </label>
+          <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button type="submit" style={{ padding: '8px 12px', background: '#111827', color: 'white', border: 0, borderRadius: 4, cursor: 'pointer' }}>Add</button>
+            <span style={{ fontSize: 12, color: '#888' }}>Note: demo only. This does not save to the server.</span>
           </div>
-        </div>
-      )}
+        </form>
+      </section>
+
+      <section>
+        <h2 style={{ fontSize: 18, marginTop: 0 }}>Attributes</h2>
+        {loading && <p>Loading…</p>}
+        {error && <p style={{ color: 'crimson' }}>{error}</p>}
+        {!loading && !error && Object.keys(grouped).length === 0 && <p>No attributes found.</p>}
+        {!loading && !error && Object.entries(grouped).map(([group, items]) => (
+          <div key={group} style={{ marginBottom: 16 }}>
+            <h3 style={{ fontSize: 16, marginBottom: 8 }}>{group} <span style={{ color: '#888', fontWeight: 400 }}>({items.length})</span></h3>
+            <div style={{ border: '1px solid #eee', borderRadius: 6 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', padding: '8px 12px', background: '#fafafa', color: '#555', fontSize: 12 }}>
+                <div>Code</div>
+                <div>Label</div>
+                <div>Type</div>
+                <div>Options</div>
+              </div>
+              {items.map(attr => (
+                <div key={attr.code} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', padding: '10px 12px', borderTop: '1px solid #f0f0f0' }}>
+                  <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>{attr.code}</div>
+                  <div>{attr.label}</div>
+                  <div>{attr.type}</div>
+                  <div style={{ color: '#666' }}>{Array.isArray(attr.options) ? attr.options.join(', ') : '—'}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
     </div>
   );
 }
-
-const styles = {
-  container: { maxWidth: 900, margin: '40px auto', padding: '0 16px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' },
-  title: { margin: '0 0 8px', fontSize: 28, lineHeight: '32px' },
-  subtitle: { margin: '0 0 16px', color: '#555' },
-  meta: { marginBottom: 12, color: '#666', fontSize: 13 },
-  list: { display: 'grid', gridTemplateColumns: '1fr', gap: 12 },
-  card: { border: '1px solid #e5e7eb', borderRadius: 8, overflow: 'hidden', background: '#fff' },
-  cardHeader: { display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f9fafb', borderBottom: '1px solid #e5e7eb' },
-  groupTitle: { fontWeight: 600 },
-  groupDesc: { color: '#6b7280', fontSize: 13 },
-  badge: { background: '#eef2ff', color: '#3730a3', fontSize: 12, padding: '2px 8px', borderRadius: 999 },
-  expandBtn: { marginRight: 8, border: '1px solid #d1d5db', borderRadius: 6, background: '#fff', padding: '2px 6px', cursor: 'pointer' },
-  cardBody: { padding: 12 },
-  attrRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed #eef2f7' },
-  attrMain: { display: 'flex', alignItems: 'baseline', gap: 8 },
-  attrCode: { fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace', fontSize: 13, background: '#f3f4f6', padding: '2px 6px', borderRadius: 4 },
-  attrLabel: { color: '#111827' },
-  attrMeta: { display: 'flex', gap: 8, alignItems: 'center' },
-  typeTag: { fontSize: 12, color: '#374151', background: '#f3f4f6', padding: '2px 6px', borderRadius: 999 },
-  requiredTag: { fontSize: 12, color: '#991b1b', background: '#fee2e2', padding: '2px 6px', borderRadius: 999 },
-  optionsTag: { fontSize: 12, color: '#065f46', background: '#d1fae5', padding: '2px 6px', borderRadius: 999 },
-  loading: { padding: 12 }
-};
