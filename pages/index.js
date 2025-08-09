@@ -1,31 +1,20 @@
-import React from 'react';
-import products from '../data/products.json';
+// pages/index.js
+import React, { useEffect, useState } from 'react';
+import ProductList from '../components/ProductList';
 
-const HomePage = () => {
-  return (
-    <div>
-      <h1>Product Inventory Management</h1>
-      <ul>
-        {products.map((product) => (
-          <li key={product.id}>
-            <h2>{product.name}</h2>
-            <p>{product.description}</p>
-            <p>Price: ${product.price}</p>
-            {product.variants && product.variants.length > 0 && (
-              <div>
-                <h3>Variants:</h3>
-                <ul>
-                  {product.variants.map((variant) => (
-                    <li key={variant.id}>{variant.name} - Price: ${variant.price}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+const Home = () => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const res = await fetch('/api/products');
+      const data = await res.json();
+      setProducts(data);
+    };
+    fetchProducts();
+  }, []);
+
+  return <ProductList products={products} />;
 };
 
-export default HomePage;
+export default Home;
