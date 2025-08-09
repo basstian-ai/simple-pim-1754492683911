@@ -1,148 +1,143 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 
-export default function AttributeGroupsPage() {
-  const [items, setItems] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState('');
+export default function AttributeGroupsAdmin() {
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const [name, setName] = React.useState('');
-  const [attributesText, setAttributesText] = React.useState('');
-  const [submitting, setSubmitting] = React.useState(false);
+  const [form, setForm] = useState({ code: '', name: '', description: '' });
+  const [formErrors, setFormErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
-  const load = React.useCallback(async () => {
+  async function load() {
     setLoading(true);
     setError('');
     try {
       const res = await fetch('/api/attribute-groups');
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Failed to load');
-      setItems(Array.isArray(data.items) ? data.items : []);
+      const json = await res.json();
+      if (!res.ok) throw new Error('Failed to load');
+      setGroups(json.data || []);
     } catch (e) {
-      setError(e.message || 'Failed to load');
+      setError('Failed to load attribute groups');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }
 
-  React.useEffect(() => {
+  useEffect(() => {
     load();
-  }, [load]);
+  }, []);
 
   async function onSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
-    setError('');
+    setFormErrors({});
     try {
-      const attrs = attributesText
-        .split(',')
-        .map((a) => a.trim())
-        .filter((a) => a.length > 0);
       const res = await fetch('/api/attribute-groups', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, attributes: attrs })
+        body: JSON.stringify(form),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Failed to create');
-      setName('');
-      setAttributesText('');
-      setItems(data.items || []);
+      const json = await res.json();
+      if (!res.ok) {
+        setFormErrors(json.errors || { _form: 'Save failed' });
+      } else {
+        setForm({ code: '', name: '', description: '' });
+        await load();
+      }
     } catch (e) {
-      setError(e.message || 'Failed to create');
+      setFormErrors({ _form: 'Network error' });
     } finally {
       setSubmitting(false);
     }
   }
 
-  async function onDelete(id) {
-    if (!confirm('Delete this attribute group?')) return;
-    setError('');
-    try {
-      const res = await fetch(`/api/attribute-groups?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Failed to delete');
-      setItems(data.items || []);
-    } catch (e) {
-      setError(e.message || 'Failed to delete');
-    }
-  }
-
   return (
-    <div style={{ padding: '24px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
-      <h1 style={{ marginTop: 0 }}>Attribute Groups</h1>
+    <div style={{ maxWidth: 900, margin: '20px auto', padding: '0 16px' }}>
+      <h1>Attribute Groups</h1>
+      <p style={{ color: '#555' }}>
+        Define logical groupings of product attributes (e.g., "Dimensions", "Materials").
+      </p>
 
-      {error ? (
-        <div style={{ background: '#fee', color: '#900', padding: '8px 12px', border: '1px solid #f99', borderRadius: 4, marginBottom: 16 }}>
-          {error}
-        </div>
-      ) : null}
-
-      <section style={{ marginBottom: 32 }}>
-        <h2 style={{ marginTop: 0, fontSize: 18 }}>Create new group</h2>
-        <form onSubmit={onSubmit} style={{ display: 'grid', gap: 12, maxWidth: 520 }}>
-          <label style={{ display: 'grid', gap: 6 }}>
-            <span>Name</span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Color"
-              required
-              style={{ padding: '8px 10px', border: '1px solid #ccc', borderRadius: 4 }}
+      <section style={{ margin: '24px 0', padding: 16, border: '1px solid #eee', borderRadius: 8 }}>
+        <h2 style={{ marginTop: 0 }}>Create new group</h2>
+        <form onSubmit={onSubmit}>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 200px' }}>
+              <label htmlFor="code" style={{ display: 'block', fontWeight: 600 }}>Code</label>
+              <input
+                id="code"
+                value={form.code}
+                onChange={(e) => setForm({ ...form, code: e.target.value })}
+                placeholder="e.g. dimensions"
+                style={{ width: '100%', padding: 8 }}
+              />
+              {formErrors.code && (
+                <div style={{ color: 'crimson', fontSize: 12 }}>{formErrors.code}</div>
+              )}
+            </div>
+            <div style={{ flex: '2 1 260px' }}>
+              <label htmlFor="name" style={{ display: 'block', fontWeight: 600 }}>Name</label>
+              <input
+                id="name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="e.g. Dimensions"
+                style={{ width: '100%', padding: 8 }}
+              />
+              {formErrors.name && (
+                <div style={{ color: 'crimson', fontSize: 12 }}>{formErrors.name}</div>
+              )}
+            </div>
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <label htmlFor="description" style={{ display: 'block', fontWeight: 600 }}>Description</label>
+            <textarea
+              id="description"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="Optional description"
+              rows={3}
+              style={{ width: '100%', padding: 8 }}
             />
-          </label>
-          <label style={{ display: 'grid', gap: 6 }}>
-            <span>Attributes (comma-separated)</span>
-            <input
-              type="text"
-              value={attributesText}
-              onChange={(e) => setAttributesText(e.target.value)}
-              placeholder="e.g. Red, Blue, Green"
-              required
-              style={{ padding: '8px 10px', border: '1px solid #ccc', borderRadius: 4 }}
-            />
-          </label>
-          <div>
-            <button
-              type="submit"
-              disabled={submitting}
-              style={{
-                background: '#111827',
-                color: '#fff',
-                padding: '8px 14px',
-                border: 0,
-                borderRadius: 4,
-                cursor: 'pointer',
-                opacity: submitting ? 0.7 : 1
-              }}
-            >
-              {submitting ? 'Creating…' : 'Create group'}
+          </div>
+          {formErrors._form && (
+            <div style={{ color: 'crimson', marginTop: 8 }}>{formErrors._form}</div>
+          )}
+          <div style={{ marginTop: 12 }}>
+            <button disabled={submitting} type="submit">
+              {submitting ? 'Saving…' : 'Create group'}
             </button>
           </div>
         </form>
       </section>
 
-      <section>
-        <h2 style={{ marginTop: 0, fontSize: 18 }}>Existing groups</h2>
-        {loading ? (
-          <div>Loading…</div>
-        ) : items.length === 0 ? (
-          <div>No attribute groups yet.</div>
-        ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 12 }}>
-            {items.map((g) => (
-              <li key={g.id} style={{ border: '1px solid #e5e7eb', borderRadius: 6, padding: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                  <div>
-                    <div style={{ fontWeight: 600 }}>{g.name} <span style={{ color: '#6b7280' }}>({g.id})</span></div>
-                    <div style={{ color: '#374151', marginTop: 4 }}>{Array.isArray(g.attributes) ? g.attributes.join(', ') : ''}</div>
-                  </div>
-                  <button onClick={() => onDelete(g.id)} style={{ background: '#dc2626', color: '#fff', border: 0, padding: '6px 10px', borderRadius: 4, cursor: 'pointer' }}>Delete</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+      <section style={{ margin: '24px 0' }}>
+        <h2 style={{ marginTop: 0 }}>Existing groups</h2>
+        {loading && <div>Loading…</div>}
+        {error && <div style={{ color: 'crimson' }}>{error}</div>}
+        {!loading && groups.length === 0 && <div>No groups yet.</div>}
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {groups.map((g) => (
+            <li key={g.id} style={{
+              border: '1px solid #eee',
+              borderRadius: 8,
+              padding: 12,
+              marginBottom: 8,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div>
+                <div style={{ fontWeight: 600 }}>{g.name} <span style={{ color: '#999', fontWeight: 400 }}>({g.code})</span></div>
+                {g.description && (
+                  <div style={{ color: '#666', marginTop: 4 }}>{g.description}</div>
+                )}
+              </div>
+              <small style={{ color: '#999' }}>Updated {new Date(g.updatedAt).toLocaleString()}</small>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );
