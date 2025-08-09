@@ -1,136 +1,186 @@
 import React, { useEffect, useState } from 'react';
+const { listGroups, createGroup, updateGroup, deleteGroup } = require('../../lib/attributeGroups');
 
-export default function AttributeGroupsAdmin() {
+export default function AttributeGroupsAdminPage() {
   const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loaded, setLoaded] = useState(false);
   const [name, setName] = useState('');
-  const [attributes, setAttributes] = useState('');
-
-  async function load() {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch('/api/attribute-groups');
-      if (!res.ok) throw new Error('Failed to load attribute groups');
-      const data = await res.json();
-      setGroups(Array.isArray(data.groups) ? data.groups : []);
-    } catch (e) {
-      setError(e.message || 'Error');
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [description, setDescription] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    load();
+    // Client-only load
+    try {
+      const data = listGroups();
+      setGroups(data);
+    } catch (e) {
+      // ignore
+    } finally {
+      setLoaded(true);
+    }
   }, []);
+
+  function refresh() {
+    const data = listGroups();
+    setGroups(data);
+  }
 
   async function onAdd(e) {
     e.preventDefault();
     setError('');
-    const payload = {
-      name: name.trim(),
-      attributes: attributes,
-    };
-    if (!payload.name) {
+    if (!name.trim()) {
+      setError('Name is required');
+      return;
+    }
+    setSaving(true);
+    try {
+      createGroup({ name: name.trim(), description: description.trim() });
+      setName('');
+      setDescription('');
+      refresh();
+    } catch (e) {
+      setError(e.message || 'Failed to create');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function startEdit(g) {
+    setEditingId(g.id);
+    setEditName(g.name);
+    setEditDescription(g.description || '');
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditName('');
+    setEditDescription('');
+  }
+
+  function saveEdit(id) {
+    setError('');
+    if (!editName.trim()) {
       setError('Name is required');
       return;
     }
     try {
-      const res = await fetch('/api/attribute-groups', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to create group');
-      }
-      const { group } = await res.json();
-      setGroups((prev) => [...prev, group]);
-      setName('');
-      setAttributes('');
+      updateGroup(id, { name: editName.trim(), description: editDescription });
+      cancelEdit();
+      refresh();
     } catch (e) {
-      setError(e.message || 'Error');
+      setError(e.message || 'Update failed');
+    }
+  }
+
+  function onDelete(id) {
+    if (!confirm('Delete this attribute group?')) return;
+    try {
+      deleteGroup(id);
+      refresh();
+    } catch (e) {
+      setError(e.message || 'Delete failed');
     }
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: 900, margin: '0 auto', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
-      <h1>Attribute Groups</h1>
+    <div style={styles.container}>
+      <h1 style={styles.h1}>Attribute Groups</h1>
+      <p style={styles.muted}>Manage groups of attributes to organize your product data. Stored locally in your browser.</p>
 
-      <div style={{ margin: '10px 0 20px 0' }}>
-        <button onClick={load} disabled={loading} style={{ padding: '6px 12px', cursor: 'pointer' }}>Refresh</button>
-      </div>
-
-      {error ? (
-        <div style={{ color: '#b00020', marginBottom: 12 }}>{error}</div>
-      ) : null}
-
-      <form onSubmit={onAdd} style={{ border: '1px solid #eee', padding: 12, borderRadius: 6, marginBottom: 24 }}>
-        <h2 style={{ marginTop: 0 }}>Add New Group</h2>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <label style={{ flex: '1 1 240px' }}>
-            <div style={{ fontSize: 12, color: '#555' }}>Name</div>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., SEO"
-              style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
-            />
-          </label>
-          <label style={{ flex: '2 1 320px' }}>
-            <div style={{ fontSize: 12, color: '#555' }}>Attributes (comma-separated)</div>
-            <input
-              type="text"
-              value={attributes}
-              onChange={(e) => setAttributes(e.target.value)}
-              placeholder="e.g., meta_title, meta_description"
-              style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
-            />
-          </label>
-          <div style={{ alignSelf: 'flex-end' }}>
-            <button type="submit" style={{ padding: '8px 14px', cursor: 'pointer' }}>Add</button>
-          </div>
+      <form onSubmit={onAdd} style={styles.card}>
+        <h2 style={styles.h2}>Create New Group</h2>
+        {error ? <div style={styles.error}>{error}</div> : null}
+        <div style={styles.row}>
+          <label style={styles.label}>Name</label>
+          <input
+            style={styles.input}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Dimensions"
+          />
         </div>
+        <div style={styles.row}>
+          <label style={styles.label}>Description</label>
+          <input
+            style={styles.input}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Optional description"
+          />
+        </div>
+        <button type="submit" disabled={saving} style={styles.buttonPrimary}>
+          {saving ? 'Creating…' : 'Add Group'}
+        </button>
       </form>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: '8px' }}>ID</th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: '8px' }}>Name</th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: '8px' }}>Attributes</th>
-              <th style={{ textAlign: 'right', borderBottom: '1px solid #ddd', padding: '8px' }}>Count</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={4} style={{ padding: 12 }}>Loading…</td></tr>
-            ) : groups.length === 0 ? (
-              <tr><td colSpan={4} style={{ padding: 12 }}>No attribute groups yet.</td></tr>
-            ) : (
-              groups.map((g) => (
-                <tr key={g.id}>
-                  <td style={{ borderBottom: '1px solid #f0f0f0', padding: '8px' }}>{g.id}</td>
-                  <td style={{ borderBottom: '1px solid #f0f0f0', padding: '8px' }}>{g.name}</td>
-                  <td style={{ borderBottom: '1px solid #f0f0f0', padding: '8px', color: '#333' }}>
-                    {(g.attributes || []).join(', ')}
-                  </td>
-                  <td style={{ borderBottom: '1px solid #f0f0f0', padding: '8px', textAlign: 'right' }}>{(g.attributes || []).length}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div style={styles.card}>
+        <h2 style={styles.h2}>Existing Groups</h2>
+        {!loaded ? (
+          <div>Loading…</div>
+        ) : groups.length === 0 ? (
+          <div style={styles.muted}>No attribute groups yet. Create one above.</div>
+        ) : (
+          <ul style={styles.list}>
+            {groups.map((g) => (
+              <li key={g.id} style={styles.listItem}>
+                {editingId === g.id ? (
+                  <div style={styles.editContainer}>
+                    <input
+                      style={styles.input}
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                    />
+                    <input
+                      style={styles.input}
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                    />
+                    <div>
+                      <button onClick={() => saveEdit(g.id)} style={styles.buttonPrimary}>Save</button>
+                      <button onClick={cancelEdit} style={styles.button}>Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={styles.itemRow}>
+                    <div>
+                      <div style={styles.itemTitle}>{g.name}</div>
+                      {g.description ? <div style={styles.itemDesc}>{g.description}</div> : null}
+                    </div>
+                    <div>
+                      <button onClick={() => startEdit(g)} style={styles.button}>Edit</button>
+                      <button onClick={() => onDelete(g.id)} style={styles.buttonDanger}>Delete</button>
+                    </div>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-
-      <p style={{ color: '#777', fontSize: 12, marginTop: 16 }}>
-        Tip: POSTs will be persisted to disk when possible during local development. On serverless, they may be kept in memory only.
-      </p>
     </div>
   );
 }
+
+const styles = {
+  container: { maxWidth: 800, margin: '2rem auto', padding: '0 1rem', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif' },
+  h1: { margin: '0 0 1rem 0' },
+  h2: { margin: '0 0 1rem 0', fontSize: '1.1rem' },
+  muted: { color: '#666' },
+  card: { background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16, margin: '1rem 0' },
+  row: { display: 'flex', flexDirection: 'column', marginBottom: 12 },
+  label: { fontSize: 12, color: '#333', marginBottom: 4 },
+  input: { padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd', width: '100%', boxSizing: 'border-box', marginBottom: 8 },
+  buttonPrimary: { background: '#0070f3', color: '#fff', border: '1px solid #0070f3', borderRadius: 6, padding: '8px 12px', cursor: 'pointer', marginRight: 8 },
+  button: { background: '#f5f5f5', color: '#111', border: '1px solid #ddd', borderRadius: 6, padding: '8px 12px', cursor: 'pointer', marginRight: 8 },
+  buttonDanger: { background: '#fff0f0', color: '#b00020', border: '1px solid #ffb3b3', borderRadius: 6, padding: '8px 12px', cursor: 'pointer' },
+  list: { listStyle: 'none', margin: 0, padding: 0 },
+  listItem: { borderTop: '1px solid #eee', padding: '12px 0' },
+  itemRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  itemTitle: { fontWeight: 600 },
+  itemDesc: { color: '#555', fontSize: 13, marginTop: 4 },
+  editContainer: { display: 'grid', gridTemplateColumns: '2fr 3fr auto', gap: 8, alignItems: 'center' },
+};

@@ -1,20 +1,50 @@
-/*
-  Minimal test that can be run with: `node tests/attributeGroups.test.js`
-  This avoids introducing new dev dependencies while still asserting core behavior.
-*/
-
 const assert = require('assert');
-const { getAttributeGroups, findAttributeGroup, listAllAttributesFlat } = require('../lib/attributeGroups');
+const { listGroups, createGroup, updateGroup, deleteGroup, STORAGE_KEY } = require('../lib/attributeGroups');
+
+function makeStorage() {
+  const mem = {};
+  return {
+    getItem: (k) => (k in mem ? mem[k] : null),
+    setItem: (k, v) => {
+      mem[k] = String(v);
+    },
+    removeItem: (k) => {
+      delete mem[k];
+    },
+    _dump: () => mem,
+  };
+}
 
 (function run() {
-  const groups = getAttributeGroups();
-  assert(Array.isArray(groups), 'getAttributeGroups should return an array');
-  assert(groups.length >= 1, 'should expose at least one attribute group');
-  const core = findAttributeGroup('core');
-  assert(core && core.name === 'Core', 'findAttributeGroup should resolve by id');
-  assert(Array.isArray(core.attributes) && core.attributes.some(a => a.code === 'name'), 'core group should contain name attribute');
-  const flat = listAllAttributesFlat();
-  assert(flat.length >= core.attributes.length, 'flattened list should be >= largest group');
-  assert(flat.every(a => a.groupId && a.code && a.type), 'flattened attributes should expose basic fields');
-  console.log('OK attributeGroups.test.js');
+  const storage = makeStorage();
+
+  // Initially empty
+  assert.deepStrictEqual(listGroups(storage), [], 'should start empty');
+
+  // Create
+  const g1 = createGroup({ name: 'Dimensions', description: 'Size related attributes' }, storage);
+  assert.ok(g1.id && g1.name === 'Dimensions');
+
+  const g2 = createGroup({ name: 'Materials' }, storage);
+  assert.ok(g2.id && g2.name === 'Materials');
+
+  // List sorted by name
+  const listed = listGroups(storage);
+  assert.strictEqual(listed.length, 2);
+  assert.strictEqual(listed[0].name < listed[1].name, true);
+
+  // Update
+  const updated = updateGroup(g1.id, { name: 'Physical Dimensions', description: 'updated' }, storage);
+  assert.strictEqual(updated.name, 'Physical Dimensions');
+  assert.strictEqual(updated.description, 'updated');
+
+  // Delete
+  const delOk = deleteGroup(g2.id, storage);
+  assert.strictEqual(delOk, true);
+  assert.strictEqual(listGroups(storage).length, 1);
+
+  // Storage key exists
+  assert.ok(Object.prototype.hasOwnProperty.call(storage._dump(), STORAGE_KEY));
+
+  console.log('attributeGroups.test.js: OK');
 })();
