@@ -1,0 +1,23 @@
+[
+  {
+    "id": "color",
+    "code": "color",
+    "label": "Color",
+    "type": "text",
+    "options": ["Red", "Blue", "Green"]
+  },
+  {
+    "id": "size",
+    "code": "size",
+    "label": "Size",
+    "type": "text",
+    "options": ["S", "M", "L"]
+  },
+  {
+    "id": "material",
+    "code": "material",
+    "label": "Material",
+    "type": "text",
+    "options": ["Cotton", "Wool", "Polyester"]
+  }
+]
