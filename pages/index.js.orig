@@ -9,6 +9,7 @@ const Index = (props) => (
     {props.products.map((product) => (
       <div key={product.id}>
         <h2>{product.name}</h2>
+        <p>Category: {product.category || 'N/A'}</p>
         <p>SKU: {product.sku}</p>
         <p>{product.description}</p>
         <p>Price: {product.price}</p>
