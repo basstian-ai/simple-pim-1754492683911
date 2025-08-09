@@ -1,14 +1,12 @@
-export default function handler(req, res) {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+const { getAttributeGroups } = require('../../lib/attributeGroups');
 
-  try {
-    // load statically bundled JSON
-    const groups = require('../../data/attribute-groups.json');
-    res.status(200).json({ groups, count: groups.length });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to load attribute groups' });
+function handler(req, res) {
+  if (req.method === 'GET') {
+    res.status(200).json({ groups: getAttributeGroups() });
+    return;
   }
+  res.setHeader('Allow', ['GET']);
+  res.status(405).json({ error: 'Method Not Allowed' });
 }
+
+export default handler;
