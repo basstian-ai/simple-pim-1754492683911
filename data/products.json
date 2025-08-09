@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Product 1",
+    "description": "Description for Product 1",
+    "price": 29.99,
+    "variants": [
+      { "id": "v1", "name": "Variant 1", "price": 29.99 },
+      { "id": "v2", "name": "Variant 2", "price": 34.99 }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Product 2",
+    "description": "Description for Product 2",
+    "price": 19.99,
+    "variants": []
+  }
+]
