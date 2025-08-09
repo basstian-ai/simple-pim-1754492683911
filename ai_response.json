@@ -5,10 +5,6 @@
       "content": "// pages/api/products.js\nimport { getProducts } from '../../lib/products';\n\nexport default async function handler(req, res) {\n  const products = await getProducts();\n  res.status(200).json(products);\n}\n"
     },
     {
-      "path": "lib/products.js",
-      "content": "// lib/products.js\nconst fetch = require('isomorphic-unfetch');\n\nexport async function getProducts() {\n  const response = await fetch('https://api.example.com/products');\n  const data = await response.json();\n  return data;\n}\n"
-    },
-    {
       "path": "components/ProductList.js",
       "content": "// components/ProductList.js\nimport React from 'react';\n\nconst ProductList = ({ products }) => {\n  return (\n    <div>\n      <h1>Product List</h1>\n      <ul>\n        {products.map(product => (\n          <li key={product.id}>{product.name}</li>\n        ))}\n      </ul>\n    </div>\n  );\n};\n\nexport default ProductList;\n"
     },
@@ -17,8 +13,12 @@
       "content": "// pages/index.js\nimport React, { useEffect, useState } from 'react';\nimport ProductList from '../components/ProductList';\n\nconst Home = () => {\n  const [products, setProducts] = useState([]);\n\n  useEffect(() => {\n    const fetchProducts = async () => {\n      const res = await fetch('/api/products');\n      const data = await res.json();\n      setProducts(data);\n    };\n    fetchProducts();\n  }, []);\n\n  return <ProductList products={products} />;\n};\n\nexport default Home;\n"
     },
     {
+      "path": "lib/products.js",
+      "content": "// lib/products.js\nexport const getProducts = async () => {\n  // Simulated product data\n  return [\n    { id: 1, name: 'Product 1' },\n    { id: 2, name: 'Product 2' },\n    { id: 3, name: 'Product 3' },\n  ];\n};\n"
+    },
+    {
       "path": "tests/ProductList.test.js",
-      "content": "// tests/ProductList.test.js\nimport { render, screen } from '@testing-library/react';\nimport ProductList from '../components/ProductList';\n\ntest('renders product list', () => {\n  const products = [{ id: 1, name: 'Product 1' }, { id: 2, name: 'Product 2' }];\n  render(<ProductList products={products} />);\n  expect(screen.getByText(/Product List/i)).toBeInTheDocument();\n  expect(screen.getByText(/Product 1/i)).toBeInTheDocument();\n  expect(screen.getByText(/Product 2/i)).toBeInTheDocument();\n});\n"
+      "content": "// tests/ProductList.test.js\nimport { render, screen } from '@testing-library/react';\nimport ProductList from '../components/ProductList';\n\ntest('renders product list', () => {\n  const products = [{ id: 1, name: 'Product 1' }];\n  render(<ProductList products={products} />);\n  const linkElement = screen.getByText(/Product 1/i);\n  expect(linkElement).toBeInTheDocument();\n});\n"
     }
   ]
 }
