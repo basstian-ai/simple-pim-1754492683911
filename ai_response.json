@@ -1,14 +1,12 @@
 {
-  "commit_message": "Add basic variant fields to products and corresponding tests",
-  "unified_diff": "--- pages/index.js\n+++ pages/index.js\n@@ -1,5 +1,6 @@\n import React from 'react';\n import products from '../data/products.json';\n \n const HomePage = () => {\n   return (\n+    <div>\n     <h1>Product Inventory Management</h1>\n     <ul>\n       {products.map((product) => (\n         <li key={product.id}>",
   "files": [
     {
-      "path": "data/products.json",
-      "content": "[\n  {\n    \"id\": 1,\n    \"name\": \"Product A\",\n    \"description\": \"Description for Product A\",\n    \"price\": 29.99,\n    \"variants\": [\n      { \"id\": 1, \"name\": \"Variant A1\", \"price\": 24.99 },\n      { \"id\": 2, \"name\": \"Variant A2\", \"price\": 26.99 }\n    ]\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Product B\",\n    \"description\": \"Description for Product B\",\n    \"price\": 39.99,\n    \"variants\": [\n      { \"id\": 3, \"name\": \"Variant B1\", \"price\": 34.99 }\n    ]\n  }\n]"
+      "path": "components/ProductList.js",
+      "content": "import React from 'react';\n\nconst ProductList = ({ products }) => {\n  return (\n    <div>\n      <h2>Product List</h2>\n      <ul>\n        {products.map((product) => (\n          <li key={product.id}>\n            <h3>{product.name}</h3>\n            <p>Price: ${product.price}</p>\n            <div>\n              {product.variants && product.variants.length > 0 && (\n                <div>\n                  <h4>Variants:</h4>\n                  <ul>\n                    {product.variants.map((variant) => (\n                      <li key={variant.id}>{variant.name} - ${variant.price}</li>\n                    ))}\n                  </ul>\n                </div>\n              )}\n            </div>\n          </li>\n        ))}\n      </ul>\n    </div>\n  );\n};\n\nexport default ProductList;\n"
     },
     {
-      "path": "tests/index.test.js",
-      "content": "import { render, screen } from '@testing-library/react';\nimport HomePage from '../pages/index';\n\ndescribe('HomePage', () => {\n  test('renders product names', () => {\n    render(<HomePage />);\n    const productA = screen.getByText(/Product A/i);\n    const productB = screen.getByText(/Product B/i);\n    expect(productA).toBeInTheDocument();\n    expect(productB).toBeInTheDocument();\n  });\n\n  test('renders product variants', () => {\n    render(<HomePage />);\n    const variantA1 = screen.getByText(/Variant A1 - Price: \\$24.99/i);\n    const variantB1 = screen.getByText(/Variant B1 - Price: \\$34.99/i);\n    expect(variantA1).toBeInTheDocument();\n    expect(variantB1).toBeInTheDocument();\n  });\n});"
+      "path": "tests/ProductList.test.js",
+      "content": "import React from 'react';\nimport { render } from '@testing-library/react';\nimport ProductList from '../components/ProductList';\n\ndescribe('ProductList', () => {\n  it('renders product list with variants', () => {\n    const products = [\n      {\n        id: '1',\n        name: 'Product 1',\n        price: 100,\n        variants: [\n          { id: '1-1', name: 'Variant 1', price: 90 },\n          { id: '1-2', name: 'Variant 2', price: 95 },\n        ],\n      },\n    ];\n\n    const { getByText } = render(<ProductList products={products} />);\n\n    expect(getByText('Product List')).toBeInTheDocument();\n    expect(getByText('Product 1')).toBeInTheDocument();\n    expect(getByText('Price: $100')).toBeInTheDocument();\n    expect(getByText('Variants:')).toBeInTheDocument();\n    expect(getByText('Variant 1 - $90')).toBeInTheDocument();\n    expect(getByText('Variant 2 - $95')).toBeInTheDocument();\n  });\n});\n"
     }
   ]
 }
