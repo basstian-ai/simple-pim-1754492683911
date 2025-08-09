@@ -1,1 +1,10 @@
-⚠️ No runtime logs available. Using build logs instead.
+npm warn exec The following package was not found and will be installed: vercel@44.7.3
+npm warn deprecated path-match@1.2.4: This package is archived and no longer maintained. For support, visit https://github.com/expressjs/express/discussions
+Vercel CLI 44.7.3
+> NOTE: The Vercel CLI now collects telemetry regarding usage of the CLI.
+> This information is used to shape the CLI roadmap and prioritize features.
+> You can learn more, including how to opt-out if you'd not like to participate in this program, by visiting the following URL:
+> https://vercel.com/docs/cli/about-telemetry
+The "--limit" option was ignored because it is now deprecated. Please remove it.
+Fetching deployment "simple-pim-1754492683911-6r5dhk0f0-stians-projects-1629e229.vercel.app" in stians-projects-1629e229
+Error: Deployment not ready. Currently: ● Error.
