@@ -1,14 +1,15 @@
 diff --git a/package.json b/package.json
-index 5c5e1f2..b3c1e3d 100644
+index 5c5e1f2..c3b1e3a 100644
 --- a/package.json
 +++ b/package.json
-@@ -5,7 +5,7 @@
+@@ -1,7 +1,7 @@
+ {
+   "name": "next-pim-app",
+   "private": true,
+   "scripts": {
+     "dev": "next dev",
+-    "build": "next build",
++    "build": "NODE_OPTIONS=--openssl-legacy-provider next build",
+     "start": "next start"
+   },
    "dependencies": {
-     "next": "10.2.3",
-     "react": "^17.0.2",
-     "react-dom": "^17.0.2",
--    "axios": "^1.6.8",
-+    "axios": "^1.11.0",
-     "isomorphic-unfetch": "^3.1.0"
-   }
- }
