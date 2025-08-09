@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ProductList from '../components/ProductList';
+import ExportCsvLink from '../components/ExportCsvLink';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -39,6 +40,7 @@ const Home = () => {
         <span style={{ color: '#666', fontSize: 12 }}>
           {products?.length || 0} result{(products?.length || 0) === 1 ? '' : 's'}
         </span>
+        <ExportCsvLink style={{ fontSize: 12 }} />
       </div>
       <ProductList products={products} />
     </div>
