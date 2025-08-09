@@ -1,5 +1,5 @@
-// components/ProductList.js
 import React from 'react';
+import fetch from 'isomorphic-unfetch';
 
 const ProductList = ({ products }) => {
   return (
@@ -13,5 +13,14 @@ const ProductList = ({ products }) => {
     </div>
   );
 };
+
+export async function getStaticProps() {
+  const res = await fetch('https://api.example.com/products');
+  const products = await res.json();
+
+  return {
+    props: { products },
+  };
+}
 
 export default ProductList;
