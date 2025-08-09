@@ -1,12 +1,12 @@
 diff --git a/pages/index.js b/pages/index.js
-index 1c2d3e4..5f6g7h8 100644
+index 5c6e1f2..b1c3e4d 100644
 --- a/pages/index.js
 +++ b/pages/index.js
-@@ -10,6 +10,7 @@ const Index = (props) => (
+@@ -8,6 +8,7 @@ const Index = (props) => (
      {props.products.map((product) => (
        <div key={product.id}>
          <h2>{product.name}</h2>
-+        <p>SKU: {product.sku}</p>
++        <p>Category: {product.category || 'N/A'}</p>
+         <p>SKU: {product.sku}</p>
          <p>{product.description}</p>
          <p>Price: {product.price}</p>
-       </div>
