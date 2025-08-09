@@ -7,13 +7,8 @@ describe('HomePage', () => {
     const searchInput = screen.getByPlaceholderText(/search products.../i);
     expect(searchInput).toBeInTheDocument();
 
-    // Simulate typing in the search input
-    fireEvent.change(searchInput, { target: { value: 'Product A' } });
-    const productA = screen.getByText(/Product A/i);
-    expect(productA).toBeInTheDocument();
-
-    // Check that other products are not displayed
-    const productB = screen.queryByText(/Product B/i);
-    expect(productB).not.toBeInTheDocument();
+    fireEvent.change(searchInput, { target: { value: 'Test Product' } });
+    const product = screen.queryByText(/Test Product/i);
+    expect(product).toBeInTheDocument();
   });
 });

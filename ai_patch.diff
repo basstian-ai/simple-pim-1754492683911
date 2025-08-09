@@ -19,29 +19,23 @@ index 1234567..89abcdef 100644
 +        onChange={(e) => setSearchTerm(e.target.value)}
 +      />
        <ul>
-         {products
-           .filter((product) =>
--            product.name.toLowerCase().includes(searchTerm.toLowerCase())
--          )
-+            product.name.toLowerCase().includes(searchTerm.toLowerCase())
-+          )
-           .map((product) => (
-             <li key={product.id}>
-               <h2>{product.name}</h2>
-               <p>{product.description}</p>
-               <p>Price: ${product.price}</p>
-               {product.variants && product.variants.length > 0 && (
-                 <div>
-                   <h3>Variants:</h3>
-                   <ul>
-                     {product.variants.map((variant) => (
-                       <li key={variant.id}>{variant.name} - Price: ${variant.price}</li>
-                     ))}
-                   </ul>
-                 </div>
-               )}
-             </li>
-           ))}
+         {products.filter(product => product.name.toLowerCase().includes(searchTerm.toLowerCase())).map((product) => (
+           <li key={product.id}>
+             <h2>{product.name}</h2>
+             <p>{product.description}</p>
+             <p>Price: ${product.price}</p>
+             {product.variants && product.variants.length > 0 && (
+               <div>
+                 <h3>Variants:</h3>
+                 <ul>
+                   {product.variants.map((variant) => (
+                     <li key={variant.id}>{variant.name} - Price: ${variant.price}</li>
+                   ))}
+                 </ul>
+               </div>
+             )}
+           </li>
+         ))}
        </ul>
      </div>
    );
