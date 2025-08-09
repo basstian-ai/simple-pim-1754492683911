@@ -33,7 +33,7 @@ info  - Generating static pages (3/3)
 info  - Finalizing page optimization...
 
 Page                             Size     First Load JS
-┌ λ /                            2.13 kB        65.7 kB
+┌ λ /                            2.13 kB        65.8 kB
 ├ ○ /404                         3.06 kB        66.7 kB
 ├ ○ /admin                       21.9 kB        85.5 kB
 └ λ /api/products                0 B            63.6 kB

@@ -16,6 +16,7 @@ const Index = (props) => (
         <p>Stock: {product.stock || 'N/A'}</p>
         <p>Category: {product.category || 'N/A'}</p>
       </div>
+      <hr />
     ))}
     <Link href='/admin'>
       <a>Gå til Admin</a>
