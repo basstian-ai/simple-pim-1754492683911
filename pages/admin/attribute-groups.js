@@ -1,135 +1,63 @@
-import React from "react";
+import React from 'react';
+import fs from 'fs';
+import path from 'path';
 
-function useAttributeGroups() {
-  const [groups, setGroups] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState(null);
-
-  const fetchGroups = React.useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch("/api/attribute-groups");
-      if (!res.ok) throw new Error("Failed to load attribute groups");
-      const data = await res.json();
-      setGroups(data);
-    } catch (e) {
-      setError(e.message || String(e));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    fetchGroups();
-  }, [fetchGroups]);
-
-  return { groups, loading, error, refresh: fetchGroups };
-}
-
-export default function AttributeGroupsAdminPage() {
-  const { groups, loading, error, refresh } = useAttributeGroups();
-  const [code, setCode] = React.useState("");
-  const [name, setName] = React.useState("");
-  const [submitting, setSubmitting] = React.useState(false);
-  const [formError, setFormError] = React.useState(null);
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setFormError(null);
-    if (!code.trim() || !name.trim()) {
-      setFormError("Code and Name are required");
-      return;
-    }
-    try {
-      setSubmitting(true);
-      const res = await fetch("/api/attribute-groups", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: code.trim(), name: name.trim(), attributes: [] })
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data && data.error ? data.error : `Request failed (${res.status})`);
-      }
-      setCode("");
-      setName("");
-      await refresh();
-    } catch (e) {
-      setFormError(e.message || String(e));
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
+export default function AttributeGroupsPage({ groups }) {
   return (
-    <div style={{ maxWidth: 900, margin: "20px auto", padding: 16, fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" }}>
-      <h1 style={{ marginBottom: 8 }}>Attribute Groups</h1>
-      <p style={{ color: "#555", marginTop: 0 }}>Create simple attribute groups to organize your product attributes.</p>
-
-      <section style={{ border: "1px solid #eee", borderRadius: 8, padding: 16, marginBottom: 24 }}>
-        <h2 style={{ marginTop: 0, fontSize: 18 }}>Add New Group</h2>
-        <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
-          <label style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 12, color: "#666" }}>Code</span>
-            <input
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="e.g. specs"
-              style={{ padding: 8, border: "1px solid #ccc", borderRadius: 4, minWidth: 180 }}
-            />
-          </label>
-          <label style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 12, color: "#666" }}>Name</span>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Specifications"
-              style={{ padding: 8, border: "1px solid #ccc", borderRadius: 4, minWidth: 220 }}
-            />
-          </label>
-          <button
-            type="submit"
-            disabled={submitting}
-            style={{ padding: "10px 12px", borderRadius: 4, border: "1px solid #333", background: "#111", color: "#fff", cursor: "pointer" }}
-          >
-            {submitting ? "Adding..." : "Add Group"}
-          </button>
-        </form>
-        {formError ? <div style={{ color: "#b00", marginTop: 8 }}>{formError}</div> : null}
-      </section>
-
-      <section>
-        <h2 style={{ marginTop: 0, fontSize: 18 }}>Existing Groups</h2>
-        {loading && <div>Loading groups...</div>}
-        {error && <div style={{ color: "#b00" }}>{error}</div>}
-        {!loading && !error && groups.length === 0 && <div>No attribute groups yet.</div>}
-        <div style={{ display: "grid", gap: 12 }}>
-          {groups.map((g) => (
-            <div key={g.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 12 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                <strong>{g.name}</strong>
-                <code style={{ color: "#666" }}>{g.code}</code>
-              </div>
-              <div style={{ marginTop: 6, fontSize: 14, color: "#555" }}>
-                {g.attributes && g.attributes.length > 0 ? (
-                  <ul style={{ margin: 0, paddingLeft: 18 }}>
-                    {g.attributes.map((a) => (
-                      <li key={`${g.id}:${a.code}`}>
-                        <span>{a.name}</span>
-                        <span style={{ color: "#888" }}> ({a.code})</span>
-                        <span style={{ color: "#aaa" }}> · {a.type}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <em style={{ color: "#777" }}>No attributes yet</em>
-                )}
-              </div>
+    <div style={{ padding: '24px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
+      <h1 style={{ marginTop: 0 }}>Attribute Groups</h1>
+      <p style={{ color: '#555' }}>Predefined groups to organize product attributes.</p>
+      {(!groups || groups.length === 0) && (
+        <div>No attribute groups defined.</div>
+      )}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+        {groups.map((g) => (
+          <div key={g.id} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <h2 style={{ margin: 0, fontSize: 18 }}>{g.name}</h2>
+              <code style={{ color: '#6b7280' }}>{g.id}</code>
             </div>
-          ))}
-        </div>
-      </section>
+            <div style={{ marginTop: 8, fontSize: 12, color: '#6b7280' }}>
+              {g.attributes?.length || 0} attributes
+            </div>
+            <ul style={{ marginTop: 12, paddingLeft: 16 }}>
+              {g.attributes?.map((a) => (
+                <li key={a.code} style={{ marginBottom: 6 }}>
+                  <strong>{a.label}</strong>
+                  <span style={{ color: '#6b7280' }}> ({a.code})</span>
+                  <span style={{ marginLeft: 6, background: '#f3f4f6', borderRadius: 4, padding: '2px 6px', fontSize: 12 }}>
+                    {a.type}
+                  </span>
+                  {a.unit ? (
+                    <span style={{ marginLeft: 6, color: '#6b7280' }}>unit: {a.unit}</span>
+                  ) : null}
+                  {Array.isArray(a.options) && a.options.length > 0 ? (
+                    <div style={{ marginTop: 2, color: '#374151', fontSize: 12 }}>
+                      options: {a.options.join(', ')}
+                    </div>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
     </div>
   );
+}
+
+export async function getStaticProps() {
+  const filePath = path.join(process.cwd(), 'data', 'attribute-groups.json');
+  let groups = [];
+  try {
+    const raw = fs.readFileSync(filePath, 'utf8');
+    groups = JSON.parse(raw);
+  } catch (err) {
+    groups = [];
+  }
+  return {
+    props: {
+      groups,
+    },
+  };
 }
