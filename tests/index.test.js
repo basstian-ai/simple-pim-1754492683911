@@ -1,21 +1,19 @@
-import { render, screen } from '@testing-library/react';
-import Index from '../pages/index';
+import { render, screen, fireEvent } from '@testing-library/react';
+import HomePage from '../pages/index';
 
-const mockProducts = [
-  {
-    id: 1,
-    name: 'Product 1',
-    description: 'Description for Product 1',
-    price: 29.99,
-    variants: [
-      { id: 'v1', name: 'Variant 1', price: 29.99 },
-      { id: 'v2', name: 'Variant 2', price: 34.99 }
-    ]
-  }
-];
+describe('HomePage', () => {
+  test('renders search input and filters products', () => {
+    render(<HomePage />);
+    const searchInput = screen.getByPlaceholderText(/search products.../i);
+    expect(searchInput).toBeInTheDocument();
 
-test('renders product variants', () => {
-  render(<Index products={mockProducts} />);
-  expect(screen.getByText(/Variant 1 - \$29\.99/i)).toBeInTheDocument();
-  expect(screen.getByText(/Variant 2 - \$34\.99/i)).toBeInTheDocument();
+    // Simulate typing in the search input
+    fireEvent.change(searchInput, { target: { value: 'Product A' } });
+    const productA = screen.getByText(/Product A/i);
+    expect(productA).toBeInTheDocument();
+
+    // Check that other products are not displayed
+    const productB = screen.queryByText(/Product B/i);
+    expect(productB).not.toBeInTheDocument();
+  });
 });
