@@ -1,21 +1,14 @@
 diff --git a/package.json b/package.json
-index 1234567..89abcdef 100644
+index 5c5e1f2..b3c1e3d 100644
 --- a/package.json
 +++ b/package.json
-@@ -1,6 +1,6 @@
- {
-   "name": "next-pim-app",
--  "version":'1.0.0',
-+  "version":"1.0.0",
-   "private": true,
-   "scripts": {
-     "dev": "next dev",
-     "build": "next build",
-     "start": "next start"
-   },
+@@ -5,7 +5,7 @@
    "dependencies": {
-     "next": "latest",
-     "react": "latest",
-     "react-dom": "latest"
+     "next": "10.2.3",
+     "react": "^17.0.2",
+     "react-dom": "^17.0.2",
+-    "axios": "^1.6.8",
++    "axios": "^1.11.0",
+     "isomorphic-unfetch": "^3.1.0"
    }
  }
