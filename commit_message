@@ -1,1 +1,1 @@
-FEATURE: Add client-side Attribute Groups admin (create/edit/reorder/import/export) with localStorage persistence and utility unit tests.
+fix: resolve build failure by correcting syntax in lib/suggestAttributes.js and providing a safe slugify/suggestion implementation
