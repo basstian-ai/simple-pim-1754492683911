@@ -1,5 +1,5 @@
 
-added 751 packages, and audited 752 packages in 6s
+added 751 packages, and audited 752 packages in 7s
 
 97 packages are looking for funding
   run `npm fund` for details
@@ -37,7 +37,7 @@ Page                                  Size     First Load JS
 ├ ○ /404                              3.06 kB        66.7 kB
 ├ ○ /admin                            21.9 kB        85.5 kB
 ├ ○ /admin/ai-tools                   1.51 kB        65.1 kB
-├ ○ /admin/attribute-groups           5.1 kB         68.7 kB
+├ ○ /admin/attribute-groups           5.49 kB        69.1 kB
 ├ ○ /admin/attribute-suggest          1.58 kB        65.2 kB
 ├ ○ /admin/attribute-suggest-product  1.49 kB        65.1 kB
 ├ ○ /admin/attributes                 2.11 kB        65.7 kB

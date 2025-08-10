@@ -1,146 +1,164 @@
 import { useEffect, useMemo, useState } from 'react';
-import path from 'path';
-import fs from 'fs';
 
-export default function AttributeGroupsAdmin({ initialGroups }) {
-  const [groups, setGroups] = useState(initialGroups || []);
-  const [query, setQuery] = useState('');
-  const [expanded, setExpanded] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+export default function AttributeGroupsAdminPage() {
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [name, setName] = useState('');
+  const [attributes, setAttributes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const canSubmit = useMemo(() => {
+    return name.trim().length >= 2 && attributes.trim().length > 0 && !submitting;
+  }, [name, attributes, submitting]);
 
   useEffect(() => {
     let mounted = true;
     async function load() {
       try {
         setLoading(true);
-        setError(null);
         const res = await fetch('/api/attribute-groups');
-        if (!res.ok) throw new Error('Failed to fetch');
+        if (!res.ok) throw new Error('Failed to load attribute groups');
         const data = await res.json();
-        if (mounted && Array.isArray(data.groups)) {
-          setGroups(data.groups);
-        }
+        if (mounted) setGroups(data.groups || []);
       } catch (e) {
-        if (mounted) setError('Unable to refresh groups');
+        if (mounted) setError(e.message || 'Failed to load');
       } finally {
         if (mounted) setLoading(false);
       }
     }
     load();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return groups;
-    return groups.filter(g => {
-      if (g.name.toLowerCase().includes(q)) return true;
-      if (g.description && g.description.toLowerCase().includes(q)) return true;
-      return (g.attributes || []).some(a => (
-        (a.code && a.code.toLowerCase().includes(q)) ||
-        (a.label && a.label.toLowerCase().includes(q)) ||
-        (a.type && a.type.toLowerCase().includes(q))
-      ));
-    });
-  }, [groups, query]);
+  async function addGroup(e) {
+    e.preventDefault();
+    if (!canSubmit) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      const res = await fetch('/api/attribute-groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, attributes }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = data && data.errors ? data.errors.join(', ') : (data.error || 'Failed to create');
+        throw new Error(msg);
+      }
+      setGroups((prev) => [data.group, ...prev]);
+      setName('');
+      setAttributes('');
+    } catch (e) {
+      setError(e.message || 'Failed to create');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function deleteGroup(id) {
+    if (!id) return;
+    const confirm = window.confirm('Delete this attribute group?');
+    if (!confirm) return;
+    try {
+      const res = await fetch('/api/attribute-groups?id=' + encodeURIComponent(id), {
+        method: 'DELETE',
+      });
+      if (res.status === 204) {
+        setGroups((prev) => prev.filter((g) => g.id !== id));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data && data.error) || 'Failed to delete');
+      }
+    } catch (e) {
+      setError(e.message || 'Failed to delete');
+    }
+  }
 
   return (
-    <div style={{ maxWidth: 980, margin: '32px auto', padding: '0 16px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
+    <div style={{ maxWidth: 900, margin: '40px auto', padding: '0 16px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
       <h1 style={{ marginBottom: 8 }}>Attribute Groups</h1>
-      <p style={{ color: '#555', marginTop: 0 }}>Browse and inspect product attribute groups configured in your PIM.</p>
+      <p style={{ color: '#555', marginTop: 0 }}>Define and manage reusable product attribute groups (e.g., Dimensions, Materials).</p>
 
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center', margin: '16px 0 24px' }}>
-        <input
-          type="search"
-          placeholder="Search groups or attributes..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={{ flex: 1, padding: '10px 12px', borderRadius: 8, border: '1px solid #ddd' }}
-          aria-label="Search"
-        />
-        <button
-          onClick={() => window.location.reload()}
-          style={{ padding: '10px 14px', borderRadius: 8, border: 0, background: '#111', color: 'white', cursor: 'pointer' }}
-          aria-busy={loading}
-        >
-          {loading ? 'Refreshing…' : 'Refresh'}
-        </button>
-      </div>
-      {error && (
-        <div role="alert" style={{ background: '#fff3f3', color: '#a00', padding: '8px 12px', borderRadius: 6, border: '1px solid #f3d6d6', marginBottom: 16 }}>
-          {error}
-        </div>
-      )}
-
-      <div style={{ display: 'grid', gap: 12 }}>
-        {filtered.map(group => (
-          <div key={group.id} style={{ border: '1px solid #eee', borderRadius: 10, overflow: 'hidden', background: 'white' }}>
-            <button
-              onClick={() => setExpanded(prev => ({ ...prev, [group.id]: !prev[group.id] }))}
-              style={{
-                display: 'flex', width: '100%', textAlign: 'left', padding: '14px 16px', gap: 12, alignItems: 'center',
-                border: 0, background: 'white', cursor: 'pointer', fontSize: 16
-              }}
-              aria-expanded={!!expanded[group.id]}
-            >
-              <span style={{ fontWeight: 600 }}>{group.name}</span>
-              <span style={{ color: '#666' }}>• {group.attributes?.length || 0} attributes</span>
-            </button>
-            {group.description ? (
-              <div style={{ padding: '0 16px 12px', color: '#555' }}>{group.description}</div>
-            ) : null}
-            {expanded[group.id] ? (
-              <div style={{ padding: 16, borderTop: '1px solid #f2f2f2' }}>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-                    <thead>
-                      <tr>
-                        <th style={th}>Code</th>
-                        <th style={th}>Label</th>
-                        <th style={th}>Type</th>
-                        <th style={th}>Required</th>
-                        <th style={th}>Options</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(group.attributes || []).map(attr => (
-                        <tr key={attr.code}>
-                          <td style={tdMono}>{attr.code}</td>
-                          <td style={td}>{attr.label}</td>
-                          <td style={td}>{attr.type}</td>
-                          <td style={td}>{attr.required ? 'Yes' : 'No'}</td>
-                          <td style={td}>{Array.isArray(attr.options) ? attr.options.join(', ') : '—'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ) : null}
+      <section style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 16, marginBottom: 24 }}>
+        <h2 style={{ marginTop: 0, fontSize: 18 }}>Create New Group</h2>
+        <form onSubmit={addGroup}>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <label style={{ flex: '1 1 240px' }}>
+              <div style={{ fontSize: 12, color: '#555' }}>Name</div>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., Dimensions"
+                style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }}
+              />
+            </label>
+            <label style={{ flex: '2 1 360px' }}>
+              <div style={{ fontSize: 12, color: '#555' }}>Attributes (comma or newline separated)</div>
+              <textarea
+                value={attributes}
+                onChange={(e) => setAttributes(e.target.value)}
+                placeholder={'e.g.\nWidth\nHeight\nDepth'}
+                rows={3}
+                style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6, resize: 'vertical' }}
+              />
+            </label>
           </div>
-        ))}
-      </div>
+          <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              style={{
+                background: canSubmit ? '#111827' : '#9ca3af',
+                color: 'white',
+                padding: '8px 14px',
+                borderRadius: 6,
+                border: 'none',
+                cursor: canSubmit ? 'pointer' : 'not-allowed',
+              }}
+            >
+              {submitting ? 'Adding…' : 'Add Group'}
+            </button>
+            {error ? <span style={{ color: '#b91c1c' }}>{error}</span> : null}
+          </div>
+        </form>
+      </section>
 
-      {filtered.length === 0 && (
-        <div style={{ color: '#666', padding: '24px 4px' }}>No groups match your search.</div>
-      )}
+      <section>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h2 style={{ margin: 0, fontSize: 18 }}>Existing Groups</h2>
+          {loading ? <span style={{ color: '#6b7280' }}>Loading…</span> : null}
+        </div>
+        {(!groups || groups.length === 0) && !loading ? (
+          <div style={{ padding: 16, color: '#6b7280' }}>No attribute groups yet. Create one above.</div>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, marginTop: 12 }}>
+            {groups.map((g) => (
+              <li key={g.id} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, marginBottom: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                  <div>
+                    <div style={{ fontWeight: 600 }}>{g.name}</div>
+                    <div style={{ color: '#6b7280', fontSize: 13 }}>{g.attributes && g.attributes.length ? g.attributes.join(', ') : '—'}</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      onClick={() => deleteGroup(g.id)}
+                      style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 10px', borderRadius: 6, cursor: 'pointer' }}
+                      aria-label={`Delete ${g.name}`}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                <div style={{ color: '#9ca3af', fontSize: 12, marginTop: 6 }}>ID: {g.id}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
-}
-
-const th = { textAlign: 'left', borderBottom: '1px solid #eee', padding: '8px 8px', color: '#666', fontWeight: 600 };
-const td = { borderBottom: '1px solid #f7f7f7', padding: '8px 8px' };
-const tdMono = { ...td, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace' };
-
-export async function getStaticProps() {
-  // Load initial data at build-time for fast first paint
-  try {
-    const filePath = path.join(process.cwd(), 'data', 'attribute-groups.json');
-    const raw = fs.readFileSync(filePath, 'utf8');
-    const initialGroups = JSON.parse(raw);
-    return { props: { initialGroups } };
-  } catch (e) {
-    return { props: { initialGroups: [] } };
-  }
 }

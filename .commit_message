@@ -1,6 +1,1 @@
-feat(attribute-groups): add read-only attribute groups API, admin list view, and minimal schema test
-
-- Introduce data/attribute-groups.json as seed data
-- Add pages/api/attribute-groups for GET access
-- Add pages/admin/attribute-groups UI with search and expandable details
-- Include a simple Node-based schema test for the attribute groups data
+feat(attribute-groups): add admin UI and API to manage Attribute Groups with validation and basic tests

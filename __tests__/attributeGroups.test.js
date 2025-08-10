@@ -1,36 +1,29 @@
-/*
-  Simple test for lib/attributeGroups using a minimal in-memory localStorage polyfill.
-  This file is intentionally framework-agnostic; if Jest is present, you can run it.
-*/
+const { normalizeGroup, validateGroup, parseAttributesString } = require('../lib/attributeGroups');
 
-const assert = require('assert');
+describe('attributeGroups helpers', () => {
+  test('parseAttributesString supports commas and newlines and dedupes', () => {
+    const input = 'Width, Height\nDepth\nWidth';
+    const out = parseAttributesString(input);
+    expect(out).toEqual(['Width', 'Height', 'Depth']);
+  });
 
-class MemoryStorage {
-  constructor() { this._s = {}; }
-  getItem(k) { return Object.prototype.hasOwnProperty.call(this._s, k) ? this._s[k] : null; }
-  setItem(k, v) { this._s[k] = String(v); }
-  removeItem(k) { delete this._s[k]; }
-  clear() { this._s = {}; }
-}
+  test('normalizeGroup fills id and cleans attributes', () => {
+    const g = normalizeGroup({ name: 'Dimensions', attributes: 'Width, Height\nDepth' });
+    expect(g.name).toBe('Dimensions');
+    expect(Array.isArray(g.attributes)).toBe(true);
+    expect(g.attributes).toEqual(['Width', 'Height', 'Depth']);
+    expect(typeof g.id).toBe('string');
+    expect(g.id.length).toBeGreaterThan(3);
+  });
 
-global.localStorage = new MemoryStorage();
-
-const ag = require('../lib/attributeGroups');
-
-(function testSaveLoad() {
-  const groups = ag.loadAttributeGroups();
-  assert(Array.isArray(groups) && groups.length === 0, 'Should start empty');
-
-  const { list, group } = ag.upsertGroup([], { name: 'Basic', description: 'Common fields' });
-  assert(group.id, 'Group should have id');
-  assert(list.length === 1, 'List should have one group');
-  ag.saveAttributeGroups(list);
-
-  const loaded = ag.loadAttributeGroups();
-  assert(loaded.length === 1 && loaded[0].name === 'Basic', 'Should persist and load same group');
-
-  const g2 = ag.upsertAttribute(loaded[0], { code: 'brand', label: 'Brand', type: 'text' });
-  assert(g2.attributes.length === 1 && g2.attributes[0].code === 'brand', 'Attribute should be added');
-
-  console.log('attributeGroups: OK');
-})();
+  test('validateGroup catches empty values', () => {
+    let { valid, errors } = validateGroup({ name: '', attributes: [] });
+    expect(valid).toBe(false);
+    expect(errors.join(' ')).toMatch(/Name is required/);
+    ({ valid, errors } = validateGroup({ name: 'A', attributes: [] }));
+    expect(valid).toBe(false);
+    expect(errors.join(' ')).toMatch(/at least 2/);
+    ({ valid, errors } = validateGroup({ name: 'Valid', attributes: ['A'] }));
+    expect(valid).toBe(true);
+  });
+});
