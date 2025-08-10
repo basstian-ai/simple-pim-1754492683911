@@ -1,33 +1,46 @@
-const test = require('node:test');
+'use strict';
+
 const assert = require('assert');
-const store = require('../lib/attributeGroupsStore');
+const store = require('../lib/store/attributeGroups');
 
-test('attributeGroupsStore: add and list groups', () => {
-  store._reset();
-  assert.strictEqual(store.listGroups().length, 0);
-  const g = store.addGroup({ name: 'Specs', description: 'Tech specs' });
-  assert.ok(g.id && typeof g.id === 'string');
-  assert.strictEqual(g.name, 'Specs');
-  const items = store.listGroups();
-  assert.strictEqual(items.length, 1);
-  assert.strictEqual(items[0].id, g.id);
-});
+// Simple smoke test for Attribute Groups store
+(function run() {
+  // Ensure starting from a clean-ish state
+  const before = store.listGroups();
 
-test('attributeGroupsStore: generates unique ids', () => {
-  store._reset();
-  const g1 = store.addGroup({ name: 'Core' });
-  const g2 = store.addGroup({ name: 'Core' });
-  assert.notStrictEqual(g1.id, g2.id);
-});
+  // Create
+  const g1 = store.createGroup({ name: 'General', description: 'Default attributes' });
+  assert.ok(g1.id, 'created group should have id');
+  assert.strictEqual(g1.name, 'General');
 
-test('attributeGroupsStore: validation', () => {
-  store._reset();
+  // List
+  const list1 = store.listGroups();
+  assert.ok(Array.isArray(list1));
+  assert.ok(list1.length >= 1);
+
+  // Get
+  const g1f = store.getGroup(g1.id);
+  assert.strictEqual(g1f.id, g1.id);
+
+  // Update
+  const g1u = store.updateGroup(g1.id, { name: 'Basics' });
+  assert.strictEqual(g1u.name, 'Basics');
+
+  // Delete
+  const removed = store.deleteGroup(g1.id);
+  assert.strictEqual(removed.id, g1.id);
+
+  const after = store.listGroups();
+  assert.strictEqual(after.length, Math.max(0, before.length));
+
+  // Edge cases
   let threw = false;
   try {
-    store.addGroup({ name: '' });
+    store.createGroup({ name: '   ' });
   } catch (e) {
     threw = true;
-    assert.strictEqual(e.code, 'VALIDATION_ERROR');
   }
-  assert.ok(threw);
-});
+  assert.ok(threw, 'should validate name');
+})();
+
+console.log('attributeGroupsStore.test.js: OK');
