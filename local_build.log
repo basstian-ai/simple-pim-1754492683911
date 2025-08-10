@@ -38,7 +38,7 @@ Page                             Size     First Load JS
 ├ ○ /admin                       21.9 kB        85.5 kB
 ├ ○ /admin/ai-tools              1.51 kB        65.1 kB
 ├ ○ /admin/attribute-groups      5.26 kB        68.9 kB
-├ ○ /admin/attributes            2.93 kB        66.6 kB
+├ ○ /admin/attributes            2.93 kB        66.5 kB
 ├ ○ /admin/quick-add             1.55 kB        65.2 kB
 ├ ○ /admin/sku                   3.19 kB        66.8 kB
 ├ λ /api/attribute-groups        0 B            63.6 kB
@@ -50,7 +50,7 @@ Page                             Size     First Load JS
 ├ λ /api/suggest-name            0 B            63.6 kB
 ├ λ /api/tags                    0 B            63.6 kB
 ├ λ /api/tests/attribute-groups  0 B            63.6 kB
-├ ○ /attribute-groups            2.75 kB        66.4 kB
+├ ○ /attribute-groups            1.51 kB        65.1 kB
 ├ ○ /attributes                  719 B          64.3 kB
 ├ ○ /tests/attribute-groups      2.2 kB         65.8 kB
 └ ○ /tools/slugify               2 kB           65.6 kB

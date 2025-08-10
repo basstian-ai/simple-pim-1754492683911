@@ -1,15 +1,20 @@
-{
-  "items": [
-    {
-      "id": "color",
-      "name": "Color",
-      "attributes": ["Red", "Blue", "Green"]
-    },
-    {
-      "id": "size",
-      "name": "Size",
-      "attributes": ["S", "M", "L", "XL"]
-    }
-  ],
-  "updatedAt": "2024-01-01T00:00:00.000Z"
-}
+[
+  {
+    "id": "basic",
+    "name": "Basic",
+    "attributes": [
+      { "code": "name", "label": "Name", "type": "text", "required": true },
+      { "code": "sku", "label": "SKU", "type": "text", "required": true },
+      { "code": "description", "label": "Description", "type": "textarea" }
+    ]
+  },
+  {
+    "id": "specs",
+    "name": "Specifications",
+    "attributes": [
+      { "code": "color", "label": "Color", "type": "select", "options": ["Red", "Blue", "Green"] },
+      { "code": "size", "label": "Size", "type": "select", "options": ["S", "M", "L", "XL"] },
+      { "code": "material", "label": "Material", "type": "text" }
+    ]
+  }
+]
