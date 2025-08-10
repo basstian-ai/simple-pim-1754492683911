@@ -1,39 +1,35 @@
-const assert = require('assert');
-const {
-  generateId,
-  groupAttributesByGroupId
-} = require('../lib/attributeGroups');
+'use strict';
 
-(function testGenerateIdUniqueness() {
-  const set = new Set();
-  for (let i = 0; i < 1000; i++) {
-    const id = generateId();
-    assert.strictEqual(typeof id, 'string');
-    assert.ok(id.length >= 10);
-    assert.ok(!set.has(id), 'id must be unique');
-    set.add(id);
-  }
+// Simple node test using built-in assert; run with `node tests/attributeGroups.test.js`
+const assert = require('assert');
+const { validateGroupPayload } = require('../lib/attributeGroups');
+
+(function testValidPayload() {
+  const payload = {
+    name: 'Specifications',
+    attributes: [
+      { code: 'weight', label: 'Weight', type: 'number' },
+      { code: 'is_active', label: 'Is Active', type: 'boolean' },
+      { code: 'color', label: 'Color', type: 'select', options: ['Red', 'Green'] },
+    ],
+  };
+  const res = validateGroupPayload(payload);
+  assert.strictEqual(res.valid, true, 'Expected payload to be valid');
+  assert.deepStrictEqual(res.errors, [], 'Expected no validation errors');
 })();
 
-(function testGroupAttributesByGroupId() {
-  const groups = [
-    { id: 'g1', name: 'Specs' },
-    { id: 'g2', name: 'Dimensions' }
-  ];
-  const attributes = [
-    { id: 'a1', name: 'Color', attributeGroupId: 'g1' },
-    { id: 'a2', name: 'Material', attributeGroupId: 'g1' },
-    { id: 'a3', name: 'Width', attributeGroupId: 'g2' },
-    { id: 'a4', name: 'Loose', attributeGroupId: 'g3' } // unknown group should still be grouped under its id
-  ];
-  const grouped = groupAttributesByGroupId(groups, attributes);
-  assert.ok(grouped.g1 && grouped.g1.length === 2);
-  assert.ok(grouped.g2 && grouped.g2.length === 1);
-  assert.ok(grouped.g3 && grouped.g3.length === 1);
-  // known groups should exist even if empty
-  const grouped2 = groupAttributesByGroupId(groups, []);
-  assert.ok(Array.isArray(grouped2.g1) && grouped2.g1.length === 0);
-  assert.ok(Array.isArray(grouped2.g2) && grouped2.g2.length === 0);
+(function testInvalidPayload() {
+  const payload = {
+    name: '', // invalid
+    attributes: [
+      { code: 'bad code', label: '', type: 'text' }, // invalid code and label
+      { code: 'color', label: 'Color', type: 'select', options: [] }, // invalid options
+      { code: 'color', label: 'Dup Code', type: 'text' }, // duplicate code
+    ],
+  };
+  const res = validateGroupPayload(payload);
+  assert.strictEqual(res.valid, false, 'Expected payload to be invalid');
+  assert.ok(res.errors.length >= 3, 'Expected multiple validation errors');
 })();
 
 console.log('attributeGroups tests passed');

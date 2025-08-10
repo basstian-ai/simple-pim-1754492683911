@@ -1,3 +1,24 @@
 {
-  "groups": []
+  "groups": [
+    {
+      "id": "1",
+      "name": "General",
+      "attributes": [
+        { "code": "name", "label": "Name", "type": "text" },
+        { "code": "description", "label": "Description", "type": "text" }
+      ],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "2",
+      "name": "Pricing",
+      "attributes": [
+        { "code": "price", "label": "Price", "type": "number" },
+        { "code": "currency", "label": "Currency", "type": "select", "options": ["USD", "EUR", "GBP"] }
+      ],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ]
 }

@@ -37,7 +37,7 @@ Page                                  Size     First Load JS
 ├ ○ /404                              3.06 kB        66.7 kB
 ├ ○ /admin                            21.9 kB        85.5 kB
 ├ ○ /admin/ai-tools                   1.51 kB        65.1 kB
-├ ○ /admin/attribute-groups           5.69 kB        69.3 kB
+├ ○ /admin/attribute-groups           6.02 kB        69.6 kB
 ├ ○ /admin/attribute-suggest          1.58 kB        65.2 kB
 ├ ○ /admin/attribute-suggest-product  1.49 kB        65.1 kB
 ├ ○ /admin/attributes                 2.11 kB        65.7 kB
@@ -57,7 +57,7 @@ Page                                  Size     First Load JS
 ├ λ /api/tags                         0 B            63.6 kB
 ├ λ /api/tags/export                  0 B            63.6 kB
 ├ λ /api/tests/attribute-groups       0 B            63.6 kB
-├ ○ /attribute-groups                 1.51 kB        65.1 kB
+├ ○ /attribute-groups                 3.28 kB        66.9 kB
 ├ ○ /attributes                       719 B          64.3 kB
 ├ λ /products/[sku]                   1.38 kB          65 kB
 ├ ○ /tags                             1.09 kB        64.7 kB
