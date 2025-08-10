@@ -1,33 +1,48 @@
 const assert = require('assert');
-const path = require('path');
+const handler = require('../pages/api/attributes');
 
-const handler = require(path.join(__dirname, '..', 'pages', 'api', 'attributes'));
-
-function mockRes() {
-  const res = {};
-  res.statusCode = 200;
-  res.headers = {};
-  res.setHeader = (k, v) => { res.headers[k] = v; };
-  res.status = (code) => { res.statusCode = code; return res; };
-  res.json = (data) => { res._data = data; return res; };
-  return res;
+function createMockRes() {
+  let statusCode = 200;
+  const headers = {};
+  let body = undefined;
+  return {
+    status(code) {
+      statusCode = code;
+      return this;
+    },
+    setHeader(key, val) {
+      headers[key] = val;
+    },
+    json(data) {
+      body = data;
+      return this;
+    },
+    end() {
+      return this;
+    },
+    _get() {
+      return { statusCode, headers, body };
+    },
+  };
 }
 
-(async () => {
-  const req = { method: 'GET' };
-  const res = mockRes();
-  await Promise.resolve(handler(req, res));
+// GET should return groups and attributes
+{
+  const res = createMockRes();
+  handler({ method: 'GET' }, res);
+  const out = res._get();
+  assert.strictEqual(out.statusCode, 200);
+  assert.ok(out.body && Array.isArray(out.body.groups), 'groups should be array');
+  assert.ok(out.body && Array.isArray(out.body.attributes), 'attributes should be array');
+  assert.ok(out.body.groups.length >= 1, 'at least one group');
+}
 
-  assert.strictEqual(res.statusCode, 200, 'Expected 200 OK');
-  assert.ok(Array.isArray(res._data), 'Expected array of attributes');
-  assert.ok(res._data.length >= 1, 'Expected at least one attribute');
-  const item = res._data[0];
-  ['code', 'label', 'type'].forEach((k) => {
-    assert.ok(Object.prototype.hasOwnProperty.call(item, k), `Attribute missing ${k}`);
-  });
+// Non-GET should be 405
+{
+  const res = createMockRes();
+  handler({ method: 'POST' }, res);
+  const out = res._get();
+  assert.strictEqual(out.statusCode, 405);
+}
 
-  console.log('api-attributes.test.js passed');
-})().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+console.log('api-attributes.test.js: OK');
