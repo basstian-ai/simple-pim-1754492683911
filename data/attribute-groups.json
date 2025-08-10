@@ -1,20 +1,25 @@
-{
-  "groups": [
-    {
-      "id": "basic",
-      "name": "Basic",
-      "attributes": [
-        { "code": "name", "label": "Name", "type": "text" },
-        { "code": "sku", "label": "SKU", "type": "text" }
-      ]
-    },
-    {
-      "id": "seo",
-      "name": "SEO",
-      "attributes": [
-        { "code": "meta_title", "label": "Meta Title", "type": "text" },
-        { "code": "meta_description", "label": "Meta Description", "type": "textarea" }
-      ]
-    }
-  ]
-}
+[
+  {
+    "id": "grp-1723248000000-abcd12",
+    "name": "Color & Finish",
+    "attributes": [
+      { "code": "color", "label": "Color", "type": "select", "options": ["Red", "Green", "Blue", "Black", "White"] },
+      { "code": "finish", "label": "Finish", "type": "select", "options": ["Matte", "Glossy"] }
+    ],
+    "position": 1,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "grp-1723248000000-ef3456",
+    "name": "Size & Dimensions",
+    "attributes": [
+      { "code": "size", "label": "Size", "type": "select", "options": ["XS", "S", "M", "L", "XL"] },
+      { "code": "width", "label": "Width (cm)", "type": "number" },
+      { "code": "height", "label": "Height (cm)", "type": "number" }
+    ],
+    "position": 2,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]
