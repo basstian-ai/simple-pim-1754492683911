@@ -1,15 +1,25 @@
-const { queryAttributeGroups } = require('../../lib/attributeGroups');
+import fs from 'fs'
+import path from 'path'
 
-module.exports = function handler(req, res) {
-  if (req.method === 'GET' || req.method === 'HEAD') {
-    const q = Array.isArray(req.query.q) ? req.query.q[0] : req.query.q;
-    const limit = Array.isArray(req.query.limit) ? req.query.limit[0] : req.query.limit;
-    const items = queryAttributeGroups({ q, limit });
+const dataPath = path.join(process.cwd(), 'data', 'attribute-groups.json')
 
-    res.status(200).json({ items, total: items.length });
-    return;
+async function readAttributeGroups() {
+  const json = await fs.promises.readFile(dataPath, 'utf-8')
+  return JSON.parse(json)
+}
+
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET')
+    res.status(405).json({ error: 'Method Not Allowed' })
+    return
   }
 
-  res.setHeader('Allow', ['GET', 'HEAD']);
-  res.status(405).json({ error: 'Method Not Allowed' });
-};
+  try {
+    const data = await readAttributeGroups()
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate')
+    res.status(200).json(data)
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load attribute groups' })
+  }
+}
