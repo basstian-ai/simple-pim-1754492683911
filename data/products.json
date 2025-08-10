@@ -1,21 +1,551 @@
 [
   {
     "id": 1,
+    "sku": "PROD-A",
     "name": "Product A",
     "description": "Description for Product A",
+    "category": "Apparel",
+    "brand": "BrandA",
     "price": 29.99,
+    "inStock": true,
+    "stock": 25,
+    "tags": [
+      "sale",
+      "summer"
+    ],
     "variants": [
-      { "id": 1, "name": "Variant A1", "price": 24.99 },
-      { "id": 2, "name": "Variant A2", "price": 26.99 }
+      {
+        "id": 1,
+        "sku": "VAR-A1",
+        "name": "Variant A1",
+        "price": 24.99,
+        "attributes": {
+          "color": "Red",
+          "size": "M"
+        }
+      },
+      {
+        "id": 2,
+        "sku": "VAR-A2",
+        "name": "Variant A2",
+        "price": 26.99,
+        "attributes": {
+          "color": "Blue",
+          "size": "L"
+        }
+      }
     ]
   },
   {
     "id": 2,
+    "sku": "PROD-B",
     "name": "Product B",
     "description": "Description for Product B",
+    "category": "Electronics",
+    "brand": "BrandB",
     "price": 39.99,
+    "inStock": false,
+    "stock": 0,
+    "tags": [
+      "clearance"
+    ],
     "variants": [
-      { "id": 3, "name": "Variant B1", "price": 34.99 }
+      {
+        "id": 3,
+        "sku": "VAR-B1",
+        "name": "Variant B1",
+        "price": 34.99,
+        "attributes": {
+          "color": "Black",
+          "size": "One Size"
+        }
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "sku": "PROD-003",
+    "name": "Product C",
+    "description": "Description for Product C",
+    "category": "Home",
+    "brand": "BrandC",
+    "price": 27.5,
+    "inStock": true,
+    "stock": 8,
+    "tags": [
+      "summer",
+      "featured"
+    ],
+    "variants": [
+      {
+        "id": 30,
+        "sku": "VAR-003A",
+        "name": "Variant C1",
+        "price": 26.5,
+        "attributes": {
+          "color": "Black",
+          "size": "XL"
+        }
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "sku": "PROD-004",
+    "name": "Product D",
+    "description": "Description for Product D",
+    "category": "Sports",
+    "brand": "BrandD",
+    "price": 30,
+    "inStock": false,
+    "stock": 0,
+    "tags": [
+      "clearance",
+      "new"
+    ],
+    "variants": [
+      {
+        "id": 40,
+        "sku": "VAR-004A",
+        "name": "Variant D1",
+        "price": 29,
+        "attributes": {
+          "color": "White",
+          "size": "S"
+        }
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "sku": "PROD-005",
+    "name": "Product E",
+    "description": "Description for Product E",
+    "category": "Garden",
+    "brand": "BrandE",
+    "price": 32.5,
+    "inStock": true,
+    "stock": 10,
+    "tags": [
+      "featured",
+      "sale"
+    ],
+    "variants": [
+      {
+        "id": 50,
+        "sku": "VAR-005A",
+        "name": "Variant E1",
+        "price": 31.5,
+        "attributes": {
+          "color": "Yellow",
+          "size": "M"
+        }
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "sku": "PROD-006",
+    "name": "Product F",
+    "description": "Description for Product F",
+    "category": "Toys",
+    "brand": "BrandF",
+    "price": 35,
+    "inStock": true,
+    "stock": 11,
+    "tags": [
+      "new",
+      "popular"
+    ],
+    "variants": [
+      {
+        "id": 60,
+        "sku": "VAR-006A",
+        "name": "Variant F1",
+        "price": 34,
+        "attributes": {
+          "color": "Red",
+          "size": "L"
+        }
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "sku": "PROD-007",
+    "name": "Product G",
+    "description": "Description for Product G",
+    "category": "Office",
+    "brand": "BrandG",
+    "price": 37.5,
+    "inStock": true,
+    "stock": 12,
+    "tags": [
+      "sale",
+      "summer"
+    ],
+    "variants": [
+      {
+        "id": 70,
+        "sku": "VAR-007A",
+        "name": "Variant G1",
+        "price": 36.5,
+        "attributes": {
+          "color": "Blue",
+          "size": "XL"
+        }
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "sku": "PROD-008",
+    "name": "Product H",
+    "description": "Description for Product H",
+    "category": "Kitchen",
+    "brand": "BrandH",
+    "price": 40,
+    "inStock": false,
+    "stock": 0,
+    "tags": [
+      "popular",
+      "clearance"
+    ],
+    "variants": [
+      {
+        "id": 80,
+        "sku": "VAR-008A",
+        "name": "Variant H1",
+        "price": 39,
+        "attributes": {
+          "color": "Green",
+          "size": "S"
+        }
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "sku": "PROD-009",
+    "name": "Product I",
+    "description": "Description for Product I",
+    "category": "Outdoors",
+    "brand": "BrandI",
+    "price": 42.5,
+    "inStock": true,
+    "stock": 14,
+    "tags": [
+      "summer",
+      "featured"
+    ],
+    "variants": [
+      {
+        "id": 90,
+        "sku": "VAR-009A",
+        "name": "Variant I1",
+        "price": 41.5,
+        "attributes": {
+          "color": "Black",
+          "size": "M"
+        }
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "sku": "PROD-010",
+    "name": "Product J",
+    "description": "Description for Product J",
+    "category": "Health",
+    "brand": "BrandJ",
+    "price": 45,
+    "inStock": true,
+    "stock": 15,
+    "tags": [
+      "clearance",
+      "new"
+    ],
+    "variants": [
+      {
+        "id": 100,
+        "sku": "VAR-010A",
+        "name": "Variant J1",
+        "price": 44,
+        "attributes": {
+          "color": "White",
+          "size": "L"
+        }
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "sku": "PROD-011",
+    "name": "Product K",
+    "description": "Description for Product K",
+    "category": "Beauty",
+    "brand": "BrandK",
+    "price": 47.5,
+    "inStock": true,
+    "stock": 16,
+    "tags": [
+      "featured",
+      "sale"
+    ],
+    "variants": [
+      {
+        "id": 110,
+        "sku": "VAR-011A",
+        "name": "Variant K1",
+        "price": 46.5,
+        "attributes": {
+          "color": "Yellow",
+          "size": "XL"
+        }
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "sku": "PROD-012",
+    "name": "Product L",
+    "description": "Description for Product L",
+    "category": "Automotive",
+    "brand": "BrandL",
+    "price": 50,
+    "inStock": false,
+    "stock": 0,
+    "tags": [
+      "new",
+      "popular"
+    ],
+    "variants": [
+      {
+        "id": 120,
+        "sku": "VAR-012A",
+        "name": "Variant L1",
+        "price": 49,
+        "attributes": {
+          "color": "Red",
+          "size": "S"
+        }
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "sku": "PROD-013",
+    "name": "Product M",
+    "description": "Description for Product M",
+    "category": "Books",
+    "brand": "BrandM",
+    "price": 52.5,
+    "inStock": true,
+    "stock": 18,
+    "tags": [
+      "sale",
+      "summer"
+    ],
+    "variants": [
+      {
+        "id": 130,
+        "sku": "VAR-013A",
+        "name": "Variant M1",
+        "price": 51.5,
+        "attributes": {
+          "color": "Blue",
+          "size": "M"
+        }
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "sku": "PROD-014",
+    "name": "Product N",
+    "description": "Description for Product N",
+    "category": "Music",
+    "brand": "BrandN",
+    "price": 55,
+    "inStock": true,
+    "stock": 19,
+    "tags": [
+      "popular",
+      "clearance"
+    ],
+    "variants": [
+      {
+        "id": 140,
+        "sku": "VAR-014A",
+        "name": "Variant N1",
+        "price": 54,
+        "attributes": {
+          "color": "Green",
+          "size": "L"
+        }
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "sku": "PROD-015",
+    "name": "Product O",
+    "description": "Description for Product O",
+    "category": "Games",
+    "brand": "BrandO",
+    "price": 57.5,
+    "inStock": true,
+    "stock": 20,
+    "tags": [
+      "summer",
+      "featured"
+    ],
+    "variants": [
+      {
+        "id": 150,
+        "sku": "VAR-015A",
+        "name": "Variant O1",
+        "price": 56.5,
+        "attributes": {
+          "color": "Black",
+          "size": "XL"
+        }
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "sku": "PROD-016",
+    "name": "Product P",
+    "description": "Description for Product P",
+    "category": "Pets",
+    "brand": "BrandP",
+    "price": 60,
+    "inStock": false,
+    "stock": 0,
+    "tags": [
+      "clearance",
+      "new"
+    ],
+    "variants": [
+      {
+        "id": 160,
+        "sku": "VAR-016A",
+        "name": "Variant P1",
+        "price": 59,
+        "attributes": {
+          "color": "White",
+          "size": "S"
+        }
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "sku": "PROD-017",
+    "name": "Product Q",
+    "description": "Description for Product Q",
+    "category": "Travel",
+    "brand": "BrandQ",
+    "price": 62.5,
+    "inStock": true,
+    "stock": 22,
+    "tags": [
+      "featured",
+      "sale"
+    ],
+    "variants": [
+      {
+        "id": 170,
+        "sku": "VAR-017A",
+        "name": "Variant Q1",
+        "price": 61.5,
+        "attributes": {
+          "color": "Yellow",
+          "size": "M"
+        }
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "sku": "PROD-018",
+    "name": "Product R",
+    "description": "Description for Product R",
+    "category": "Baby",
+    "brand": "BrandR",
+    "price": 65,
+    "inStock": true,
+    "stock": 23,
+    "tags": [
+      "new",
+      "popular"
+    ],
+    "variants": [
+      {
+        "id": 180,
+        "sku": "VAR-018A",
+        "name": "Variant R1",
+        "price": 64,
+        "attributes": {
+          "color": "Red",
+          "size": "L"
+        }
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "sku": "PROD-019",
+    "name": "Product S",
+    "description": "Description for Product S",
+    "category": "Groceries",
+    "brand": "BrandS",
+    "price": 67.5,
+    "inStock": true,
+    "stock": 24,
+    "tags": [
+      "sale",
+      "summer"
+    ],
+    "variants": [
+      {
+        "id": 190,
+        "sku": "VAR-019A",
+        "name": "Variant S1",
+        "price": 66.5,
+        "attributes": {
+          "color": "Blue",
+          "size": "XL"
+        }
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "sku": "PROD-020",
+    "name": "Product T",
+    "description": "Description for Product T",
+    "category": "Hardware",
+    "brand": "BrandT",
+    "price": 70,
+    "inStock": false,
+    "stock": 0,
+    "tags": [
+      "popular",
+      "clearance"
+    ],
+    "variants": [
+      {
+        "id": 200,
+        "sku": "VAR-020A",
+        "name": "Variant T1",
+        "price": 69,
+        "attributes": {
+          "color": "Green",
+          "size": "S"
+        }
+      }
     ]
   }
 ]
