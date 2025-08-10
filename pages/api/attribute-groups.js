@@ -1,44 +1,44 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-const store = require('../../lib/store/attributeGroups');
+const { readGroups, addGroup, findByName } = require('../../lib/storage/attributeGroups');
 
-export default async function handler(req, res) {
-  try {
-    const { method } = req;
-    if (method === 'GET') {
-      const { id } = req.query;
-      if (id) {
-        const group = store.getGroup(id);
-        if (!group) return res.status(404).json({ error: 'not_found' });
-        return res.status(200).json(group);
-      }
-      const groups = store.listGroups();
-      return res.status(200).json({ items: groups, total: groups.length });
-    }
-
-    if (method === 'POST') {
-      const { name, description } = req.body || {};
-      const created = store.createGroup({ name, description });
-      return res.status(201).json(created);
-    }
-
-    if (method === 'PUT') {
-      const { id, name, description, attributes } = req.body || {};
-      if (!id) return res.status(400).json({ error: 'id_required' });
-      const updated = store.updateGroup(id, { name, description, attributes });
-      return res.status(200).json(updated);
-    }
-
-    if (method === 'DELETE') {
-      const id = req.query.id || (req.body && req.body.id);
-      if (!id) return res.status(400).json({ error: 'id_required' });
-      const removed = store.deleteGroup(id);
-      return res.status(200).json(removed);
-    }
-
-    res.setHeader('Allow', 'GET,POST,PUT,DELETE');
-    return res.status(405).json({ error: 'method_not_allowed' });
-  } catch (err) {
-    const status = err && err.statusCode ? err.statusCode : 500;
-    return res.status(status).json({ error: err.message || 'internal_error' });
+async function handler(req, res) {
+  // Basic API for attribute groups: GET list, POST create
+  if (req.method === 'GET') {
+    const groups = readGroups().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(groups));
+    return;
   }
+
+  if (req.method === 'POST') {
+    const body = req.body || {};
+    const name = (body.name || '').trim();
+    const description = (body.description || '').trim();
+
+    if (!name) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: 'Name is required' }));
+      return;
+    }
+    if (findByName(name)) {
+      res.statusCode = 409;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: 'An attribute group with this name already exists' }));
+      return;
+    }
+
+    const created = addGroup({ name, description });
+    res.statusCode = 201;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(created));
+    return;
+  }
+
+  res.setHeader('Allow', 'GET, POST');
+  res.statusCode = 405;
+  res.end('Method Not Allowed');
 }
+
+module.exports = handler;
+module.exports.default = handler;

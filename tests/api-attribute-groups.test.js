@@ -1,66 +1,71 @@
-const assert = require('assert');
-const handler = require('../pages/api/attribute-groups.js');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const handler = require('../pages/api/attribute-groups');
 
-function mockReq(method = 'GET') {
-  return { method };
-}
-
-function mockRes() {
-  const res = {
-    statusCode: 200,
-    headers: {},
-    body: undefined,
-    finished: false,
-    status(code) {
-      this.statusCode = code;
-      return this;
-    },
-    setHeader(key, value) {
-      this.headers[key] = value;
-    },
-    json(obj) {
-      this.body = obj;
-      this.finished = true;
-    },
-    end(str) {
-      this.body = str;
-      this.finished = true;
+function createMockRes() {
+  const res = {};
+  res._status = 200;
+  res._headers = {};
+  res._data = '';
+  res.statusCode = 200;
+  res.setHeader = (k, v) => {
+    res._headers[k.toLowerCase()] = v;
+  };
+  res.end = (data) => {
+    if (typeof data === 'string' || Buffer.isBuffer(data)) {
+      res._data += data.toString();
+    } else if (data) {
+      res._data += String(data);
     }
+    return res;
   };
   return res;
 }
 
-// Simple invocation test
-(function testGetAttributeGroups() {
-  const req = mockReq('GET');
-  const res = mockRes();
-  handler(req, res);
+function createMockReq(method, body) {
+  return {
+    method,
+    body,
+    headers: { 'content-type': 'application/json' },
+  };
+}
 
-  assert.strictEqual(res.statusCode, 200, 'should return 200');
-  assert.ok(res.finished, 'response should be finished');
-  assert.ok(res.body, 'should have a body');
-  assert.ok(Array.isArray(res.body.groups), 'groups should be an array');
-  const ids = res.body.groups.map((g) => g.id);
-  assert.ok(ids.includes('basic'), 'should include basic group');
-  assert.ok(ids.includes('seo'), 'should include seo group');
-  // If it reaches here, output a tiny success message so running with `node` shows progress.
-  if (require.main === module) {
-    // eslint-disable-next-line no-console
-    console.log('✓ api-attribute-groups GET test passed');
+async function runHandler(method, body) {
+  const req = createMockReq(method, body);
+  const res = createMockRes();
+  await handler(req, res);
+  return res;
+}
+
+// A very small smoke test for the API handler
+(async function main() {
+  const tmpFile = path.join(os.tmpdir(), `attr-groups-test-${Date.now()}.json`);
+  process.env.ATTR_GROUPS_FILE = tmpFile;
+  fs.writeFileSync(tmpFile, '[]', 'utf8');
+
+  let res = await runHandler('POST', { name: 'Colors', description: 'Basic color attributes' });
+  if (res.statusCode !== 201) {
+    throw new Error('Expected 201 on create, got ' + res.statusCode + ' data=' + res._data);
   }
-})();
 
-// method not allowed test
-(function testMethodNotAllowed() {
-  const req = mockReq('POST');
-  const res = mockRes();
-  handler(req, res);
-
-  assert.strictEqual(res.statusCode, 405, 'should return 405 for non-GET');
-  assert.ok(res.finished, 'response should be finished');
-  assert.deepStrictEqual(res.body, { error: 'Method Not Allowed' });
-  if (require.main === module) {
-    // eslint-disable-next-line no-console
-    console.log('✓ api-attribute-groups method not allowed test passed');
+  res = await runHandler('GET');
+  if (res.statusCode !== 200) {
+    throw new Error('Expected 200 on list');
   }
+  const list = JSON.parse(res._data || '[]');
+  if (!Array.isArray(list) || list.length !== 1 || list[0].name !== 'Colors') {
+    throw new Error('List response invalid: ' + res._data);
+  }
+
+  // Duplicate name should 409
+  res = await runHandler('POST', { name: 'Colors' });
+  if (res.statusCode !== 409) {
+    throw new Error('Expected 409 on duplicate name, got ' + res.statusCode);
+  }
+
+  // Clean up
+  try { fs.unlinkSync(tmpFile); } catch (e) {}
+  // eslint-disable-next-line no-console
+  console.log('API attribute-groups smoke test passed');
 })();
