@@ -1,27 +1,13 @@
-const store = require('../../lib/attributeGroupsStore');
+import fs from 'fs';
+import path from 'path';
 
-export default async function handler(req, res) {
-  if (req.method === 'GET') {
-    const items = store.listGroups();
-    res.status(200).json({ items });
-    return;
+export default function handler(req, res) {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'attribute-groups.json');
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const json = JSON.parse(raw);
+    res.status(200).json(json);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to load attribute groups' });
   }
-
-  if (req.method === 'POST') {
-    try {
-      const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-      const created = store.addGroup({ name: body.name, description: body.description });
-      res.status(201).json(created);
-    } catch (err) {
-      if (err && err.code === 'VALIDATION_ERROR') {
-        res.status(400).json({ error: err.message });
-      } else {
-        res.status(500).json({ error: 'Internal Server Error' });
-      }
-    }
-    return;
-  }
-
-  res.setHeader('Allow', 'GET, POST');
-  res.status(405).json({ error: 'Method Not Allowed' });
 }

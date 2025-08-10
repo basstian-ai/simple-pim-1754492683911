@@ -1,12 +1,20 @@
-[
-  {
-    "code": "basic",
-    "name": "Basic",
-    "description": "Common fields like title, subtitle, and summary"
-  },
-  {
-    "code": "seo",
-    "name": "SEO",
-    "description": "Search engine related attributes"
-  }
-]
+{
+  "groups": [
+    {
+      "id": "basic",
+      "name": "Basic",
+      "attributes": [
+        { "code": "name", "label": "Name", "type": "text" },
+        { "code": "sku", "label": "SKU", "type": "text" }
+      ]
+    },
+    {
+      "id": "seo",
+      "name": "SEO",
+      "attributes": [
+        { "code": "meta_title", "label": "Meta Title", "type": "text" },
+        { "code": "meta_description", "label": "Meta Description", "type": "textarea" }
+      ]
+    }
+  ]
+}
