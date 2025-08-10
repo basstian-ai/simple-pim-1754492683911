@@ -1,35 +1,29 @@
-'use strict';
+const { normalizeGroup, validateGroup, parseAttributesString } = require('../lib/attributeGroups');
 
-// Simple node test using built-in assert; run with `node tests/attributeGroups.test.js`
-const assert = require('assert');
-const { validateGroupPayload } = require('../lib/attributeGroups');
+describe('attributeGroups helpers', () => {
+  test('parseAttributesString supports commas and newlines and dedupes', () => {
+    const input = 'Width, Height\nDepth\nWidth';
+    const out = parseAttributesString(input);
+    expect(out).toEqual(['Width', 'Height', 'Depth']);
+  });
 
-(function testValidPayload() {
-  const payload = {
-    name: 'Specifications',
-    attributes: [
-      { code: 'weight', label: 'Weight', type: 'number' },
-      { code: 'is_active', label: 'Is Active', type: 'boolean' },
-      { code: 'color', label: 'Color', type: 'select', options: ['Red', 'Green'] },
-    ],
-  };
-  const res = validateGroupPayload(payload);
-  assert.strictEqual(res.valid, true, 'Expected payload to be valid');
-  assert.deepStrictEqual(res.errors, [], 'Expected no validation errors');
-})();
+  test('normalizeGroup fills id and cleans attributes', () => {
+    const g = normalizeGroup({ name: 'Dimensions', attributes: 'Width, Height\nDepth' });
+    expect(g.name).toBe('Dimensions');
+    expect(Array.isArray(g.attributes)).toBe(true);
+    expect(g.attributes).toEqual(['Width', 'Height', 'Depth']);
+    expect(typeof g.id).toBe('string');
+    expect(g.id.length).toBeGreaterThan(3);
+  });
 
-(function testInvalidPayload() {
-  const payload = {
-    name: '', // invalid
-    attributes: [
-      { code: 'bad code', label: '', type: 'text' }, // invalid code and label
-      { code: 'color', label: 'Color', type: 'select', options: [] }, // invalid options
-      { code: 'color', label: 'Dup Code', type: 'text' }, // duplicate code
-    ],
-  };
-  const res = validateGroupPayload(payload);
-  assert.strictEqual(res.valid, false, 'Expected payload to be invalid');
-  assert.ok(res.errors.length >= 3, 'Expected multiple validation errors');
-})();
-
-console.log('attributeGroups tests passed');
+  test('validateGroup catches empty values', () => {
+    let { valid, errors } = validateGroup({ name: '', attributes: [] });
+    expect(valid).toBe(false);
+    expect(errors.join(' ')).toMatch(/Name is required/);
+    ({ valid, errors } = validateGroup({ name: 'A', attributes: [] }));
+    expect(valid).toBe(false);
+    expect(errors.join(' ')).toMatch(/at least 2/);
+    ({ valid, errors } = validateGroup({ name: 'Valid', attributes: ['A'] }));
+    expect(valid).toBe(true);
+  });
+});
