@@ -1,42 +1,66 @@
-import handler from '../pages/api/attribute-groups/index.js';
+const assert = require('assert');
+const handler = require('../pages/api/attribute-groups.js');
 
-function createMockReqRes({ method = 'GET', url = '/api/attribute-groups', body = null } = {}) {
-  const req = { method, url, body, headers: {}, query: {}, cookies: {} };
-  let statusCode = 200;
-  let headers = {};
-  let jsonData = undefined;
-  const res = {
-    setHeader: (k, v) => { headers[k.toLowerCase()] = v; },
-    status: (code) => { statusCode = code; return res; },
-    json: (data) => { jsonData = data; return res; },
-    end: (data) => { jsonData = data; return res; },
-    get statusCode() { return statusCode; },
-    get _headers() { return headers; },
-    get _data() { return jsonData; },
-  };
-  return { req, res };
+function mockReq(method = 'GET') {
+  return { method };
 }
 
-async function call(method = 'GET', body) {
-  const { req, res } = createMockReqRes({ method, body });
-  await handler(req, res);
+function mockRes() {
+  const res = {
+    statusCode: 200,
+    headers: {},
+    body: undefined,
+    finished: false,
+    status(code) {
+      this.statusCode = code;
+      return this;
+    },
+    setHeader(key, value) {
+      this.headers[key] = value;
+    },
+    json(obj) {
+      this.body = obj;
+      this.finished = true;
+    },
+    end(str) {
+      this.body = str;
+      this.finished = true;
+    }
+  };
   return res;
 }
 
-// This is a light smoke test for the API handler in isolation
-(async () => {
-  const res1 = await call('GET');
-  if (!(Array.isArray(res1._data) && res1.statusCode === 200)) {
-    throw new Error('GET should return 200 with an array of groups');
-  }
+// Simple invocation test
+(function testGetAttributeGroups() {
+  const req = mockReq('GET');
+  const res = mockRes();
+  handler(req, res);
 
-  const res2 = await call('POST', { name: 'Specs' });
-  if (!(res2.statusCode === 201 && res2._data && res2._data.name === 'Specs')) {
-    throw new Error('POST should create a new group named Specs');
+  assert.strictEqual(res.statusCode, 200, 'should return 200');
+  assert.ok(res.finished, 'response should be finished');
+  assert.ok(res.body, 'should have a body');
+  assert.ok(Array.isArray(res.body.groups), 'groups should be an array');
+  const ids = res.body.groups.map((g) => g.id);
+  assert.ok(ids.includes('basic'), 'should include basic group');
+  assert.ok(ids.includes('seo'), 'should include seo group');
+  // If it reaches here, output a tiny success message so running with `node` shows progress.
+  if (require.main === module) {
+    // eslint-disable-next-line no-console
+    console.log('✓ api-attribute-groups GET test passed');
   }
+})();
 
-  const res3 = await call('POST', { name: '' });
-  if (!(res3.statusCode === 400)) {
-    throw new Error('POST should validate name');
+// method not allowed test
+(function testMethodNotAllowed() {
+  const req = mockReq('POST');
+  const res = mockRes();
+  handler(req, res);
+
+  assert.strictEqual(res.statusCode, 405, 'should return 405 for non-GET');
+  assert.ok(res.finished, 'response should be finished');
+  assert.deepStrictEqual(res.body, { error: 'Method Not Allowed' });
+  if (require.main === module) {
+    // eslint-disable-next-line no-console
+    console.log('✓ api-attribute-groups method not allowed test passed');
   }
 })();

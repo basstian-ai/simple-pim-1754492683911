@@ -1,24 +1,21 @@
-[
-  {
-    "id": "general",
-    "name": "General",
-    "description": "Common product attributes used across most listings.",
-    "attributes": [
-      { "code": "name", "label": "Name", "type": "text", "required": true },
-      { "code": "sku", "label": "SKU", "type": "text", "required": true },
-      { "code": "description", "label": "Description", "type": "richtext", "required": false },
-      { "code": "price", "label": "Price", "type": "number", "required": true },
-      { "code": "currency", "label": "Currency", "type": "select", "options": ["USD", "EUR", "GBP"], "required": true }
-    ]
-  },
-  {
-    "id": "seo",
-    "name": "SEO",
-    "description": "Search engine optimization related fields.",
-    "attributes": [
-      { "code": "meta_title", "label": "Meta Title", "type": "text", "required": false },
-      { "code": "meta_description", "label": "Meta Description", "type": "textarea", "required": false },
-      { "code": "slug", "label": "URL Slug", "type": "text", "required": true }
-    ]
-  }
-]
+{
+  "groups": [
+    {
+      "id": "basic",
+      "name": "Basic",
+      "attributes": [
+        { "code": "name", "label": "Name", "type": "text", "required": true },
+        { "code": "sku", "label": "SKU", "type": "text", "required": true },
+        { "code": "price", "label": "Price", "type": "number", "required": true }
+      ]
+    },
+    {
+      "id": "seo",
+      "name": "SEO",
+      "attributes": [
+        { "code": "metaTitle", "label": "Meta Title", "type": "text" },
+        { "code": "metaDescription", "label": "Meta Description", "type": "textarea" }
+      ]
+    }
+  ]
+}
