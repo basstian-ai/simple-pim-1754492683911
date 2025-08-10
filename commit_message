@@ -1,1 +1,1 @@
-FEATURE: Add admin Attribute Groups management with file-backed API (GET/POST), UI page to create/list groups, and a small API smoke test.
+FEATURE: Add Attribute Groups API and Admin UI with sample data and a unit test

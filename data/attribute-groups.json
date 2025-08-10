@@ -1,1 +1,32 @@
-[]
+[
+  {
+    "id": "grp-core",
+    "name": "Core",
+    "attributes": [
+      { "code": "title", "label": "Title", "type": "text", "required": true },
+      { "code": "sku", "label": "SKU", "type": "text", "required": true },
+      { "code": "description", "label": "Description", "type": "richtext", "required": false }
+    ]
+  },
+  {
+    "id": "grp-commerce",
+    "name": "Commerce",
+    "attributes": [
+      { "code": "price", "label": "Price", "type": "number", "unit": "USD" },
+      {
+        "code": "tax_class",
+        "label": "Tax Class",
+        "type": "select",
+        "options": ["standard", "reduced", "exempt"]
+      }
+    ]
+  },
+  {
+    "id": "grp-media",
+    "name": "Media",
+    "attributes": [
+      { "code": "images", "label": "Images", "type": "media[]" },
+      { "code": "video", "label": "Video URL", "type": "url" }
+    ]
+  }
+]
