@@ -1,24 +1,75 @@
 const assert = require('assert');
-const { queryAttributeGroups, ATTRIBUTE_GROUPS } = require('../lib/attributeGroups');
+const os = require('os');
+const path = require('path');
+const fs = require('fs');
 
-// Basic unit tests for the attribute groups query helper
-(function run() {
-  // returns all by default
-  const all = queryAttributeGroups();
-  assert(Array.isArray(all), 'Expected an array');
-  assert.strictEqual(all.length, ATTRIBUTE_GROUPS.length, 'Expected full list');
+process.env.ATTRIBUTE_GROUPS_PATH = path.join(os.tmpdir(), `simple-pim-attr-groups-test-${Date.now()}.json`);
 
-  // filter by attribute code
-  const pricing = queryAttributeGroups({ q: 'price' });
-  assert(pricing.find((g) => g.id === 'pricing'), 'Expected pricing group to be present when filtering by price');
+const indexHandler = require('../pages/api/attribute-groups/index.js').default;
+const idHandler = require('../pages/api/attribute-groups/[id].js').default;
 
-  // respects limit
-  const limited = queryAttributeGroups({ limit: 1 });
-  assert.strictEqual(limited.length, 1, 'Expected limit to be applied');
+function mockReq({ method = 'GET', query = {}, body = undefined } = {}) {
+  return { method, query, body, headers: {} };
+}
 
-  // case-insensitive search by group name
-  const seo = queryAttributeGroups({ q: 'SeO' });
-  assert(seo.length >= 1 && seo[0].id === 'seo', 'Expected to find SEO group case-insensitively');
-})();
+function mockRes() {
+  const res = {};
+  res.statusCode = 200;
+  res.headers = {};
+  res.body = undefined;
+  res.setHeader = (k, v) => { res.headers[k] = v; };
+  res.status = (code) => { res.statusCode = code; return res; };
+  res.json = (data) => { res.body = data; return res; };
+  res.end = (data) => { res.body = data; return res; };
+  return res;
+}
 
-console.log('attribute-groups tests: ok');
+async function run() {
+  // Ensure file doesn't exist at start
+  try { fs.unlinkSync(process.env.ATTRIBUTE_GROUPS_PATH); } catch (_) {}
+
+  // GET should return empty list
+  let req = mockReq({ method: 'GET' });
+  let res = mockRes();
+  await indexHandler(req, res);
+  assert.strictEqual(res.statusCode, 200);
+  assert.ok(Array.isArray(res.body.groups));
+  assert.strictEqual(res.body.groups.length, 0);
+
+  // POST create one
+  req = mockReq({ method: 'POST', body: { name: 'Specifications' } });
+  res = mockRes();
+  await indexHandler(req, res);
+  assert.strictEqual(res.statusCode, 201);
+  assert.ok(res.body && res.body.id);
+  const createdId = res.body.id;
+
+  // GET should now include it
+  req = mockReq({ method: 'GET' });
+  res = mockRes();
+  await indexHandler(req, res);
+  assert.strictEqual(res.statusCode, 200);
+  assert.strictEqual(res.body.groups.length, 1);
+  assert.strictEqual(res.body.groups[0].name, 'Specifications');
+
+  // DELETE it
+  req = mockReq({ method: 'DELETE', query: { id: createdId } });
+  res = mockRes();
+  await idHandler(req, res);
+  assert.strictEqual(res.statusCode, 204);
+
+  // GET again empty
+  req = mockReq({ method: 'GET' });
+  res = mockRes();
+  await indexHandler(req, res);
+  assert.strictEqual(res.statusCode, 200);
+  assert.strictEqual(res.body.groups.length, 0);
+
+  console.log('PASS attribute-groups API');
+}
+
+run().catch((e) => {
+  console.error('FAIL attribute-groups API');
+  console.error(e);
+  process.exit(1);
+});

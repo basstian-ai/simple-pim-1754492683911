@@ -1,42 +1,31 @@
-import store from '../../../lib/attributeGroupsStore';
+import { getGroup, updateGroup, deleteGroup } from '../../../lib/attributeGroupsStore.js';
 
-const groupsStore = store && store.list ? store : require('../../../lib/attributeGroupsStore');
-
-export default function handler(req, res) {
-  const { method, query, body } = req;
-  const { id } = query;
-
-  if (!id || typeof id !== 'string') {
-    res.status(400).json({ error: 'id is required' });
-    return;
-  }
-
-  if (method === 'GET') {
-    const item = groupsStore.findById(id);
-    if (!item) return res.status(404).json({ error: 'Not Found' });
-    res.status(200).json({ item });
-    return;
-  }
-
-  if (method === 'PUT' || method === 'PATCH') {
-    try {
-      const updated = groupsStore.update(id, body || {});
-      if (!updated) return res.status(404).json({ error: 'Not Found' });
-      res.status(200).json({ item: updated });
-    } catch (e) {
-      const status = e.statusCode || 500;
-      res.status(status).json({ error: e.message, details: e.details || undefined });
+export default async function handler(req, res) {
+  const { id } = req.query;
+  try {
+    if (req.method === 'GET') {
+      const group = getGroup(id);
+      if (!group) return res.status(404).json({ error: 'Not found' });
+      return res.status(200).json(group);
     }
-    return;
-  }
 
-  if (method === 'DELETE') {
-    const ok = groupsStore.remove(id);
-    if (!ok) return res.status(404).json({ error: 'Not Found' });
-    res.status(204).end();
-    return;
-  }
+    if (req.method === 'PUT' || req.method === 'PATCH') {
+      const patch = req.body || {};
+      const updated = updateGroup(id, patch);
+      if (!updated) return res.status(404).json({ error: 'Not found' });
+      return res.status(200).json(updated);
+    }
 
-  res.setHeader('Allow', 'GET, PUT, PATCH, DELETE');
-  res.status(405).json({ error: `Method ${method} Not Allowed` });
+    if (req.method === 'DELETE') {
+      const ok = deleteGroup(id);
+      if (!ok) return res.status(404).json({ error: 'Not found' });
+      return res.status(204).end();
+    }
+
+    res.setHeader('Allow', 'GET,PUT,PATCH,DELETE');
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  } catch (e) {
+    const status = e.statusCode || 500;
+    res.status(status).json({ error: e.message || 'Server error' });
+  }
 }

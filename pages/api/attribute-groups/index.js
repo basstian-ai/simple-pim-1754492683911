@@ -1,29 +1,24 @@
-import store from '../../../lib/attributeGroupsStore';
+import { listGroups, createGroup } from '../../../lib/attributeGroupsStore.js';
 
-// Support both ES import default and CommonJS require
-const groupsStore = store && store.list ? store : require('../../../lib/attributeGroupsStore');
-
-export default function handler(req, res) {
-  const { method, query, body } = req;
-
-  if (method === 'GET') {
-    const q = typeof query.q === 'string' ? query.q : undefined;
-    const items = groupsStore.list({ q });
-    res.status(200).json({ items, count: items.length });
-    return;
-  }
-
-  if (method === 'POST') {
-    try {
-      const created = groupsStore.create(body || {});
-      res.status(201).json({ item: created });
-    } catch (e) {
-      const status = e.statusCode || 500;
-      res.status(status).json({ error: e.message, details: e.details || undefined });
+export default async function handler(req, res) {
+  try {
+    if (req.method === 'GET') {
+      const groups = listGroups().sort((a, b) => a.name.localeCompare(b.name));
+      res.status(200).json({ groups });
+      return;
     }
-    return;
-  }
 
-  res.setHeader('Allow', 'GET, POST');
-  res.status(405).json({ error: `Method ${method} Not Allowed` });
+    if (req.method === 'POST') {
+      const { name } = req.body || {};
+      const created = createGroup({ name });
+      res.status(201).json(created);
+      return;
+    }
+
+    res.setHeader('Allow', 'GET,POST');
+    res.status(405).json({ error: 'Method Not Allowed' });
+  } catch (e) {
+    const status = e.statusCode || 500;
+    res.status(status).json({ error: e.message || 'Server error' });
+  }
 }
