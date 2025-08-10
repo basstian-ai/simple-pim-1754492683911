@@ -52,6 +52,7 @@ Page                                  Size     First Load JS
 ├ λ /api/products/[sku]               0 B            63.6 kB
 ├ λ /api/products/export              0 B            63.6 kB
 ├ λ /api/products/stats               0 B            63.6 kB
+├ λ /api/products/suggest             0 B            63.6 kB
 ├ λ /api/sku                          0 B            63.6 kB
 ├ λ /api/suggest-name                 0 B            63.6 kB
 ├ λ /api/tags                         0 B            63.6 kB
