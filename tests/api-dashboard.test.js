@@ -48,6 +48,9 @@ describe('API /api/dashboard', () => {
     expect(typeof data.inStock).toBe('number');
     expect(typeof data.outOfStock).toBe('number');
     expect(Array.isArray(data.topTags)).toBe(true);
+    expect(typeof data.enriched).toBe('number');
+    expect(typeof data.notEnriched).toBe('number');
+    expect(Array.isArray(data.recentProducts)).toBe(true);
   });
 
   test('totalProducts matches product catalog size', async () => {
@@ -60,5 +63,6 @@ describe('API /api/dashboard', () => {
     const products = await resolveProducts();
     expect(data.totalProducts).toBe(products.length);
     expect(data.inStock + data.outOfStock).toBe(products.length);
+    expect(data.enriched + data.notEnriched).toBe(products.length);
   });
 });

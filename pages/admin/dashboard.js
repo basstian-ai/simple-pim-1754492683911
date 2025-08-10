@@ -44,6 +44,14 @@ export default function AdminDashboard() {
               <div style={{ fontSize: 12, color: '#666' }}>Unique tags</div>
               <div style={{ fontSize: 24, fontWeight: 600 }}>{stats.totalTags}</div>
             </div>
+            <div style={{ border: '1px solid #eee', borderRadius: 8, padding: '0.75rem' }}>
+              <div style={{ fontSize: 12, color: '#666' }}>Enriched</div>
+              <div style={{ fontSize: 24, fontWeight: 600, color: '#128a0c' }}>{stats.enriched}</div>
+            </div>
+            <div style={{ border: '1px solid #eee', borderRadius: 8, padding: '0.75rem' }}>
+              <div style={{ fontSize: 12, color: '#666' }}>Needs enrichment</div>
+              <div style={{ fontSize: 24, fontWeight: 600, color: '#b00020' }}>{stats.notEnriched}</div>
+            </div>
           </section>
 
           {stats.topTags && stats.topTags.length > 0 && (
@@ -57,6 +65,19 @@ export default function AdminDashboard() {
                 ))}
               </div>
               <div style={{ color: '#888', marginTop: '0.5rem', fontSize: 12 }}>Updated {new Date(stats.generatedAt).toLocaleString()}</div>
+            </section>
+          )}
+
+          {stats.recentProducts && stats.recentProducts.length > 0 && (
+            <section style={{ marginTop: '1rem' }}>
+              <h2 style={{ fontSize: 16, margin: '0.5rem 0' }}>Recent products</h2>
+              <ul style={{ paddingLeft: '1.2rem' }}>
+                {stats.recentProducts.map((p) => (
+                  <li key={p.id} style={{ marginBottom: '0.25rem' }}>
+                    {p.name || `Product ${p.id}`}
+                  </li>
+                ))}
+              </ul>
             </section>
           )}
         </div>
