@@ -1,190 +1,109 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-function toSlug(value) {
-  if (!value) return '';
-  return String(value)
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9-_\s]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-/g, '')
-    .replace(/-$/g, '');
-}
-
-function validateLocal(group) {
-  const g = {
-    code: toSlug(group.code),
-    name: (group.name || '').trim(),
-    description: (group.description || '').trim()
-  };
-  const errors = {};
-  if (!g.code) errors.code = 'Code is required';
-  else if (!/^[a-z0-9_-]{2,32}$/.test(g.code)) errors.code = '2-32 chars: a-z, 0-9, -, _';
-  if (!g.name) errors.name = 'Name is required';
-  else if (g.name.length > 64) errors.name = 'Max 64 chars';
-  if (g.description && g.description.length > 200) errors.description = 'Max 200 chars';
-  return { valid: Object.keys(errors).length === 0, errors, group: g };
-}
-
-const lsKey = 'attributeGroupsLocal';
-
-export default function AttributeGroupsAdmin() {
-  const [serverGroups, setServerGroups] = useState([]);
-  const [localGroups, setLocalGroups] = useState([]);
+export default function AttributeGroupsPage() {
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const load = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/attribute-groups');
+      const data = await res.json();
+      setItems(Array.isArray(data.items) ? data.items : []);
+      setError('');
+    } catch (e) {
+      setError('Failed to load');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Load local first for instant UI
-    try {
-      const raw = window.localStorage.getItem(lsKey);
-      if (raw) setLocalGroups(JSON.parse(raw));
-    } catch (_) {}
-
-    fetch('/api/attribute-groups')
-      .then(r => {
-        if (!r.ok) throw new Error('Failed to load');
-        return r.json();
-      })
-      .then(json => {
-        setServerGroups(Array.isArray(json.groups) ? json.groups : []);
-        setLoading(false);
-      })
-      .catch(e => {
-        setError(e.message || 'Error');
-        setLoading(false);
-      });
+    load();
   }, []);
 
-  const groups = useMemo(() => {
-    // merge, local overrides by code
-    const map = new Map();
-    serverGroups.forEach(g => map.set(g.code, g));
-    localGroups.forEach(g => map.set(g.code, g));
-    return Array.from(map.values()).sort((a, b) => a.code.localeCompare(b.code));
-  }, [serverGroups, localGroups]);
-
-  const [form, setForm] = useState({ code: '', name: '', description: '' });
-  const [formErrors, setFormErrors] = useState({});
-  const [saving, setSaving] = useState(false);
-  const [notice, setNotice] = useState(null);
-
-  function onChange(e) {
-    const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: name === 'code' ? value : value }));
-    if (name === 'code') {
-      // live slugging preview but don't override user typing too aggressively
-      // we show in helper text below
-    }
-  }
-
-  function persistLocal(newLocal) {
-    setLocalGroups(newLocal);
-    try {
-      window.localStorage.setItem(lsKey, JSON.stringify(newLocal));
-    } catch (_) {}
-  }
-
-  async function onSubmit(e) {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setNotice(null);
-    const { valid, errors, group } = validateLocal(form);
-    if (!valid) {
-      setFormErrors(errors);
-      return;
-    }
-    if (groups.find(g => g.code === group.code)) {
-      setFormErrors({ code: 'Code already exists' });
-      return;
-    }
-    setFormErrors({});
-    const newLocal = localGroups.concat([group]);
-    persistLocal(newLocal);
-
-    // Try to persist to API (best-effort)
-    setSaving(true);
+    if (!name.trim()) return;
+    setSubmitting(true);
     try {
-      const r = await fetch('/api/attribute-groups', {
+      const res = await fetch('/api/attribute-groups', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(group)
+        body: JSON.stringify({ name, description })
       });
-      if (r.ok) {
-        setNotice('Saved');
-        // refresh server groups
-        const json = await fetch('/api/attribute-groups').then(res => res.json());
-        setServerGroups(Array.isArray(json.groups) ? json.groups : []);
-      } else {
-        const err = await r.json().catch(() => ({}));
-        setNotice(err && err.error ? `Local only: ${err.error}` : 'Saved locally');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to create');
       }
-    } catch (_) {
-      setNotice('Saved locally');
+      setName('');
+      setDescription('');
+      await load();
+    } catch (e) {
+      setError(e.message || 'Failed to create');
     } finally {
-      setSaving(false);
-      setForm({ code: '', name: '', description: '' });
+      setSubmitting(false);
     }
-  }
-
-  function resetLocal() {
-    persistLocal([]);
-  }
+  };
 
   return (
-    <div style={{ padding: 20, maxWidth: 900, margin: '0 auto', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif' }}>
+    <div style={{ maxWidth: 780, margin: '40px auto', padding: 16, fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif' }}>
       <h1>Attribute Groups</h1>
-      <p style={{ color: '#555' }}>Group your product attributes to keep your catalog tidy. New groups are saved locally and sent to the server when possible.</p>
+      <p style={{ color: '#555' }}>Organize product attributes into groups.</p>
 
-      <section style={{ marginTop: 20, marginBottom: 30, padding: 16, border: '1px solid #eee', borderRadius: 8 }}>
-        <h2 style={{ marginTop: 0 }}>Create Group</h2>
+      <section style={{ margin: '24px 0', padding: 16, border: '1px solid #eaeaea', borderRadius: 8 }}>
+        <h2 style={{ marginTop: 0, fontSize: 18 }}>Create Group</h2>
         <form onSubmit={onSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <label htmlFor="code" style={{ display: 'block', fontWeight: 600 }}>Code</label>
-              <input id="code" name="code" value={form.code} onChange={onChange} placeholder="e.g. dimensions" style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }} />
-              <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>Slug: {toSlug(form.code) || 'n/a'}</div>
-              {formErrors.code && <div style={{ color: '#b00020', fontSize: 12 }}>{formErrors.code}</div>}
-            </div>
-            <div>
-              <label htmlFor="name" style={{ display: 'block', fontWeight: 600 }}>Name</label>
-              <input id="name" name="name" value={form.name} onChange={onChange} placeholder="Dimensions" style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }} />
-              {formErrors.name && <div style={{ color: '#b00020', fontSize: 12 }}>{formErrors.name}</div>}
-            </div>
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <label htmlFor="description" style={{ display: 'block', fontWeight: 600 }}>Description</label>
-            <textarea id="description" name="description" value={form.description} onChange={onChange} rows={3} placeholder="Optional" style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }} />
-            {formErrors.description && <div style={{ color: '#b00020', fontSize: 12 }}>{formErrors.description}</div>}
-          </div>
-          <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button type="submit" disabled={saving} style={{ padding: '8px 14px', background: '#111827', color: 'white', border: 0, borderRadius: 6, cursor: 'pointer' }}>{saving ? 'Saving…' : 'Add Group'}</button>
-            <button type="button" onClick={resetLocal} style={{ padding: '8px 14px', background: '#e5e7eb', color: '#111827', border: 0, borderRadius: 6, cursor: 'pointer' }}>Reset local changes</button>
-            {notice && <span style={{ color: '#065f46' }}>{notice}</span>}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              placeholder="Name (e.g. Specs)"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              style={{ flex: '1 1 240px', padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
+            />
+            <input
+              type="text"
+              placeholder="Description (optional)"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              style={{ flex: '2 1 320px', padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
+            />
+            <button
+              type="submit"
+              disabled={submitting || !name.trim()}
+              style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid #111', background: '#111', color: '#fff', cursor: 'pointer', opacity: submitting || !name.trim() ? 0.6 : 1 }}
+            >
+              {submitting ? 'Creating…' : 'Add Group'}
+            </button>
           </div>
         </form>
+        {error ? <p style={{ color: 'crimson', marginTop: 8 }}>{error}</p> : null}
       </section>
 
-      <section>
-        <h2 style={{ marginTop: 0 }}>Groups ({groups.length})</h2>
-        {loading && <div>Loading…</div>}
-        {error && <div style={{ color: '#b00020' }}>Error: {error}</div>}
-        {!loading && groups.length === 0 && <div>No groups yet.</div>}
-        {!loading && groups.length > 0 && (
-          <div style={{ border: '1px solid #eee', borderRadius: 8, overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '200px 200px 1fr', gap: 0, background: '#f9fafb', fontWeight: 600, padding: '10px 12px', borderBottom: '1px solid #eee' }}>
-              <div>Code</div>
-              <div>Name</div>
-              <div>Description</div>
-            </div>
-            {groups.map(g => (
-              <div key={g.code} style={{ display: 'grid', gridTemplateColumns: '200px 200px 1fr', gap: 0, padding: '10px 12px', borderBottom: '1px solid #f3f4f6' }}>
-                <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' }}>{g.code}</div>
-                <div>{g.name}</div>
-                <div style={{ color: '#4b5563' }}>{g.description}</div>
-              </div>
+      <section style={{ margin: '24px 0' }}>
+        <h2 style={{ fontSize: 18, marginTop: 0 }}>Groups</h2>
+        {loading ? (
+          <p>Loading…</p>
+        ) : items.length === 0 ? (
+          <p>No attribute groups yet.</p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {items.map((g) => (
+              <li key={g.id} style={{ border: '1px solid #eaeaea', borderRadius: 8, padding: 12, marginBottom: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+                  <strong>{g.name}</strong>
+                  <code style={{ background: '#f6f6f6', padding: '2px 6px', borderRadius: 4, color: '#555' }}>{g.id}</code>
+                </div>
+                {g.description ? <p style={{ margin: '6px 0 0', color: '#444' }}>{g.description}</p> : null}
+                <small style={{ color: '#777' }}>{Array.isArray(g.attributes) ? g.attributes.length : 0} attributes</small>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </section>
     </div>

@@ -1,1 +1,1 @@
-FEATURE: Add Attribute Groups API (GET/POST), simple UI page to list/create groups, and a minimal Node test for API handler
+FEATURE: Add basic Attribute Groups feature with API endpoint, simple admin page to create/list groups, and a small unit test for the in-memory store.

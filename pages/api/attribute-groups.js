@@ -1,45 +1,27 @@
-import fs from 'fs';
-import path from 'path';
+const store = require('../../lib/attributeGroupsStore');
 
-const { validateGroup, isCodeUnique, sanitizeGroup } = require('../../lib/attributeGroups');
-
-// Load initial groups from data file once per cold start
-const dataFile = path.join(process.cwd(), 'data', 'attribute-groups.json');
-let initialGroups = [];
-try {
-  const raw = fs.readFileSync(dataFile, 'utf8');
-  const parsed = JSON.parse(raw);
-  if (Array.isArray(parsed)) initialGroups = parsed;
-} catch (e) {
-  initialGroups = [];
-}
-
-// Ephemeral in-memory store per serverless instance
-let runtimeGroups = initialGroups.slice();
-
-export default function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method === 'GET') {
-    res.status(200).json({ groups: runtimeGroups });
+    const items = store.listGroups();
+    res.status(200).json({ items });
     return;
   }
 
   if (req.method === 'POST') {
-    const payload = req.body || {};
-    const { valid, errors, group } = validateGroup(payload);
-    if (!valid) {
-      res.status(400).json({ error: 'Validation failed', details: errors });
-      return;
+    try {
+      const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+      const created = store.addGroup({ name: body.name, description: body.description });
+      res.status(201).json(created);
+    } catch (err) {
+      if (err && err.code === 'VALIDATION_ERROR') {
+        res.status(400).json({ error: err.message });
+      } else {
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
     }
-    if (!isCodeUnique(runtimeGroups, group.code)) {
-      res.status(409).json({ error: 'Code already exists' });
-      return;
-    }
-    const sanitized = sanitizeGroup(group);
-    runtimeGroups = runtimeGroups.concat([sanitized]);
-    res.status(201).json({ group: sanitized });
     return;
   }
 
   res.setHeader('Allow', 'GET, POST');
-  res.status(405).end('Method Not Allowed');
+  res.status(405).json({ error: 'Method Not Allowed' });
 }
