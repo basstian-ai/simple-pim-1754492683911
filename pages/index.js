@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import ProductList from '../components/ProductList';
 import ExportCsvLink from '../components/ExportCsvLink';
+import StockFilterToggle from '../components/StockFilterToggle';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [query, setQuery] = useState('');
   const [allTags, setAllTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [inStockOnly, setInStockOnly] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,6 +35,7 @@ const Home = () => {
       const params = [];
       if (query) params.push(`search=${encodeURIComponent(query)}`);
       if (selectedTags.length > 0) params.push(`tags=${selectedTags.map(encodeURIComponent).join(',')}`);
+      if (inStockOnly) params.push('inStock=1');
       const qs = params.length ? `?${params.join('&')}` : '';
       const res = await fetch(`/api/products${qs}`, { signal: controller.signal });
       const data = await res.json();
@@ -46,7 +49,7 @@ const Home = () => {
       controller.abort();
       clearTimeout(t);
     };
-  }, [query, selectedTags]);
+  }, [query, selectedTags, inStockOnly]);
 
   const toggleTag = (tag) => {
     setSelectedTags((prev) => {
@@ -66,6 +69,7 @@ const Home = () => {
           style={{ flex: 1, minWidth: 260, padding: '0.5rem 0.75rem', border: '1px solid #ddd', borderRadius: 6 }}
           aria-label="Search products"
         />
+        <StockFilterToggle checked={inStockOnly} onChange={setInStockOnly} />
         <span style={{ color: '#666', fontSize: 12 }}>
           {products?.length || 0} result{(products?.length || 0) === 1 ? '' : 's'}
         </span>
