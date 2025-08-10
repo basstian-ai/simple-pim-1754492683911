@@ -1,1 +1,1 @@
-Feature: Add client-side Attribute Groups admin page with localStorage persistence and utility functions, plus unit test for normalization/validation.
+feat(ai-attributes): add attribute suggestion engine, API endpoint, and tooling UI page; include basic unit test for heuristic extractor
