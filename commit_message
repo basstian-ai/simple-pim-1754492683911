@@ -1,1 +1,1 @@
-fix: resolve build failure by correcting syntax in lib/suggestAttributes.js and providing a safe slugify/suggestion implementation
+FEATURE: Add Attribute Groups admin UI and API (list/create) with validation and a small unit test

@@ -1,20 +1,12 @@
 [
   {
-    "id": "basic",
+    "code": "basic",
     "name": "Basic",
-    "attributes": [
-      { "code": "name", "label": "Name", "type": "text", "required": true },
-      { "code": "sku", "label": "SKU", "type": "text", "required": true },
-      { "code": "description", "label": "Description", "type": "textarea" }
-    ]
+    "description": "Common fields like title, subtitle, and summary"
   },
   {
-    "id": "specs",
-    "name": "Specifications",
-    "attributes": [
-      { "code": "color", "label": "Color", "type": "select", "options": ["Red", "Blue", "Green"] },
-      { "code": "size", "label": "Size", "type": "select", "options": ["S", "M", "L", "XL"] },
-      { "code": "material", "label": "Material", "type": "text" }
-    ]
+    "code": "seo",
+    "name": "SEO",
+    "description": "Search engine related attributes"
   }
 ]

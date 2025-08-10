@@ -1,52 +1,25 @@
 const assert = require('assert');
-const { resetStore, createGroup, listGroups, updateGroup } = require('../lib/attributeGroups');
+const { validateGroup, addGroup, isCodeUnique } = require('../lib/attributeGroups');
 
-function testCreateAndList() {
-  resetStore();
-  let g1 = createGroup({ name: 'Specifications', attributes: [{ code: 'color', label: 'Color' }] });
-  let g2 = createGroup({ name: 'Dimensions', attributes: [{ code: 'height', label: 'Height' }] });
-  const all = listGroups();
-  assert.strictEqual(all.length, 2, 'Should list two groups');
-  assert.strictEqual(all[0].id, '1', 'First id is 1');
-  assert.strictEqual(all[1].id, '2', 'Second id is 2');
-  assert.strictEqual(g1.name, 'Specifications');
-  assert.strictEqual(g2.attributes[0].code, 'height');
-}
+(function testValidate() {
+  let { valid, errors } = validateGroup({ code: '', name: '' });
+  assert.strictEqual(valid, false);
+  assert.ok(errors.code);
+  assert.ok(errors.name);
 
-function testUniqueName() {
-  resetStore();
-  createGroup({ name: 'Specs', attributes: [] });
-  let threw = false;
-  try {
-    createGroup({ name: 'Specs', attributes: [] });
-  } catch (e) {
-    threw = true;
-  }
-  assert.strictEqual(threw, true, 'Should throw on duplicate name');
-}
+  ({ valid, errors } = validateGroup({ code: 'SEO', name: 'Search' }));
+  assert.strictEqual(valid, true);
+  assert.strictEqual(errors && Object.keys(errors).length, 0);
+})();
 
-function testUpdateNameUniqueness() {
-  resetStore();
-  createGroup({ name: 'A', attributes: [] });
-  const b = createGroup({ name: 'B', attributes: [] });
-  let threw = false;
-  try {
-    updateGroup(b.id, { name: 'A' });
-  } catch (e) {
-    threw = true;
-  }
-  assert.strictEqual(threw, true, 'Should not allow renaming to existing name');
-}
+(function testAddAndUnique() {
+  const groups = [{ code: 'basic', name: 'Basic' }];
+  assert.strictEqual(isCodeUnique(groups, 'seo'), true);
+  assert.strictEqual(isCodeUnique(groups, 'basic'), false);
 
-function run() {
-  testCreateAndList();
-  testUniqueName();
-  testUpdateNameUniqueness();
-  console.log('attributeGroups tests passed');
-}
+  const { ok, groups: updated } = addGroup(groups, { code: 'seo', name: 'SEO' });
+  assert.strictEqual(ok, true);
+  assert.strictEqual(updated.length, 2);
+})();
 
-if (require.main === module) {
-  run();
-}
-
-module.exports = { run };
+console.log('attributeGroups tests passed');
