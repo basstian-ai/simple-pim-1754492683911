@@ -1,246 +1,180 @@
-import { useEffect, useMemo, useState } from 'react';
+import React from 'react';
+const ag = require('../lib/attributeGroups');
 
-function sortByName(items) {
-  return [...items].sort((a, b) => a.name.localeCompare(b.name));
-}
+function useAttributeGroups() {
+  const [groups, setGroups] = React.useState([]);
+  const [hydrated, setHydrated] = React.useState(false);
 
-function AttributeRow({ attr, onChange, onRemove }) {
-  const [local, setLocal] = useState(attr);
-  useEffect(() => setLocal(attr), [attr]);
-  function update(field, value) {
-    const next = { ...local, [field]: value };
-    setLocal(next);
-    onChange && onChange(next);
-  }
-  return (
-    <tr>
-      <td style={{ padding: '4px' }}>
-        <input value={local.code}
-               onChange={(e) => update('code', e.target.value)}
-               placeholder="code" style={{ width: '100%' }} />
-      </td>
-      <td style={{ padding: '4px' }}>
-        <input value={local.label}
-               onChange={(e) => update('label', e.target.value)}
-               placeholder="label" style={{ width: '100%' }} />
-      </td>
-      <td style={{ padding: '4px' }}>
-        <select value={local.type}
-                onChange={(e) => update('type', e.target.value)}
-                style={{ width: '100%' }}>
-          <option value="text">Text</option>
-          <option value="number">Number</option>
-          <option value="boolean">Boolean</option>
-          <option value="select">Select</option>
-          <option value="date">Date</option>
-        </select>
-      </td>
-      <td style={{ padding: '4px', textAlign: 'right' }}>
-        <button onClick={onRemove} title="Remove attribute">🗑️</button>
-      </td>
-    </tr>
-  );
+  React.useEffect(() => {
+    setGroups(ag.listGroups());
+    setHydrated(true);
+  }, []);
+
+  const add = (group) => {
+    const updated = ag.upsertGroup(group);
+    setGroups(updated);
+  };
+  const update = (group) => {
+    const updated = ag.upsertGroup(group);
+    setGroups(updated);
+  };
+  const remove = (id) => {
+    const updated = ag.deleteGroup(id);
+    setGroups(updated);
+  };
+  const importJson = (json) => {
+    const updated = ag.importGroupsJson(json);
+    setGroups(updated);
+  };
+  const exportJson = () => ag.exportGroupsJson();
+
+  return { groups, setGroups, hydrated, add, update, remove, importJson, exportJson };
 }
 
 export default function AttributeGroupsManager() {
-  const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [selectedId, setSelectedId] = useState('');
+  const { groups, hydrated, add, update, remove, importJson, exportJson } = useAttributeGroups();
+  const [editing, setEditing] = React.useState(null);
+  const [form, setForm] = React.useState({ name: '', description: '' });
+  const fileInputRef = React.useRef(null);
 
-  const selected = useMemo(() => groups.find((g) => g.id === selectedId) || null, [groups, selectedId]);
-
-  async function load() {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch('/api/attribute-groups');
-      const json = await res.json();
-      const items = Array.isArray(json.items) ? json.items : [];
-      setGroups(items);
-      if (!selectedId && items.length) setSelectedId(items[0].id);
-    } catch (e) {
-      console.error(e);
-      setError('Failed to load attribute groups');
-    } finally {
-      setLoading(false);
+  React.useEffect(() => {
+    if (editing) {
+      setForm({ name: editing.name || '', description: editing.description || '' });
+    } else {
+      setForm({ name: '', description: '' });
     }
-  }
+  }, [editing]);
 
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function createGroup(name) {
-    const res = await fetch('/api/attribute-groups', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    });
-    if (!res.ok) throw new Error('Create failed');
-    const created = await res.json();
-    setGroups((gs) => sortByName([...gs, created]));
-    setSelectedId(created.id);
-  }
-
-  async function saveGroup(g) {
-    const res = await fetch(`/api/attribute-groups?id=${encodeURIComponent(g.id)}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(g),
-    });
-    if (!res.ok) throw new Error('Save failed');
-    const updated = await res.json();
-    setGroups((gs) => sortByName(gs.map((x) => (x.id === updated.id ? updated : x))));
-  }
-
-  async function deleteGroup(id) {
-    const res = await fetch(`/api/attribute-groups?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
-    if (res.status !== 204) throw new Error('Delete failed');
-    setGroups((gs) => gs.filter((g) => g.id !== id));
-    if (selectedId === id) setSelectedId('');
-  }
-
-  function Details() {
-    const [draft, setDraft] = useState(selected);
-    const [saving, setSaving] = useState(false);
-
-    useEffect(() => setDraft(selected), [selected]);
-
-    if (!selected) return (
-      <div style={{ padding: 16 }}>
-        <em>Select a group to view details</em>
-      </div>
-    );
-
-    function updateName(name) {
-      setDraft({ ...draft, name });
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const payload = {
+      id: editing?.id,
+      name: form.name.trim(),
+      description: form.description.trim()
+    };
+    if (!payload.name) return;
+    if (editing) {
+      update(payload);
+    } else {
+      add(payload);
     }
+    setEditing(null);
+    setForm({ name: '', description: '' });
+  };
 
-    function updateAttr(idx, next) {
-      const attrs = [...(draft.attributes || [])];
-      attrs[idx] = next;
-      setDraft({ ...draft, attributes: attrs });
+  const onDelete = (g) => {
+    if (typeof window !== 'undefined' && window.confirm(`Delete attribute group "${g.name}"?`)) {
+      remove(g.id);
+      if (editing?.id === g.id) setEditing(null);
     }
+  };
 
-    function removeAttr(idx) {
-      const attrs = [...(draft.attributes || [])];
-      attrs.splice(idx, 1);
-      setDraft({ ...draft, attributes: attrs });
-    }
+  const onExport = () => {
+    const json = exportJson();
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'attribute-groups.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
-    function addAttr() {
-      const attrs = [...(draft.attributes || [])];
-      attrs.push({ code: '', label: '', type: 'text' });
-      setDraft({ ...draft, attributes: attrs });
-    }
+  const onImportClick = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  };
 
-    async function onSave() {
-      setSaving(true);
-      try {
-        await saveGroup(draft);
-      } catch (e) {
-        alert('Failed to save group');
-      } finally {
-        setSaving(false);
-      }
-    }
-
-    return (
-      <div style={{ padding: 16 }}>
-        <div style={{ marginBottom: 12 }}>
-          <label>
-            <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Group name</div>
-            <input value={draft.name} onChange={(e) => updateName(e.target.value)} style={{ width: '100%', padding: 8 }} />
-          </label>
-        </div>
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: '8px 0' }}>Attributes</h3>
-            <button onClick={addAttr}>+ Add attribute</button>
-          </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ textAlign: 'left' }}>
-                <th style={{ padding: '4px' }}>Code</th>
-                <th style={{ padding: '4px' }}>Label</th>
-                <th style={{ padding: '4px' }}>Type</th>
-                <th style={{ padding: '4px' }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {(draft.attributes || []).map((a, idx) => (
-                <AttributeRow key={idx} attr={a} onChange={(next) => updateAttr(idx, next)} onRemove={() => removeAttr(idx)} />
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div style={{ marginTop: 16 }}>
-          <button onClick={onSave} disabled={saving}>{saving ? 'Saving...' : 'Save changes'}</button>
-        </div>
-      </div>
-    );
-  }
-
-  function Sidebar() {
-    const [name, setName] = useState('');
-    const [creating, setCreating] = useState(false);
-
-    async function submitCreate(e) {
-      e.preventDefault();
-      if (!name.trim()) return;
-      setCreating(true);
-      try {
-        await createGroup(name.trim());
-        setName('');
-      } catch (e) {
-        alert('Failed to create group');
-      } finally {
-        setCreating(false);
-      }
-    }
-
-    return (
-      <div style={{ padding: 16, borderRight: '1px solid #eee', height: '100%', boxSizing: 'border-box' }}>
-        <h3 style={{ marginTop: 0 }}>Attribute Groups</h3>
-        <form onSubmit={submitCreate} style={{ marginBottom: 12 }}>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="New group name" style={{ flex: 1, padding: 8 }} />
-            <button type="submit" disabled={creating || !name.trim()}>{creating ? 'Adding...' : 'Add'}</button>
-          </div>
-        </form>
-        {loading ? (
-          <div>Loading…</div>
-        ) : error ? (
-          <div style={{ color: 'crimson' }}>{error}</div>
-        ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {sortByName(groups).map((g) => (
-              <li key={g.id} style={{ padding: '6px 4px', borderRadius: 4, background: selectedId === g.id ? '#f2f6ff' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <button style={{ background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', flex: 1 }} onClick={() => setSelectedId(g.id)}>
-                  <div style={{ fontWeight: 600 }}>{g.name}</div>
-                  <div style={{ fontSize: 12, color: '#666' }}>{g.attributes?.length || 0} attributes</div>
-                </button>
-                <button onClick={() => {
-                  if (confirm('Delete this attribute group?')) deleteGroup(g.id);
-                }} title="Delete">🗑️</button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    );
-  }
+  const onImportFile = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      importJson(String(reader.result || ''));
+    };
+    reader.readAsText(file);
+    // reset input so user can import same file again if needed
+    e.target.value = '';
+  };
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 80px)', border: '1px solid #eee', borderRadius: 8, overflow: 'hidden' }}>
-      <div style={{ width: 320, minWidth: 280 }}>
-        <Sidebar />
+    <div style={{ maxWidth: 900, margin: '20px auto', padding: '0 16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <h1 style={{ margin: 0 }}>Attribute Groups</h1>
+        <div>
+          <button onClick={onExport} style={{ marginRight: 8 }}>Export JSON</button>
+          <button onClick={onImportClick}>Import JSON</button>
+          <input ref={fileInputRef} type="file" accept="application/json" onChange={onImportFile} style={{ display: 'none' }} />
+        </div>
       </div>
-      <div style={{ flex: 1 }}>
-        <Details />
-      </div>
+
+      {!hydrated && <div>Loading…</div>}
+
+      {hydrated && (
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 3fr', gap: 16 }}>
+          <div style={{ border: '1px solid #ddd', borderRadius: 6, padding: 12 }}>
+            <h3 style={{ marginTop: 0 }}>{editing ? 'Edit group' : 'Create new group'}</h3>
+            <form onSubmit={onSubmit}>
+              <div style={{ marginBottom: 8 }}>
+                <label style={{ display: 'block', fontSize: 12, color: '#666' }}>Name</label>
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="e.g., Specifications"
+                  style={{ width: '100%', padding: 8 }}
+                  required
+                />
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <label style={{ display: 'block', fontSize: 12, color: '#666' }}>Description</label>
+                <textarea
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  placeholder="Optional description"
+                  style={{ width: '100%', padding: 8, minHeight: 60 }}
+                />
+              </div>
+              <div>
+                <button type="submit" style={{ marginRight: 8 }}>{editing ? 'Save changes' : 'Add group'}</button>
+                {editing && (
+                  <button type="button" onClick={() => setEditing(null)}>
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+
+          <div style={{ border: '1px solid #ddd', borderRadius: 6, padding: 12 }}>
+            <h3 style={{ marginTop: 0 }}>All groups ({groups.length})</h3>
+            {groups.length === 0 ? (
+              <div>No attribute groups yet. Create your first group on the left.</div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left', borderBottom: '1px solid #eee', padding: '8px 4px' }}>Name</th>
+                    <th style={{ textAlign: 'left', borderBottom: '1px solid #eee', padding: '8px 4px' }}>Description</th>
+                    <th style={{ textAlign: 'right', borderBottom: '1px solid #eee', padding: '8px 4px' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {groups.map((g) => (
+                    <tr key={g.id}>
+                      <td style={{ borderBottom: '1px solid #f5f5f5', padding: '8px 4px' }}>{g.name}</td>
+                      <td style={{ borderBottom: '1px solid #f5f5f5', padding: '8px 4px', color: '#555' }}>{g.description}</td>
+                      <td style={{ borderBottom: '1px solid #f5f5f5', padding: '8px 4px', textAlign: 'right' }}>
+                        <button onClick={() => setEditing(g)} style={{ marginRight: 8 }}>Edit</button>
+                        <button onClick={() => onDelete(g)} style={{ color: '#c00' }}>Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
