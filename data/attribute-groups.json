@@ -1,32 +1,24 @@
-{
-  "attributeGroups": [
-    {
-      "id": "basic",
-      "name": "Basic",
-      "attributes": [
-        { "code": "name", "label": "Name", "type": "text", "required": true },
-        { "code": "sku", "label": "SKU", "type": "text", "required": true },
-        { "code": "description", "label": "Description", "type": "textarea", "required": false }
-      ]
-    },
-    {
-      "id": "seo",
-      "name": "SEO",
-      "attributes": [
-        { "code": "meta_title", "label": "Meta Title", "type": "text", "required": false },
-        { "code": "meta_description", "label": "Meta Description", "type": "textarea", "required": false }
-      ]
-    },
-    {
-      "id": "dimensions",
-      "name": "Dimensions",
-      "attributes": [
-        { "code": "weight", "label": "Weight", "type": "number", "required": false },
-        { "code": "width", "label": "Width", "type": "number", "required": false },
-        { "code": "height", "label": "Height", "type": "number", "required": false },
-        { "code": "depth", "label": "Depth", "type": "number", "required": false }
-      ]
-    }
-  ],
-  "updatedAt": "2025-08-01T00:00:00.000Z"
-}
+[
+  {
+    "id": "general",
+    "name": "General",
+    "description": "Common product attributes used across most listings.",
+    "attributes": [
+      { "code": "name", "label": "Name", "type": "text", "required": true },
+      { "code": "sku", "label": "SKU", "type": "text", "required": true },
+      { "code": "description", "label": "Description", "type": "richtext", "required": false },
+      { "code": "price", "label": "Price", "type": "number", "required": true },
+      { "code": "currency", "label": "Currency", "type": "select", "options": ["USD", "EUR", "GBP"], "required": true }
+    ]
+  },
+  {
+    "id": "seo",
+    "name": "SEO",
+    "description": "Search engine optimization related fields.",
+    "attributes": [
+      { "code": "meta_title", "label": "Meta Title", "type": "text", "required": false },
+      { "code": "meta_description", "label": "Meta Description", "type": "textarea", "required": false },
+      { "code": "slug", "label": "URL Slug", "type": "text", "required": true }
+    ]
+  }
+]
