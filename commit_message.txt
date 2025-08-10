@@ -1,1 +1,1 @@
-FEATURE: Add basic Attribute Groups feature with API endpoint, simple admin page to create/list groups, and a small unit test for the in-memory store.
+Feature: Add client-side Attribute Groups admin page with localStorage persistence and utility functions, plus unit test for normalization/validation.
