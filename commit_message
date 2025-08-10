@@ -1,1 +1,1 @@
-FEATURE: Add Attribute Groups API and Admin UI with sample data and a unit test
+FEATURE: Add attribute groups API and admin UI with sample data and tests. Introduces /api/attribute-groups (with flat mode) and /admin/attribute-groups read-only dashboard backed by data/attribute-groups.json, plus a small API handler test.

@@ -1,44 +1,37 @@
-const { readGroups, addGroup, findByName } = require('../../lib/storage/attributeGroups');
+import fs from 'fs';
+import path from 'path';
 
-async function handler(req, res) {
-  // Basic API for attribute groups: GET list, POST create
-  if (req.method === 'GET') {
-    const groups = readGroups().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(groups));
-    return;
-  }
+const filePath = path.join(process.cwd(), 'data', 'attribute-groups.json');
 
-  if (req.method === 'POST') {
-    const body = req.body || {};
-    const name = (body.name || '').trim();
-    const description = (body.description || '').trim();
-
-    if (!name) {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ error: 'Name is required' }));
-      return;
-    }
-    if (findByName(name)) {
-      res.statusCode = 409;
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ error: 'An attribute group with this name already exists' }));
-      return;
-    }
-
-    const created = addGroup({ name, description });
-    res.statusCode = 201;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(created));
-    return;
-  }
-
-  res.setHeader('Allow', 'GET, POST');
-  res.statusCode = 405;
-  res.end('Method Not Allowed');
+function loadAttributeGroups() {
+  const raw = fs.readFileSync(filePath, 'utf8');
+  const data = JSON.parse(raw);
+  return data && Array.isArray(data.groups) ? data.groups : [];
 }
 
-module.exports = handler;
-module.exports.default = handler;
+export default function handler(req, res) {
+  try {
+    const groups = loadAttributeGroups();
+
+    if (req.method === 'GET') {
+      const { flat } = req.query || {};
+      if (flat === '1' || flat === 'true') {
+        const attributes = groups.flatMap((g) =>
+          (g.attributes || []).map((a) => ({
+            groupId: g.id,
+            groupName: g.name,
+            ...a,
+          }))
+        );
+        return res.status(200).json({ attributes, count: attributes.length });
+      }
+
+      return res.status(200).json({ groups, count: groups.length });
+    }
+
+    res.setHeader('Allow', 'GET');
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to load attribute groups' });
+  }
+}

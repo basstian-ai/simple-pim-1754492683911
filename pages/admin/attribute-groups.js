@@ -1,162 +1,106 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 export default function AttributeGroupsAdmin() {
-  const [groups, setGroups] = useState([]);
+  const [data, setData] = useState({ groups: [], count: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [newGroup, setNewGroup] = useState({ name: '', attributes: [{ code: '', label: '', type: 'text' }] });
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
-    let mounted = true;
-    fetch('/api/attribute-groups')
-      .then((r) => {
-        if (!r.ok) throw new Error('Failed to load attribute groups');
-        return r.json();
-      })
-      .then((data) => {
-        if (mounted) {
-          setGroups(Array.isArray(data.groups) ? data.groups : []);
-          setLoading(false);
-        }
-      })
-      .catch((e) => {
-        if (mounted) {
-          setError(e.message || 'Error');
-          setLoading(false);
-        }
-      });
+    let cancelled = false;
+    async function run() {
+      try {
+        const res = await fetch('/api/attribute-groups');
+        if (!res.ok) throw new Error('Failed to load attribute groups');
+        const json = await res.json();
+        if (!cancelled) setData(json);
+      } catch (e) {
+        if (!cancelled) setError(e.message || 'Unknown error');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    run();
     return () => {
-      mounted = false;
+      cancelled = true;
     };
   }, []);
 
-  function addAttributeRow() {
-    setNewGroup((g) => ({ ...g, attributes: [...g.attributes, { code: '', label: '', type: 'text' }] }));
-  }
-
-  function updateAttr(idx, key, value) {
-    setNewGroup((g) => {
-      const attrs = g.attributes.slice();
-      attrs[idx] = { ...attrs[idx], [key]: value };
-      return { ...g, attributes: attrs };
-    });
-  }
-
-  function removeAttr(idx) {
-    setNewGroup((g) => ({ ...g, attributes: g.attributes.filter((_, i) => i !== idx) }));
-  }
-
-  function submitNewGroup(e) {
-    e.preventDefault();
-    if (!newGroup.name.trim()) return;
-    const cleaned = {
-      id: 'grp-' + Date.now(),
-      name: newGroup.name.trim(),
-      attributes: newGroup.attributes
-        .filter((a) => a.code.trim() && a.label.trim())
-        .map((a) => ({ code: a.code.trim(), label: a.label.trim(), type: a.type || 'text' }))
-    };
-    setGroups((gs) => [cleaned, ...gs]);
-    setShowForm(false);
-    setNewGroup({ name: '', attributes: [{ code: '', label: '', type: 'text' }] });
-  }
+  const filtered = useMemo(() => {
+    if (!query) return data.groups || [];
+    const q = query.toLowerCase();
+    return (data.groups || []).map((g) => ({
+      ...g,
+      attributes: (g.attributes || []).filter(
+        (a) =>
+          a.code.toLowerCase().includes(q) ||
+          (a.label || '').toLowerCase().includes(q) ||
+          (g.name || '').toLowerCase().includes(q)
+      ),
+    })).filter((g) => (g.attributes || []).length > 0);
+  }, [data.groups, query]);
 
   return (
-    <div style={{ maxWidth: 960, margin: '40px auto', padding: '0 16px' }}>
-      <h1>Attribute Groups</h1>
-      <p style={{ color: '#666' }}>Manage how product attributes are grouped in your PIM.</p>
+    <div style={{ padding: '24px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
+      <h1 style={{ margin: '0 0 8px' }}>Attribute Groups</h1>
+      <p style={{ margin: '0 0 16px', color: '#555' }}>
+        Read-only view of attribute groups and variant attributes. Use this to align product data modeling.
+      </p>
 
-      <div style={{ background: '#fff7cc', padding: 12, border: '1px solid #ffe58f', borderRadius: 6, marginBottom: 16 }}>
-        Note: Creating groups here updates the client view only for now. Built-in groups are served from the API.
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <input
+          type="search"
+          placeholder="Filter by group, code, or label..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          style={{ flex: '1 1 auto', padding: '8px 12px', border: '1px solid #ddd', borderRadius: 6 }}
+          aria-label="Filter attributes"
+        />
+        <a href="/api/attribute-groups" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+          <button style={buttonStyle}>API</button>
+        </a>
+        <a href="/api/attribute-groups?flat=1" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+          <button style={buttonStyle}>Flat JSON</button>
+        </a>
       </div>
-
-      <div style={{ marginBottom: 16 }}>
-        <button onClick={() => setShowForm((s) => !s)} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #ccc', background: '#111', color: '#fff' }}>
-          {showForm ? 'Cancel' : 'New Group'}
-        </button>
-      </div>
-
-      {showForm && (
-        <form onSubmit={submitNewGroup} style={{ border: '1px solid #eee', padding: 16, borderRadius: 8, marginBottom: 24 }}>
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Group Name</label>
-            <input
-              value={newGroup.name}
-              onChange={(e) => setNewGroup((g) => ({ ...g, name: e.target.value }))}
-              placeholder="e.g. SEO"
-              style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
-            />
-          </div>
-
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <strong>Attributes</strong>
-              <button type="button" onClick={addAttributeRow} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #ccc', background: '#fafafa' }}>+ Add</button>
-            </div>
-            {newGroup.attributes.map((attr, idx) => (
-              <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 160px 80px', gap: 8, marginTop: 8 }}>
-                <input
-                  value={attr.code}
-                  onChange={(e) => updateAttr(idx, 'code', e.target.value)}
-                  placeholder="code (e.g. meta_title)"
-                  style={{ padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
-                  required
-                />
-                <input
-                  value={attr.label}
-                  onChange={(e) => updateAttr(idx, 'label', e.target.value)}
-                  placeholder="Label"
-                  style={{ padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
-                  required
-                />
-                <select value={attr.type} onChange={(e) => updateAttr(idx, 'type', e.target.value)} style={{ padding: 8, border: '1px solid #ccc', borderRadius: 4 }}>
-                  <option value="text">Text</option>
-                  <option value="number">Number</option>
-                  <option value="select">Select</option>
-                  <option value="richtext">Rich Text</option>
-                  <option value="boolean">Boolean</option>
-                  <option value="url">URL</option>
-                  <option value="media">Media</option>
-                  <option value="media[]">Media List</option>
-                </select>
-                <button type="button" onClick={() => removeAttr(idx)} style={{ padding: 8, borderRadius: 4, border: '1px solid #ccc', background: '#fff' }}>Remove</button>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ marginTop: 16 }}>
-            <button type="submit" style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #ccc', background: '#0a7', color: '#fff' }}>Create Group</button>
-          </div>
-        </form>
-      )}
 
       {loading && <div>Loading attribute groups…</div>}
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+      {error && <div style={{ color: 'crimson' }}>{error}</div>}
 
       {!loading && !error && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
-          {groups.map((g) => (
-            <div key={g.id} style={{ border: '1px solid #eee', borderRadius: 8, padding: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <h3 style={{ margin: 0 }}>{g.name}</h3>
-                <code style={{ color: '#666' }}>{g.id}</code>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+          {filtered.map((group) => (
+            <div key={group.id} style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <h2 style={{ margin: 0, fontSize: 18 }}>{group.name}</h2>
+                <span style={pillStyle}>{group.id}</span>
               </div>
-              <div style={{ marginTop: 8, color: '#555' }}>{Array.isArray(g.attributes) ? g.attributes.length : 0} attributes</div>
-              {Array.isArray(g.attributes) && g.attributes.length > 0 && (
-                <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr 120px', gap: 6 }}>
-                  <div style={{ fontWeight: 600 }}>Code</div>
-                  <div style={{ fontWeight: 600 }}>Label</div>
-                  <div style={{ fontWeight: 600 }}>Type</div>
-                  {g.attributes.map((a) => (
-                    <>
-                      <div key={g.id + a.code + '-code'} style={{ fontFamily: 'monospace' }}>{a.code}</div>
-                      <div key={g.id + a.code + '-label'}>{a.label}</div>
-                      <div key={g.id + a.code + '-type'}><code>{a.type}</code></div>
-                    </>
-                  ))}
-                </div>
+              {group.description && (
+                <p style={{ margin: '4px 0 12px', color: '#666', fontSize: 14 }}>{group.description}</p>
               )}
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
+                {(group.attributes || []).map((attr) => (
+                  <li key={attr.code} style={{ border: '1px solid #eee', borderRadius: 6, padding: 10 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <strong style={{ fontSize: 14 }}>{attr.label}</strong>
+                      <code style={{ color: '#555', fontSize: 12 }}>{attr.code}</code>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
+                      <span style={metaStyle}>type: {attr.type}</span>
+                      {attr.unit && <span style={metaStyle}>unit: {attr.unit}</span>}
+                      <span style={metaStyle}>variant: {attr.useInVariant ? 'yes' : 'no'}</span>
+                      {attr.required && <span style={metaStyle}>required</span>}
+                    </div>
+                    {Array.isArray(attr.options) && attr.options.length > 0 && (
+                      <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        {attr.options.map((opt) => (
+                          <span key={opt} style={optionStyle}>{opt}</span>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
@@ -164,3 +108,46 @@ export default function AttributeGroupsAdmin() {
     </div>
   );
 }
+
+const buttonStyle = {
+  padding: '8px 12px',
+  borderRadius: 6,
+  border: '1px solid #ddd',
+  background: '#fff',
+  cursor: 'pointer'
+};
+
+const cardStyle = {
+  border: '1px solid #e5e7eb',
+  borderRadius: 8,
+  padding: 16,
+  background: '#fff',
+  boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+};
+
+const pillStyle = {
+  background: '#f3f4f6',
+  border: '1px solid #e5e7eb',
+  borderRadius: 999,
+  padding: '2px 8px',
+  fontSize: 12,
+  color: '#374151'
+};
+
+const metaStyle = {
+  background: '#f9fafb',
+  border: '1px solid #f3f4f6',
+  borderRadius: 4,
+  padding: '2px 6px',
+  fontSize: 12,
+  color: '#374151'
+};
+
+const optionStyle = {
+  background: '#eef2ff',
+  border: '1px solid #e0e7ff',
+  borderRadius: 999,
+  padding: '2px 8px',
+  fontSize: 12,
+  color: '#3730a3'
+};
