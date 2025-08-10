@@ -1,5 +1,5 @@
 
-added 751 packages, and audited 752 packages in 7s
+added 751 packages, and audited 752 packages in 6s
 
 97 packages are looking for funding
   run `npm fund` for details
@@ -25,11 +25,11 @@ info  - Checking validity of types...
 info  - Creating an optimized production build...
 info  - Compiled successfully
 info  - Collecting page data...
-info  - Generating static pages (0/17)
-info  - Generating static pages (4/17)
-info  - Generating static pages (8/17)
-info  - Generating static pages (12/17)
-info  - Generating static pages (17/17)
+info  - Generating static pages (0/18)
+info  - Generating static pages (4/18)
+info  - Generating static pages (8/18)
+info  - Generating static pages (13/18)
+info  - Generating static pages (18/18)
 info  - Finalizing page optimization...
 
 Page                                  Size     First Load JS
@@ -62,6 +62,7 @@ Page                                  Size     First Load JS
 ├ ○ /tags                             1.09 kB        64.7 kB
 ├ ○ /tests/attribute-groups           2.2 kB         65.8 kB
 ├ ○ /tools/attribute-suggest          1.91 kB        65.5 kB
+├ ○ /tools/name-suggest               1.65 kB        65.3 kB
 └ ○ /tools/slugify                    2 kB           65.6 kB
 + First Load JS shared by all         63.6 kB
   ├ chunks/framework.64eb71.js        42.1 kB
