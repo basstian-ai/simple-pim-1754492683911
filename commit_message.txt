@@ -1,1 +1,1 @@
-feat(ai-attributes): add attribute suggestion engine, API endpoint, and tooling UI page; include basic unit test for heuristic extractor
+FEATURE: Add basic Products API with in-memory store, rich sample product data, admin products page for listing/creating products, and a minimal API test script.
