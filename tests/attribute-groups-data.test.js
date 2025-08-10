@@ -1,15 +1,25 @@
-const assert = require('assert');
-const groups = require('../data/attribute-groups.json');
+const fs = require('fs');
+const path = require('path');
 
-assert.ok(Array.isArray(groups), 'groups should be an array');
-assert.ok(groups.length > 0, 'groups should not be empty');
+describe('attribute-groups JSON', () => {
+  test('has groups with expected shape', () => {
+    const filePath = path.join(process.cwd(), 'data', 'attribute-groups.json');
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const data = JSON.parse(raw);
 
-for (const g of groups) {
-  assert.ok(g.name, 'group should have a name');
-  assert.ok(Array.isArray(g.attributes), 'group should have attributes array');
-  for (const a of g.attributes) {
-    assert.ok(a.code, 'attribute should have a code');
-  }
-}
+    expect(data).toHaveProperty('groups');
+    expect(Array.isArray(data.groups)).toBe(true);
+    expect(data.groups.length).toBeGreaterThan(0);
 
-console.log('OK: attribute groups data shape is valid');
+    for (const g of data.groups) {
+      expect(typeof g.id).toBe('string');
+      expect(typeof g.name).toBe('string');
+      expect(Array.isArray(g.attributes)).toBe(true);
+      for (const a of g.attributes) {
+        expect(typeof a.code).toBe('string');
+        expect(typeof a.label).toBe('string');
+        expect(typeof a.type).toBe('string');
+      }
+    }
+  });
+});

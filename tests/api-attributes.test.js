@@ -1,48 +1,47 @@
-const assert = require('assert');
-const handler = require('../pages/api/attributes');
+const handlerModule = require('../pages/api/attributes');
+const handler = handlerModule.default || handlerModule;
 
 function createMockRes() {
-  let statusCode = 200;
-  const headers = {};
-  let body = undefined;
-  return {
-    status(code) {
-      statusCode = code;
-      return this;
-    },
-    setHeader(key, val) {
-      headers[key] = val;
-    },
-    json(data) {
-      body = data;
-      return this;
-    },
-    end() {
-      return this;
-    },
-    _get() {
-      return { statusCode, headers, body };
-    },
+  const res = {};
+  res.statusCode = 200;
+  res.headers = {};
+  res.status = (code) => {
+    res.statusCode = code;
+    return res;
   };
+  res.setHeader = (k, v) => {
+    res.headers[k] = v;
+  };
+  res.jsonData = undefined;
+  res.json = (data) => {
+    res.jsonData = data;
+    return res;
+  };
+  return res;
 }
 
-// GET should return groups and attributes
-{
-  const res = createMockRes();
-  handler({ method: 'GET' }, res);
-  const out = res._get();
-  assert.strictEqual(out.statusCode, 200);
-  assert.ok(out.body && Array.isArray(out.body.groups), 'groups should be array');
-  assert.ok(out.body && Array.isArray(out.body.attributes), 'attributes should be array');
-  assert.ok(out.body.groups.length >= 1, 'at least one group');
-}
+describe('GET /api/attributes', () => {
+  it('returns attribute groups payload', async () => {
+    const req = { method: 'GET' };
+    const res = createMockRes();
+    await handler(req, res);
 
-// Non-GET should be 405
-{
-  const res = createMockRes();
-  handler({ method: 'POST' }, res);
-  const out = res._get();
-  assert.strictEqual(out.statusCode, 405);
-}
+    expect(res.statusCode).toBe(200);
+    expect(res.jsonData).toBeDefined();
+    expect(res.jsonData.ok).toBe(true);
+    expect(Array.isArray(res.jsonData.groups)).toBe(true);
+    expect(res.jsonData.groups.length).toBeGreaterThan(0);
+    const first = res.jsonData.groups[0];
+    expect(first).toHaveProperty('id');
+    expect(first).toHaveProperty('attributes');
+  });
 
-console.log('api-attributes.test.js: OK');
+  it('rejects non-GET methods', async () => {
+    const req = { method: 'POST' };
+    const res = createMockRes();
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(405);
+    expect(res.jsonData.ok).toBe(false);
+  });
+});
