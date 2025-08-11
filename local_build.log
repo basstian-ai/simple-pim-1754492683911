@@ -1,5 +1,5 @@
 
-added 751 packages, and audited 752 packages in 7s
+added 751 packages, and audited 752 packages in 6s
 
 97 packages are looking for funding
   run `npm fund` for details
@@ -24,11 +24,11 @@ https://nextjs.org/telemetry
 info  - Checking validity of types...
 info  - Creating an optimized production build...
 info  - Collecting page data...
-info  - Generating static pages (0/28)
-info  - Generating static pages (7/28)
-info  - Generating static pages (14/28)
-info  - Generating static pages (21/28)
-info  - Generating static pages (28/28)
+info  - Generating static pages (0/29)
+info  - Generating static pages (7/29)
+info  - Generating static pages (14/29)
+info  - Generating static pages (21/29)
+info  - Generating static pages (29/29)
 info  - Finalizing page optimization...
 
 Page                                     Size     First Load JS
@@ -39,6 +39,7 @@ Page                                     Size     First Load JS
 ├ ○ /admin/attribute-group/[id]          3.5 kB         67.1 kB
 ├ ○ /admin/attribute-groups              2.28 kB        65.9 kB
 ├ ○ /admin/attribute-groups-flat         2.09 kB        65.7 kB
+├ ○ /admin/attribute-groups-grouped      2.62 kB        66.2 kB
 ├ ○ /admin/attribute-suggest             1.58 kB        65.2 kB
 ├ ○ /admin/attribute-suggest-product     1.49 kB        65.1 kB
 ├ ○ /admin/attributes                    3.29 kB        66.9 kB
@@ -59,6 +60,7 @@ Page                                     Size     First Load JS
 ├ λ /api/attribute-groups/export         0 B            63.6 kB
 ├ λ /api/attribute-groups/flat           0 B            63.6 kB
 ├ λ /api/attribute-groups/flat/export    0 B            63.6 kB
+├ λ /api/attribute-groups/grouped        0 B            63.6 kB
 ├ λ /api/attribute-groups/validate       0 B            63.6 kB
 ├ λ /api/attributes                      0 B            63.6 kB
 ├ λ /api/attributes/suggest              0 B            63.6 kB
