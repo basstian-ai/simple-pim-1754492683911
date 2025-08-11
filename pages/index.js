@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import ProductList from '../components/ProductList';
 import ExportCsvLink from '../components/ExportCsvLink';
 import StockFilterToggle from '../components/StockFilterToggle';
+import { addTimestampsToProducts } from '../lib/ensureTimestamps';
 
 const Home = () => {
   const router = useRouter();
@@ -74,7 +75,9 @@ const Home = () => {
       const qs = params.length ? `?${params.join('&')}` : '';
       const res = await fetch(`/api/products${qs}`, { signal: controller.signal });
       const data = await res.json();
-      if (active) setProducts(data);
+      // augment products with deterministic timestamps for richer UI and export
+      const augmented = addTimestampsToProducts(Array.isArray(data) ? data : []);
+      if (active) setProducts(augmented);
     };
 
     const t = setTimeout(fetchProducts, 250);
