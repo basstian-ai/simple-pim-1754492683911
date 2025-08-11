@@ -1,5 +1,5 @@
 
-added 751 packages, and audited 752 packages in 7s
+added 751 packages, and audited 752 packages in 6s
 
 97 packages are looking for funding
   run `npm fund` for details
@@ -32,7 +32,7 @@ info  - Generating static pages (31/31)
 info  - Finalizing page optimization...
 
 Page                                     Size     First Load JS
-┌ ○ /                                    4 kB           67.6 kB
+┌ ○ /                                    3.76 kB        67.4 kB
 ├ ○ /404                                 3.06 kB        66.7 kB
 ├ ○ /admin                               2.48 kB        66.1 kB
 ├ ○ /admin/ai-tools                      1.51 kB        65.1 kB
@@ -49,7 +49,7 @@ Page                                     Size     First Load JS
 ├ ○ /admin/dashboard                     1.37 kB          65 kB
 ├ ● /admin/flat-attributes               963 B          64.6 kB
 ├ ○ /admin/product/[sku]/attributes      3.6 kB         67.2 kB
-├ ○ /admin/products                      3.89 kB        67.5 kB
+├ ○ /admin/products                      3.82 kB        67.4 kB
 ├ ○ /admin/quick-add                     1.55 kB        65.2 kB
 ├ ○ /admin/sample-products               7.49 kB        71.1 kB
 ├ ○ /admin/sku                           3.19 kB        66.8 kB
