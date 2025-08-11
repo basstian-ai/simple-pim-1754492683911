@@ -1,1 +1,1 @@
-FEATURE: Add attribute groups API and admin UI with sample data and tests. Introduces /api/attribute-groups (with flat mode) and /admin/attribute-groups read-only dashboard backed by data/attribute-groups.json, plus a small API handler test.
+Fix build by resolving reserved keyword usage in pages/api/products/index.js; delegate to centralized productsHandler.
