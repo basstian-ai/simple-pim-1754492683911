@@ -5,6 +5,7 @@ import ExportCsvLink from '../components/ExportCsvLink';
 import StockFilterToggle from '../components/StockFilterToggle';
 import { addTimestampsToProducts } from '../lib/ensureTimestamps';
 import { addImagesToProducts } from '../lib/ensureProductImages';
+import paginate from '../lib/pagination';
 
 const Home = () => {
   const router = useRouter();
@@ -13,6 +14,8 @@ const Home = () => {
   const [allTags, setAllTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [inStockOnly, setInStockOnly] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(20);
 
   // ref for the search input so we can focus it via keyboard shortcut
   const searchInputRef = useRef(null);
@@ -28,6 +31,10 @@ const Home = () => {
       setSelectedTags(q.tags.split(',').map((t) => decodeURIComponent(t)));
     }
     if (q.inStock === '1' || q.inStock === 'true') setInStockOnly(true);
+    if (q.page) {
+      const p = parseInt(q.page, 10);
+      if (!Number.isNaN(p) && p > 0) setPage(p);
+    }
     initializedFromUrl.current = true;
   }, [router?.query]);
 
@@ -38,16 +45,23 @@ const Home = () => {
     if (query) nextQuery.search = query;
     if (selectedTags.length) nextQuery.tags = selectedTags.join(',');
     if (inStockOnly) nextQuery.inStock = '1';
+    if (page && page > 1) nextQuery.page = String(page);
 
     const current = router?.query || {};
     const same =
       current.search === nextQuery.search &&
       (current.tags || '') === (nextQuery.tags || '') &&
-      (current.inStock || '') === (nextQuery.inStock || '');
+      (current.inStock || '') === (nextQuery.inStock || '') &&
+      ((current.page || '') === (nextQuery.page || ''));
 
     if (!same) {
       router.replace({ pathname: router.pathname, query: nextQuery }, undefined, { shallow: true });
     }
+  }, [query, selectedTags, inStockOnly, page]);
+
+  // reset to first page when main filters change
+  useEffect(() => {
+    setPage(1);
   }, [query, selectedTags, inStockOnly]);
 
   useEffect(() => {
@@ -123,9 +137,12 @@ const Home = () => {
     setQuery('');
     setSelectedTags([]);
     setInStockOnly(false);
+    setPage(1);
   };
 
   const anyFilterActive = query || selectedTags.length > 0 || inStockOnly;
+
+  const { pageItems: displayedProducts, total, totalPages } = paginate(products, page, pageSize);
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '1rem' }}>
@@ -141,7 +158,7 @@ const Home = () => {
         />
         <StockFilterToggle checked={inStockOnly} onChange={setInStockOnly} />
         <span style={{ color: '#666', fontSize: 12 }}>
-          {products?.length || 0} result{(products?.length || 0) === 1 ? '' : 's'}
+          {total || 0} result{(total || 0) === 1 ? '' : 's'}
         </span>
         <ExportCsvLink style={{ fontSize: 12 }} />
 
@@ -200,7 +217,32 @@ const Home = () => {
         </div>
       )}
 
-      <ProductList products={products} />
+      <ProductList products={displayedProducts} />
+
+      {/* Pagination controls (client-side) */}
+      {total > pageSize && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            aria-label="Previous page"
+            style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #ddd', background: '#fff', cursor: page <= 1 ? 'not-allowed' : 'pointer' }}
+          >
+            Prev
+          </button>
+          <span style={{ color: '#666', fontSize: 13 }}>
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+            aria-label="Next page"
+            style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #ddd', background: '#fff', cursor: page >= totalPages ? 'not-allowed' : 'pointer' }}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

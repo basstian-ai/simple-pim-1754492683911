@@ -32,7 +32,7 @@ info  - Generating static pages (31/31)
 info  - Finalizing page optimization...
 
 Page                                     Size     First Load JS
-┌ ○ /                                    4.41 kB          68 kB
+┌ ○ /                                    4.83 kB        68.4 kB
 ├ ○ /404                                 3.06 kB        66.7 kB
 ├ ○ /admin                               2.48 kB        66.1 kB
 ├ ○ /admin/ai-tools                      1.51 kB        65.1 kB
