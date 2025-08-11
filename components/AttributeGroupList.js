@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export default function AttributeGroupList({ groups }) {
   if (!groups || groups.length === 0) {
@@ -10,7 +11,11 @@ export default function AttributeGroupList({ groups }) {
       {groups.map((group) => (
         <div key={group.id} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 16, marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-            <h2 style={{ margin: 0 }}>{group.name}</h2>
+            <h2 style={{ margin: 0 }}>
+              <Link href={`/admin/attribute-group/${group.id}`}>
+                <a style={{ color: '#111827', textDecoration: 'none' }}>{group.name}</a>
+              </Link>
+            </h2>
             <code style={{ color: '#6b7280' }}>{group.id}</code>
           </div>
           {group.description ? (
@@ -21,7 +26,7 @@ export default function AttributeGroupList({ groups }) {
               <li key={attr.code} style={{ padding: '8px 0', borderTop: '1px solid #f3f4f6' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <strong>{attr.label}</strong>
+                    <strong>{attr.label || attr.name || attr.code}</strong>
                     <span style={{ marginLeft: 8, color: '#6b7280' }}>({attr.code})</span>
                   </div>
                   <span style={{ fontSize: 12, padding: '2px 6px', background: '#eef2ff', color: '#3730a3', borderRadius: 6 }}>
