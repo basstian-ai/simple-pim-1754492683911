@@ -1,1 +1,1 @@
-feat(variants): add variant generator utility and admin tool page with preview; include unit test for cartesian and variant generation
+feat(api): add /api/products/variants/generate endpoint for server-side variant generation with validation and tests
