@@ -1,14 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import ProductList from '../components/ProductList';
 import ExportCsvLink from '../components/ExportCsvLink';
 import StockFilterToggle from '../components/StockFilterToggle';
 
 const Home = () => {
+  const router = useRouter();
   const [products, setProducts] = useState([]);
   const [query, setQuery] = useState('');
   const [allTags, setAllTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [inStockOnly, setInStockOnly] = useState(false);
+
+  const initializedFromUrl = useRef(false);
+
+  // Initialize filter state from URL on first render
+  useEffect(() => {
+    if (initializedFromUrl.current) return;
+    const q = router?.query || {};
+    if (typeof q.search === 'string') setQuery(q.search);
+    if (typeof q.tags === 'string' && q.tags.trim()) {
+      setSelectedTags(q.tags.split(',').map((t) => decodeURIComponent(t)));
+    }
+    if (q.inStock === '1' || q.inStock === 'true') setInStockOnly(true);
+    initializedFromUrl.current = true;
+  }, [router?.query]);
+
+  // Keep URL in sync with filters (for shareable links and CSV export)
+  useEffect(() => {
+    // Avoid pushing identical queries repeatedly
+    const nextQuery = {};
+    if (query) nextQuery.search = query;
+    if (selectedTags.length) nextQuery.tags = selectedTags.join(',');
+    if (inStockOnly) nextQuery.inStock = '1';
+
+    const current = router?.query || {};
+    const same =
+      current.search === nextQuery.search &&
+      (current.tags || '') === (nextQuery.tags || '') &&
+      (current.inStock || '') === (nextQuery.inStock || '');
+
+    if (!same) {
+      router.replace({ pathname: router.pathname, query: nextQuery }, undefined, { shallow: true });
+    }
+  }, [query, selectedTags, inStockOnly]);
 
   useEffect(() => {
     let cancelled = false;
