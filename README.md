@@ -13,6 +13,7 @@ This is a lightweight Product Information Management (PIM) demo built with Next.
 - Product search, tag filtering, and CSV export on the storefront (home page)
 - Admin dashboard with product stats and tools
 - Attributes and Attribute Groups management and exports
+- Flat Attribute Groups browser with CSV export at `/admin/attribute-groups-flat`
 - Tag stats and bulk tag tools
 - Variant generation helpers
 - Per-product flat attributes viewer at `/admin/product/[sku]/attributes` (uses `/api/products/[sku]/attributes/flat`)
