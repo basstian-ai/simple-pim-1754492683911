@@ -14,6 +14,7 @@ The long-term goal is a scalable, extensible system comparable to [Bluestone PIM
 - Attribute Export: Download a flattened CSV of all attributes across groups at /api/attribute-groups/flat/export.
 - AI-Powered Suggestions: Get AI-based suggestions for product names and attributes.
 - Data Export: Export products and tags to CSV.
+- Product Search API: Filter by query (name/sku/slug), tags, and stock with pagination at /api/products/search.
 - Tagging and Filtering: Advanced filtering options, including by tags and stock status.
 - Shareable URLs: Filters are reflected in the URL for easy sharing.
 - Bulk Tagging Preview: Admin tool at /admin/bulk-tags with API /api/products/tags/bulk-preview to preview adding/removing tags to many SKUs (no persistence).

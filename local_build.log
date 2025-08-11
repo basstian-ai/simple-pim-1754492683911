@@ -1,5 +1,5 @@
 
-added 751 packages, and audited 752 packages in 6s
+added 751 packages, and audited 752 packages in 7s
 
 97 packages are looking for funding
   run `npm fund` for details
@@ -66,6 +66,7 @@ Page                                   Size     First Load JS
 ├ λ /api/products/[sku]                0 B            63.6 kB
 ├ λ /api/products/export               0 B            63.6 kB
 ├ λ /api/products/sample               0 B            63.6 kB
+├ λ /api/products/search               0 B            63.6 kB
 ├ λ /api/products/stats                0 B            63.6 kB
 ├ λ /api/products/suggest              0 B            63.6 kB
 ├ λ /api/products/tags/bulk-preview    0 B            63.6 kB
