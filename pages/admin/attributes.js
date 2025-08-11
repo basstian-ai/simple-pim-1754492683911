@@ -1,202 +1,272 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-function fetchJSON(url, options) {
-  return fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options }).then((r) => {
-    if (!r.ok) throw new Error('Network error');
-    return r.json();
-  });
+const LOCAL_KEY = 'pim:attributeGroups';
+
+function slugify(value) {
+  return String(value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
 }
 
-export default function AdminAttributesPage() {
-  const [loading, setLoading] = useState(true);
+function newAttribute() {
+  return { code: '', label: '', type: 'text', options: [], unit: '' };
+}
+
+function newGroup() {
+  return { id: '', name: '', attributes: [newAttribute()] };
+}
+
+export default function AttributeGroupsAdmin() {
   const [groups, setGroups] = useState([]);
+  const [loadedFrom, setLoadedFrom] = useState('');
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  // new group
-  const [newGroupName, setNewGroupName] = useState('');
-
-  // new attribute
-  const [selectedGroupId, setSelectedGroupId] = useState('');
-  const [attrName, setAttrName] = useState('');
-  const [attrCode, setAttrCode] = useState('');
-  const [attrType, setAttrType] = useState('text');
-
-  function load() {
-    setLoading(true);
-    setError('');
-    fetchJSON('/api/attributes')
-      .then((data) => {
-        setGroups(data.attributeGroups || []);
-        if (!selectedGroupId && (data.attributeGroups || []).length) {
-          setSelectedGroupId(data.attributeGroups[0].id);
-        }
-      })
-      .catch((e) => setError(e.message || 'Failed to load'))
-      .finally(() => setLoading(false));
-  }
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
-    load();
+    async function init() {
+      setLoading(true);
+      setError('');
+      setMessage('');
+      try {
+        const local = typeof window !== 'undefined' ? window.localStorage.getItem(LOCAL_KEY) : null;
+        if (local) {
+          const parsed = JSON.parse(local);
+          setGroups(parsed);
+          setLoadedFrom('local');
+        } else {
+          const res = await fetch('/api/attributes');
+          if (!res.ok) throw new Error('Failed to load sample attributes');
+          const data = await res.json();
+          setGroups(Array.isArray(data.groups) ? data.groups : []);
+          setLoadedFrom('server');
+        }
+      } catch (e) {
+        setError(e.message || 'Failed to initialize');
+      } finally {
+        setLoading(false);
+      }
+    }
+    init();
   }, []);
 
-  function handleAddGroup(e) {
-    e.preventDefault();
-    if (!newGroupName.trim()) return;
-    setError('');
-    fetchJSON('/api/attributes', {
-      method: 'POST',
-      body: JSON.stringify({ type: 'group', name: newGroupName })
-    })
-      .then((data) => {
-        setGroups(data.attributeGroups || []);
-        setNewGroupName('');
-        if (!selectedGroupId && (data.attributeGroups || []).length) {
-          setSelectedGroupId(data.attributeGroups[data.attributeGroups.length - 1].id);
-        }
-      })
-      .catch((e) => setError(e.message || 'Failed to add group'));
+  const groupIds = useMemo(() => new Set(groups.map((g) => g.id)), [groups]);
+
+  function updateGroup(index, updater) {
+    setGroups((prev) => {
+      const next = [...prev];
+      next[index] = updater({ ...next[index] });
+      return next;
+    });
   }
 
-  function handleAddAttribute(e) {
-    e.preventDefault();
-    if (!selectedGroupId || !attrName.trim()) return;
-    setError('');
-    fetchJSON('/api/attributes', {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'attribute',
-        groupId: selectedGroupId,
-        attribute: { name: attrName, code: attrCode, type: attrType }
-      })
-    })
-      .then((data) => {
-        setGroups(data.attributeGroups || []);
-        setAttrName('');
-        setAttrCode('');
-      })
-      .catch((e) => setError(e.message || 'Failed to add attribute'));
+  function addGroup() {
+    setGroups((prev) => [...prev, newGroup()]);
   }
+
+  function removeGroup(index) {
+    setGroups((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function addAttributeToGroup(gIndex) {
+    updateGroup(gIndex, (g) => ({ ...g, attributes: [...(g.attributes || []), newAttribute()] }));
+  }
+
+  function removeAttributeFromGroup(gIndex, aIndex) {
+    updateGroup(gIndex, (g) => ({ ...g, attributes: (g.attributes || []).filter((_, i) => i !== aIndex) }));
+  }
+
+  function saveLocal() {
+    try {
+      if (typeof window === 'undefined') return;
+      window.localStorage.setItem(LOCAL_KEY, JSON.stringify(groups));
+      setLoadedFrom('local');
+      setMessage('Saved to local device.');
+    } catch (e) {
+      setError('Failed to save locally');
+    }
+  }
+
+  async function resetFromServer() {
+    setLoading(true);
+    setError('');
+    setMessage('');
+    try {
+      const res = await fetch('/api/attributes');
+      if (!res.ok) throw new Error('Failed to load sample');
+      const data = await res.json();
+      setGroups(Array.isArray(data.groups) ? data.groups : []);
+      setLoadedFrom('server');
+    } catch (e) {
+      setError(e.message || 'Failed to reset');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleNameChange(i, name) {
+    updateGroup(i, (g) => {
+      const id = g.id || slugify(name);
+      return { ...g, name, id };
+    });
+  }
+
+  function handleIdChange(i, id) {
+    updateGroup(i, (g) => ({ ...g, id: slugify(id) }));
+  }
+
+  function handleAttrChange(gi, ai, field, value) {
+    updateGroup(gi, (g) => {
+      const attrs = [...(g.attributes || [])];
+      const next = { ...attrs[ai], [field]: value };
+      // Keep code slug-like
+      if (field === 'label' && !next.code) {
+        next.code = slugify(value);
+      }
+      if (field === 'type' && value !== 'select') {
+        next.options = [];
+      }
+      attrs[ai] = next;
+      return { ...g, attributes: attrs };
+    });
+  }
+
+  function addOption(gi, ai) {
+    updateGroup(gi, (g) => {
+      const attrs = [...(g.attributes || [])];
+      const a = { ...attrs[ai] };
+      a.options = Array.isArray(a.options) ? [...a.options, ''] : [''];
+      attrs[ai] = a;
+      return { ...g, attributes: attrs };
+    });
+  }
+
+  function updateOption(gi, ai, oi, val) {
+    updateGroup(gi, (g) => {
+      const attrs = [...(g.attributes || [])];
+      const a = { ...attrs[ai] };
+      const opts = Array.isArray(a.options) ? [...a.options] : [];
+      opts[oi] = val;
+      a.options = opts;
+      attrs[ai] = a;
+      return { ...g, attributes: attrs };
+    });
+  }
+
+  function removeOption(gi, ai, oi) {
+    updateGroup(gi, (g) => {
+      const attrs = [...(g.attributes || [])];
+      const a = { ...attrs[ai] };
+      const opts = Array.isArray(a.options) ? a.options.filter((_, i) => i !== oi) : [];
+      a.options = opts;
+      attrs[ai] = a;
+      return { ...g, attributes: attrs };
+    });
+  }
+
+  const headerNote = loadedFrom === 'local' ? 'Loaded from local device' : loadedFrom === 'server' ? 'Loaded from server sample' : '';
 
   return (
-    <div style={{ padding: '24px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial' }}>
-      <h1 style={{ margin: 0 }}>Attribute Groups</h1>
-      <p style={{ color: '#555' }}>Manage attribute groups and fields for your products.</p>
+    <div style={{ maxWidth: 1100, margin: '0 auto', padding: 24, fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
+      <h1 style={{ fontSize: 26, margin: 0 }}>Attribute Groups</h1>
+      <div style={{ color: '#555', marginTop: 4 }}>{headerNote}</div>
 
-      {error ? (
-        <div style={{ background: '#fee', color: '#900', padding: '8px 12px', borderRadius: 6, marginBottom: 12 }}>{error}</div>
-      ) : null}
+      <div style={{ marginTop: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <button onClick={addGroup} style={{ padding: '8px 12px', background: '#111827', color: 'white', border: 0, borderRadius: 6, cursor: 'pointer' }}>Add Group</button>
+        <button onClick={saveLocal} style={{ padding: '8px 12px', background: '#2563eb', color: 'white', border: 0, borderRadius: 6, cursor: 'pointer' }}>Save (local)</button>
+        <button onClick={resetFromServer} style={{ padding: '8px 12px', background: '#6b7280', color: 'white', border: 0, borderRadius: 6, cursor: 'pointer' }}>Reset to Server Sample</button>
+      </div>
 
-      <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridGap: 24 }}>
-        <div>
-          <h3 style={{ marginTop: 0 }}>Groups</h3>
-          {loading ? (
-            <div>Loading…</div>
-          ) : (
-            <div>
-              {groups.map((g) => (
-                <div key={g.id} style={{ border: '1px solid #eee', borderRadius: 8, padding: 12, marginBottom: 12 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <strong>{g.name}</strong>
-                    <small style={{ color: '#666' }}>{g.attributes.length} attrs</small>
+      {loading && <div style={{ marginTop: 16 }}>Loading…</div>}
+      {error && <div style={{ marginTop: 16, color: '#b91c1c' }}>{error}</div>}
+      {message && <div style={{ marginTop: 16, color: '#065f46' }}>{message}</div>}
+
+      <div style={{ marginTop: 24, display: 'grid', gap: 16 }}>
+        {groups.map((g, gi) => (
+          <div key={gi} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 16 }}>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+              <input
+                placeholder="Group name"
+                value={g.name}
+                onChange={(e) => handleNameChange(gi, e.target.value)}
+                style={{ flex: 2, padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }}
+              />
+              <input
+                placeholder="group-id"
+                value={g.id}
+                onChange={(e) => handleIdChange(gi, e.target.value)}
+                style={{ flex: 1, padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }}
+              />
+              <button onClick={() => addAttributeToGroup(gi)} style={{ padding: '8px 12px', background: '#10b981', color: 'white', border: 0, borderRadius: 6, cursor: 'pointer' }}>Add Attribute</button>
+              <button onClick={() => removeGroup(gi)} style={{ padding: '8px 12px', background: '#ef4444', color: 'white', border: 0, borderRadius: 6, cursor: 'pointer' }}>Remove Group</button>
+            </div>
+            {groupIds.has(g.id) || !g.id ? null : (
+              <div style={{ color: '#b45309', marginBottom: 8 }}>Duplicate group id detected</div>
+            )}
+
+            <div style={{ display: 'grid', gap: 12 }}>
+              {(g.attributes || []).map((a, ai) => (
+                <div key={ai} style={{ padding: 12, background: '#f9fafb', borderRadius: 6 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: 8, alignItems: 'center' }}>
+                    <input
+                      placeholder="Label"
+                      value={a.label}
+                      onChange={(e) => handleAttrChange(gi, ai, 'label', e.target.value)}
+                      style={{ padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }}
+                    />
+                    <input
+                      placeholder="code"
+                      value={a.code}
+                      onChange={(e) => handleAttrChange(gi, ai, 'code', slugify(e.target.value))}
+                      style={{ padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }}
+                    />
+                    <select
+                      value={a.type || 'text'}
+                      onChange={(e) => handleAttrChange(gi, ai, 'type', e.target.value)}
+                      style={{ padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }}
+                    >
+                      <option value="text">Text</option>
+                      <option value="number">Number</option>
+                      <option value="select">Select</option>
+                      <option value="boolean">Boolean</option>
+                    </select>
+                    <input
+                      placeholder="Unit (optional)"
+                      value={a.unit || ''}
+                      onChange={(e) => handleAttrChange(gi, ai, 'unit', e.target.value)}
+                      style={{ padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }}
+                    />
+                    <button onClick={() => removeAttributeFromGroup(gi, ai)} style={{ padding: '8px 12px', background: '#ef4444', color: 'white', border: 0, borderRadius: 6, cursor: 'pointer' }}>Remove</button>
                   </div>
-                  <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {g.attributes.map((a) => (
-                      <span key={a.id} style={{ background: '#f5f5f5', border: '1px solid #eee', padding: '2px 8px', borderRadius: 999 }}>
-                        {a.name}
-                        <span style={{ color: '#888' }}> · {a.type}</span>
-                      </span>
-                    ))}
-                  </div>
+                  {a.type === 'select' && (
+                    <div style={{ marginTop: 8 }}>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
+                        <strong>Options</strong>
+                        <button onClick={() => addOption(gi, ai)} style={{ padding: '4px 8px', background: '#111827', color: 'white', border: 0, borderRadius: 6, cursor: 'pointer' }}>Add Option</button>
+                      </div>
+                      <div style={{ display: 'grid', gap: 6 }}>
+                        {(a.options || []).map((opt, oi) => (
+                          <div key={oi} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+                            <input
+                              placeholder={`Option ${oi + 1}`}
+                              value={opt}
+                              onChange={(e) => updateOption(gi, ai, oi, e.target.value)}
+                              style={{ padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }}
+                            />
+                            <button onClick={() => removeOption(gi, ai, oi)} style={{ padding: '8px 12px', background: '#6b7280', color: 'white', border: 0, borderRadius: 6, cursor: 'pointer' }}>Remove</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
-          )}
-        </div>
-
-        <div>
-          <h3 style={{ marginTop: 0 }}>Add Group</h3>
-          <form onSubmit={handleAddGroup} style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-            <input
-              aria-label="Group Name"
-              placeholder="e.g. Pricing"
-              value={newGroupName}
-              onChange={(e) => setNewGroupName(e.target.value)}
-              style={{ flex: 1, padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd' }}
-            />
-            <button type="submit" style={{ padding: '8px 12px', borderRadius: 6, background: '#111', color: 'white', border: 0 }}>Add</button>
-          </form>
-
-          <h3>Add Attribute</h3>
-          <form onSubmit={handleAddAttribute}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
-              <label style={{ display: 'grid', gap: 4 }}>
-                <span style={{ fontSize: 12, color: '#666' }}>Group</span>
-                <select
-                  value={selectedGroupId}
-                  onChange={(e) => setSelectedGroupId(e.target.value)}
-                  style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd' }}
-                >
-                  <option value="" disabled>
-                    Select a group
-                  </option>
-                  {groups.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label style={{ display: 'grid', gap: 4 }}>
-                <span style={{ fontSize: 12, color: '#666' }}>Name</span>
-                <input
-                  aria-label="Attribute Name"
-                  placeholder="e.g. Price"
-                  value={attrName}
-                  onChange={(e) => setAttrName(e.target.value)}
-                  style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd' }}
-                />
-              </label>
-
-              <label style={{ display: 'grid', gap: 4 }}>
-                <span style={{ fontSize: 12, color: '#666' }}>Code (optional)</span>
-                <input
-                  aria-label="Attribute Code"
-                  placeholder="e.g. price"
-                  value={attrCode}
-                  onChange={(e) => setAttrCode(e.target.value)}
-                  style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd' }}
-                />
-              </label>
-
-              <label style={{ display: 'grid', gap: 4 }}>
-                <span style={{ fontSize: 12, color: '#666' }}>Type</span>
-                <select
-                  aria-label="Attribute Type"
-                  value={attrType}
-                  onChange={(e) => setAttrType(e.target.value)}
-                  style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd' }}
-                >
-                  <option value="text">Text</option>
-                  <option value="textarea">Textarea</option>
-                  <option value="richtext">Rich Text</option>
-                  <option value="number">Number</option>
-                  <option value="boolean">Boolean</option>
-                  <option value="select">Select</option>
-                  <option value="media[]">Media List</option>
-                  <option value="url">URL</option>
-                </select>
-              </label>
-
-              <div>
-                <button type="submit" style={{ padding: '8px 12px', borderRadius: 6, background: '#111', color: 'white', border: 0 }} disabled={!selectedGroupId || !attrName.trim()}>
-                  Add Attribute
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </section>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

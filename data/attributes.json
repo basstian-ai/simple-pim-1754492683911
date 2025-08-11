@@ -1,23 +1,31 @@
 {
-  "attributes": [
+  "groups": [
     {
-      "code": "color",
-      "label": "Color",
-      "type": "select",
-      "group": "Basics",
-      "options": ["Red", "Blue", "Green"]
+      "id": "specs",
+      "name": "Specifications",
+      "attributes": [
+        { "code": "material", "label": "Material", "type": "text" },
+        { "code": "weight", "label": "Weight", "type": "text" },
+        { "code": "color", "label": "Color", "type": "select", "options": ["Red", "Green", "Blue", "Black", "White"] }
+      ]
     },
     {
-      "code": "size",
-      "label": "Size",
-      "type": "text",
-      "group": "Basics"
+      "id": "dimensions",
+      "name": "Dimensions",
+      "attributes": [
+        { "code": "length", "label": "Length", "type": "number", "unit": "cm" },
+        { "code": "width", "label": "Width", "type": "number", "unit": "cm" },
+        { "code": "height", "label": "Height", "type": "number", "unit": "cm" }
+      ]
     },
     {
-      "code": "material",
-      "label": "Material",
-      "type": "text",
-      "group": "Details"
+      "id": "shipping",
+      "name": "Shipping",
+      "attributes": [
+        { "code": "ships_from", "label": "Ships From", "type": "text" },
+        { "code": "hazmat", "label": "Hazardous Material", "type": "boolean" }
+      ]
     }
-  ]
+  ],
+  "updatedAt": "2025-08-01T00:00:00.000Z"
 }
