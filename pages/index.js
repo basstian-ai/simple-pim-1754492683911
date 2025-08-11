@@ -13,6 +13,9 @@ const Home = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [inStockOnly, setInStockOnly] = useState(false);
 
+  // ref for the search input so we can focus it via keyboard shortcut
+  const searchInputRef = useRef(null);
+
   const initializedFromUrl = useRef(false);
 
   // Initialize filter state from URL on first render
@@ -89,6 +92,23 @@ const Home = () => {
     };
   }, [query, selectedTags, inStockOnly]);
 
+  // Keyboard shortcut: press '/' to focus the search input
+  useEffect(() => {
+    const handler = (e) => {
+      // only trigger on the '/' key, ignore when focus is already in an input/textarea
+      if (e.key === '/') {
+        const active = document.activeElement;
+        const tag = active && active.tagName && active.tagName.toLowerCase();
+        if (tag !== 'input' && tag !== 'textarea') {
+          e.preventDefault();
+          if (searchInputRef.current) searchInputRef.current.focus();
+        }
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
   const toggleTag = (tag) => {
     setSelectedTags((prev) => {
       if (prev.includes(tag)) return prev.filter((t) => t !== tag);
@@ -100,6 +120,7 @@ const Home = () => {
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '1rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
         <input
+          ref={searchInputRef}
           type="search"
           placeholder="Search products by name, SKU or description..."
           value={query}
