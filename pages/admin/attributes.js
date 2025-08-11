@@ -1,253 +1,202 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-function Field({ label, children }) {
-  return (
-    <label style={{ display: 'block', marginBottom: 8 }}>
-      <div style={{ fontSize: 12, color: '#555' }}>{label}</div>
-      {children}
-    </label>
-  );
+function fetchJSON(url, options) {
+  return fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options }).then((r) => {
+    if (!r.ok) throw new Error('Network error');
+    return r.json();
+  });
 }
 
-function Section({ title, children, actions }) {
-  return (
-    <section style={{ border: '1px solid #eee', borderRadius: 8, padding: 16, marginBottom: 16 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <h3 style={{ margin: 0 }}>{title}</h3>
-        <div>{actions}</div>
-      </div>
-      {children}
-    </section>
-  );
-}
-
-export default function AttributesAdminPage() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+export default function AdminAttributesPage() {
+  const [loading, setLoading] = useState(true);
   const [groups, setGroups] = useState([]);
+  const [error, setError] = useState('');
+
+  // new group
+  const [newGroupName, setNewGroupName] = useState('');
+
+  // new attribute
   const [selectedGroupId, setSelectedGroupId] = useState('');
+  const [attrName, setAttrName] = useState('');
+  const [attrCode, setAttrCode] = useState('');
+  const [attrType, setAttrType] = useState('text');
 
-  const selectedGroup = useMemo(() => groups.find((g) => g.id === selectedGroupId) || groups[0], [groups, selectedGroupId]);
-
-  async function refresh() {
+  function load() {
     setLoading(true);
     setError('');
-    try {
-      const r = await fetch('/api/attributes');
-      const json = await r.json();
-      if (!json.ok) throw new Error(json.error || 'Failed');
-      setGroups(json.data.groups || []);
-      if (!selectedGroupId && (json.data.groups || []).length > 0) {
-        setSelectedGroupId(json.data.groups[0].id);
-      }
-    } catch (e) {
-      setError(e.message || 'Error');
-    } finally {
-      setLoading(false);
-    }
+    fetchJSON('/api/attributes')
+      .then((data) => {
+        setGroups(data.attributeGroups || []);
+        if (!selectedGroupId && (data.attributeGroups || []).length) {
+          setSelectedGroupId(data.attributeGroups[0].id);
+        }
+      })
+      .catch((e) => setError(e.message || 'Failed to load'))
+      .finally(() => setLoading(false));
   }
 
   useEffect(() => {
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    load();
   }, []);
 
-  async function call(op, payload = {}, method = 'POST') {
-    setLoading(true);
+  function handleAddGroup(e) {
+    e.preventDefault();
+    if (!newGroupName.trim()) return;
     setError('');
-    try {
-      const r = await fetch('/api/attributes', {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ op, ...payload })
-      });
-      const json = await r.json();
-      if (!json.ok) throw new Error(json.error || 'Request failed');
-      setGroups(json.data.groups || []);
-      return json;
-    } catch (e) {
-      setError(e.message || 'Error');
-    } finally {
-      setLoading(false);
-    }
+    fetchJSON('/api/attributes', {
+      method: 'POST',
+      body: JSON.stringify({ type: 'group', name: newGroupName })
+    })
+      .then((data) => {
+        setGroups(data.attributeGroups || []);
+        setNewGroupName('');
+        if (!selectedGroupId && (data.attributeGroups || []).length) {
+          setSelectedGroupId(data.attributeGroups[data.attributeGroups.length - 1].id);
+        }
+      })
+      .catch((e) => setError(e.message || 'Failed to add group'));
   }
 
-  async function handleAddGroup(e) {
+  function handleAddAttribute(e) {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const name = (fd.get('name') || '').toString().trim();
-    if (!name) return;
-    const res = await call('addGroup', { name }, 'POST');
-    if (res && res.result && res.result.id) {
-      setSelectedGroupId(res.result.id);
-      e.currentTarget.reset();
-    }
-  }
-
-  async function handleRenameGroup(id, name) {
-    if (!name || !id) return;
-    await call('renameGroup', { id, name }, 'PUT');
-  }
-
-  async function handleDeleteGroup(id) {
-    if (!id) return;
-    const ok = window.confirm('Delete this group and all its attributes?');
-    if (!ok) return;
-    await call('deleteGroup', { id }, 'DELETE');
-    setSelectedGroupId('');
-  }
-
-  async function handleAddAttribute(e) {
-    e.preventDefault();
-    if (!selectedGroup) return;
-    const fd = new FormData(e.currentTarget);
-    const name = (fd.get('name') || '').toString().trim();
-    const type = (fd.get('type') || 'text').toString();
-    const unit = (fd.get('unit') || '').toString().trim();
-    if (!name) return;
-    await call('addAttribute', { groupId: selectedGroup.id, attribute: { name, type, unit: unit || undefined } }, 'POST');
-    e.currentTarget.reset();
-  }
-
-  async function handleDeleteAttr(attrId) {
-    if (!selectedGroup) return;
-    await call('deleteAttribute', { groupId: selectedGroup.id, attrId }, 'DELETE');
-  }
-
-  function GroupSelector() {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <select
-          value={selectedGroup ? selectedGroup.id : ''}
-          onChange={(e) => setSelectedGroupId(e.target.value)}
-          style={{ padding: 8 }}
-        >
-          {groups.map((g) => (
-            <option key={g.id} value={g.id}>
-              {g.name}
-            </option>
-          ))}
-        </select>
-        {selectedGroup && (
-          <button onClick={() => handleDeleteGroup(selectedGroup.id)} style={{ padding: '6px 10px', background: '#fff2f0', border: '1px solid #ffccc7', color: '#cf1322' }}>
-            Delete Group
-          </button>
-        )}
-      </div>
-    );
+    if (!selectedGroupId || !attrName.trim()) return;
+    setError('');
+    fetchJSON('/api/attributes', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: 'attribute',
+        groupId: selectedGroupId,
+        attribute: { name: attrName, code: attrCode, type: attrType }
+      })
+    })
+      .then((data) => {
+        setGroups(data.attributeGroups || []);
+        setAttrName('');
+        setAttrCode('');
+      })
+      .catch((e) => setError(e.message || 'Failed to add attribute'));
   }
 
   return (
-    <div style={{ maxWidth: 900, margin: '24px auto', padding: '0 16px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
-      <h1>Attribute Groups</h1>
-      {error && (
-        <div style={{ background: '#fff1f0', border: '1px solid #ffa39e', color: '#a8071a', padding: 12, borderRadius: 6, marginBottom: 12 }}>{error}</div>
-      )}
-      {loading && <div style={{ marginBottom: 12 }}>Loading…</div>}
+    <div style={{ padding: '24px', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial' }}>
+      <h1 style={{ margin: 0 }}>Attribute Groups</h1>
+      <p style={{ color: '#555' }}>Manage attribute groups and fields for your products.</p>
 
-      <Section
-        title="Groups"
-        actions={<GroupSelector />}
-      >
-        <form onSubmit={handleAddGroup} style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-          <Field label="New group name">
-            <input name="name" placeholder="e.g. SEO" required style={{ padding: 8, minWidth: 240 }} />
-          </Field>
-          <button type="submit" style={{ padding: '8px 12px' }}>Add Group</button>
-        </form>
-        {selectedGroup && (
-          <div style={{ marginTop: 16 }}>
-            <Field label="Rename selected group">
-              <input
-                defaultValue={selectedGroup.name}
-                onBlur={(e) => handleRenameGroup(selectedGroup.id, e.target.value)}
-                style={{ padding: 8, minWidth: 240 }}
-              />
-            </Field>
-          </div>
-        )}
-      </Section>
+      {error ? (
+        <div style={{ background: '#fee', color: '#900', padding: '8px 12px', borderRadius: 6, marginBottom: 12 }}>{error}</div>
+      ) : null}
 
-      {selectedGroup && (
-        <Section title={`Attributes in "+${selectedGroup.name}+"`}>
-          <form onSubmit={handleAddAttribute} style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-            <Field label="Name">
-              <input name="name" placeholder="e.g. SKU" required style={{ padding: 8, minWidth: 200 }} />
-            </Field>
-            <Field label="Type">
-              <select name="type" defaultValue="text" style={{ padding: 8 }}>
-                <option value="text">Text</option>
-                <option value="number">Number</option>
-                <option value="boolean">Boolean</option>
-                <option value="select">Select</option>
-              </select>
-            </Field>
-            <Field label="Unit (optional)">
-              <input name="unit" placeholder="e.g. cm" style={{ padding: 8, width: 120 }} />
-            </Field>
-            <button type="submit" style={{ padding: '8px 12px' }}>Add Attribute</button>
+      <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridGap: 24 }}>
+        <div>
+          <h3 style={{ marginTop: 0 }}>Groups</h3>
+          {loading ? (
+            <div>Loading…</div>
+          ) : (
+            <div>
+              {groups.map((g) => (
+                <div key={g.id} style={{ border: '1px solid #eee', borderRadius: 8, padding: 12, marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <strong>{g.name}</strong>
+                    <small style={{ color: '#666' }}>{g.attributes.length} attrs</small>
+                  </div>
+                  <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {g.attributes.map((a) => (
+                      <span key={a.id} style={{ background: '#f5f5f5', border: '1px solid #eee', padding: '2px 8px', borderRadius: 999 }}>
+                        {a.name}
+                        <span style={{ color: '#888' }}> · {a.type}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <h3 style={{ marginTop: 0 }}>Add Group</h3>
+          <form onSubmit={handleAddGroup} style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+            <input
+              aria-label="Group Name"
+              placeholder="e.g. Pricing"
+              value={newGroupName}
+              onChange={(e) => setNewGroupName(e.target.value)}
+              style={{ flex: 1, padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd' }}
+            />
+            <button type="submit" style={{ padding: '8px 12px', borderRadius: 6, background: '#111', color: 'white', border: 0 }}>Add</button>
           </form>
 
-          <div style={{ marginTop: 16 }}>
-            {selectedGroup.attributes.length === 0 ? (
-              <div style={{ color: '#888' }}>No attributes yet.</div>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr>
-                      <th style={{ textAlign: 'left', padding: 8, borderBottom: '1px solid #eee' }}>Name</th>
-                      <th style={{ textAlign: 'left', padding: 8, borderBottom: '1px solid #eee' }}>Type</th>
-                      <th style={{ textAlign: 'left', padding: 8, borderBottom: '1px solid #eee' }}>Unit</th>
-                      <th style={{ textAlign: 'right', padding: 8, borderBottom: '1px solid #eee' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedGroup.attributes.map((a) => (
-                      <tr key={a.id}>
-                        <td style={{ padding: 8 }}>
-                          <input
-                            defaultValue={a.name}
-                            onBlur={(e) => call('updateAttribute', { groupId: selectedGroup.id, attrId: a.id, patch: { name: e.target.value } }, 'PUT')}
-                            style={{ padding: 6, width: '100%' }}
-                          />
-                        </td>
-                        <td style={{ padding: 8 }}>
-                          <select
-                            defaultValue={a.type}
-                            onChange={(e) => call('updateAttribute', { groupId: selectedGroup.id, attrId: a.id, patch: { type: e.target.value } }, 'PUT')}
-                            style={{ padding: 6 }}
-                          >
-                            <option value="text">Text</option>
-                            <option value="number">Number</option>
-                            <option value="boolean">Boolean</option>
-                            <option value="select">Select</option>
-                          </select>
-                        </td>
-                        <td style={{ padding: 8 }}>
-                          <input
-                            defaultValue={a.unit || ''}
-                            onBlur={(e) => call('updateAttribute', { groupId: selectedGroup.id, attrId: a.id, patch: { unit: e.target.value || undefined } }, 'PUT')}
-                            placeholder="-"
-                            style={{ padding: 6, width: 120 }}
-                          />
-                        </td>
-                        <td style={{ padding: 8, textAlign: 'right' }}>
-                          <button onClick={() => handleDeleteAttr(a.id)} style={{ padding: '6px 10px', background: '#fff2f0', border: '1px solid #ffccc7', color: '#cf1322' }}>Delete</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </Section>
-      )}
+          <h3>Add Attribute</h3>
+          <form onSubmit={handleAddAttribute}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+              <label style={{ display: 'grid', gap: 4 }}>
+                <span style={{ fontSize: 12, color: '#666' }}>Group</span>
+                <select
+                  value={selectedGroupId}
+                  onChange={(e) => setSelectedGroupId(e.target.value)}
+                  style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd' }}
+                >
+                  <option value="" disabled>
+                    Select a group
+                  </option>
+                  {groups.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-      <div style={{ marginTop: 24, color: '#888', fontSize: 12 }}>
-        Tip: This demo stores attributes in memory on the server. Deploying on serverless may reset data between cold starts.
-      </div>
+              <label style={{ display: 'grid', gap: 4 }}>
+                <span style={{ fontSize: 12, color: '#666' }}>Name</span>
+                <input
+                  aria-label="Attribute Name"
+                  placeholder="e.g. Price"
+                  value={attrName}
+                  onChange={(e) => setAttrName(e.target.value)}
+                  style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd' }}
+                />
+              </label>
+
+              <label style={{ display: 'grid', gap: 4 }}>
+                <span style={{ fontSize: 12, color: '#666' }}>Code (optional)</span>
+                <input
+                  aria-label="Attribute Code"
+                  placeholder="e.g. price"
+                  value={attrCode}
+                  onChange={(e) => setAttrCode(e.target.value)}
+                  style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd' }}
+                />
+              </label>
+
+              <label style={{ display: 'grid', gap: 4 }}>
+                <span style={{ fontSize: 12, color: '#666' }}>Type</span>
+                <select
+                  aria-label="Attribute Type"
+                  value={attrType}
+                  onChange={(e) => setAttrType(e.target.value)}
+                  style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd' }}
+                >
+                  <option value="text">Text</option>
+                  <option value="textarea">Textarea</option>
+                  <option value="richtext">Rich Text</option>
+                  <option value="number">Number</option>
+                  <option value="boolean">Boolean</option>
+                  <option value="select">Select</option>
+                  <option value="media[]">Media List</option>
+                  <option value="url">URL</option>
+                </select>
+              </label>
+
+              <div>
+                <button type="submit" style={{ padding: '8px 12px', borderRadius: 6, background: '#111', color: 'white', border: 0 }} disabled={!selectedGroupId || !attrName.trim()}>
+                  Add Attribute
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 
-added 751 packages, and audited 752 packages in 5s
+added 751 packages, and audited 752 packages in 6s
 
 97 packages are looking for funding
   run `npm fund` for details
@@ -15,6 +15,12 @@ Run `npm audit` for details.
 > NODE_OPTIONS=--openssl-legacy-provider next build
 
 info  - Using webpack 5. Reason: no custom webpack configuration in next.config.js https://nextjs.org/docs/messages/webpack5
+warn  - No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
 info  - Checking validity of types...
 info  - Creating an optimized production build...
 info  - Compiled successfully
@@ -34,7 +40,7 @@ Page                                  Size     First Load JS
 ├ ○ /admin/attribute-groups           2.28 kB        65.9 kB
 ├ ○ /admin/attribute-suggest          1.58 kB        65.2 kB
 ├ ○ /admin/attribute-suggest-product  1.49 kB        65.1 kB
-├ ○ /admin/attributes                 3.06 kB        66.7 kB
+├ ○ /admin/attributes                 1.99 kB        65.6 kB
 ├ ○ /admin/dashboard                  1.37 kB          65 kB
 ├ ○ /admin/products                   4.2 kB         67.8 kB
 ├ ○ /admin/quick-add                  1.55 kB        65.2 kB
