@@ -1,1 +1,1 @@
-Fix build by resolving reserved keyword usage in pages/api/products/index.js; delegate to centralized productsHandler.
+feat(variants): add variant generator utility and admin tool page with preview; include unit test for cartesian and variant generation
