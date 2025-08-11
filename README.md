@@ -16,6 +16,7 @@ This is a lightweight Product Information Management (PIM) demo built with Next.
 - Flat Attribute Groups browser with CSV export at `/admin/attribute-groups-flat`
 - Grouped Attribute Groups browser with per-group counts at `/admin/attribute-groups-grouped`
 - Attribute Duplicates audit page to find conflicting attribute codes across groups at `/admin/attribute-groups-duplicates`
+- Attribute Search across all groups at `/admin/attribute-groups-search` (uses `/api/attribute-groups/search`)
 - Tag stats and bulk tag tools
 - Variant generation helpers
 - Per-product flat attributes viewer at `/admin/product/[sku]/attributes` (uses `/api/products/[sku]/attributes/flat`)
@@ -40,7 +41,8 @@ Explore the API routes under `/pages/api/*`. Common ones include:
 - `/api/tags`, `/api/tags/stats`, `/api/tags/export`
 - `/api/attributes`, `/api/attributes/suggest`
 - `/api/attribute-groups`, `/api/attribute-groups/flat`, `/api/attribute-groups/export`, `/api/attribute-groups/grouped`
-- New: `/api/attribute-groups/duplicates` returns attribute codes that appear in multiple groups, with group counts
+- `/api/attribute-groups/duplicates` returns attribute codes that appear in multiple groups, with group counts
+- New: `/api/attribute-groups/search` returns flattened attributes across all groups with filters (q, type, required, groupId)
 
 ## Testing
 
