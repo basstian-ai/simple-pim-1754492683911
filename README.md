@@ -4,7 +4,7 @@ A modern Product Information Management platform that centralizes product data, 
 
 ## Vision
 
-The long-term goal is a scalable, extensible system comparable to [Bluestone PIM](https://help.bluestonepim.com/1-get-started-with-bluestone-pim) and [Akeneo](https://help.akeneo.com/serenity).
+The long-term goal is a scalable, extensible system comparable to [Bluestone PIM](https://help.bluestonepim.com/1-get-started-with-bluestonepim) and [Akeneo](https://help.akeneo.com/serenity).
 
 ## Features
 
@@ -16,6 +16,7 @@ The long-term goal is a scalable, extensible system comparable to [Bluestone PIM
 - Data Export: Export products and tags to CSV.
 - Tagging and Filtering: Advanced filtering options, including by tags and stock status.
 - Shareable URLs: Filters are reflected in the URL for easy sharing.
+- Bulk Tagging Preview: Admin tool at /admin/bulk-tags with API /api/products/tags/bulk-preview to preview adding/removing tags to many SKUs (no persistence).
 
 ## Getting Started
 

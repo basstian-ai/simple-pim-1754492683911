@@ -22,3 +22,4 @@ and this project adheres to Semantic Versioning (https://semver.org/spec/v2.0.0.
 - Tag-based product filtering (API + UI).
 - Client-side Attribute Groups admin page at `/admin/attribute-groups` with localStorage persistence.
 - Flat attributes CSV export at `/api/attribute-groups/flat/export`.
+- Bulk Tagging Preview API `/api/products/tags/bulk-preview` and admin page `/admin/bulk-tags`.
