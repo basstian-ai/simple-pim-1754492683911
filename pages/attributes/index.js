@@ -14,7 +14,13 @@ export default function AttributesPage() {
       })
       .then((data) => {
         if (!mounted) return;
-        setAttrs(Array.isArray(data) ? data : []);
+        // API may return either an array or an object with groups/attributes.
+        let list = [];
+        if (Array.isArray(data)) list = data;
+        else if (data && Array.isArray(data.groups)) list = data.groups;
+        else if (data && Array.isArray(data.attributes)) list = data.attributes;
+        else list = [];
+        setAttrs(list);
         setLoading(false);
       })
       .catch((err) => {
