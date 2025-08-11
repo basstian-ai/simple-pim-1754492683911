@@ -4,6 +4,7 @@ import ProductList from '../components/ProductList';
 import ExportCsvLink from '../components/ExportCsvLink';
 import StockFilterToggle from '../components/StockFilterToggle';
 import { addTimestampsToProducts } from '../lib/ensureTimestamps';
+import { addImagesToProducts } from '../lib/ensureProductImages';
 
 const Home = () => {
   const router = useRouter();
@@ -80,7 +81,9 @@ const Home = () => {
       const data = await res.json();
       // augment products with deterministic timestamps for richer UI and export
       const augmented = addTimestampsToProducts(Array.isArray(data) ? data : []);
-      if (active) setProducts(augmented);
+      // also ensure each product has a deterministic placeholder image
+      const withImages = addImagesToProducts(augmented);
+      if (active) setProducts(withImages);
     };
 
     const t = setTimeout(fetchProducts, 250);
