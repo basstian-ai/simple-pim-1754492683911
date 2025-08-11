@@ -2,8 +2,8 @@
 
 All notable changes to this project will be a document in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on Keep a Changelog (https://keepachangelog.com/en/1.0.0/),
+and this project adheres to Semantic Versioning (https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
@@ -21,3 +21,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tag filtering support to `/api/products`.
 - Tag-based product filtering (API + UI).
 - Client-side Attribute Groups admin page at `/admin/attribute-groups` with localStorage persistence.
+- Flat attributes CSV export at `/api/attribute-groups/flat/export`.

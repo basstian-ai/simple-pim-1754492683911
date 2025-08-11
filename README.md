@@ -8,13 +8,14 @@ The long-term goal is a scalable, extensible system comparable to [Bluestone PIM
 
 ## Features
 
-- **Dashboard & Admin Interface**: Interactive dashboard showing product counts, enrichment status, and recent activity.
-- **Product Management**: Admin panel with product list, search/filter, and a tabbed product detail editor.
-- **Attribute Management**: Create and manage attribute groups.
-- **AI-Powered Suggestions**: Get AI-based suggestions for product names and attributes.
-- **Data Export**: Export products and tags to CSV.
-- **Tagging and Filtering**: Advanced filtering options, including by tags and stock status.
-- **Shareable URLs**: Filters are reflected in the URL for easy sharing.
+- Dashboard & Admin Interface: Interactive dashboard showing product counts, enrichment status, and recent activity.
+- Product Management: Admin panel with product list, search/filter, and a tabbed product detail editor.
+- Attribute Management: Create and manage attribute groups.
+- Attribute Export: Download a flattened CSV of all attributes across groups at /api/attribute-groups/flat/export.
+- AI-Powered Suggestions: Get AI-based suggestions for product names and attributes.
+- Data Export: Export products and tags to CSV.
+- Tagging and Filtering: Advanced filtering options, including by tags and stock status.
+- Shareable URLs: Filters are reflected in the URL for easy sharing.
 
 ## Getting Started
 
@@ -41,7 +42,7 @@ To get a local copy up and running, follow these simple steps.
    ```sh
    npm run dev
    ```
-4. Open your browser and navigate to `http://localhost:3000`
+4. Open your browser and navigate to http://localhost:3000
 
 ## PIM Development Roadmap
 
@@ -92,4 +93,4 @@ To get a local copy up and running, follow these simple steps.
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License. See LICENSE for more information.
