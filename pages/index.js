@@ -119,6 +119,14 @@ const Home = () => {
     });
   };
 
+  const clearAllFilters = () => {
+    setQuery('');
+    setSelectedTags([]);
+    setInStockOnly(false);
+  };
+
+  const anyFilterActive = query || selectedTags.length > 0 || inStockOnly;
+
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '1rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
@@ -136,6 +144,17 @@ const Home = () => {
           {products?.length || 0} result{(products?.length || 0) === 1 ? '' : 's'}
         </span>
         <ExportCsvLink style={{ fontSize: 12 }} />
+
+        {/* Render a compact clear-all action when any of the main filters are active */}
+        {anyFilterActive && (
+          <button
+            onClick={clearAllFilters}
+            aria-label="Clear filters"
+            style={{ padding: '0.25rem 0.5rem', borderRadius: 6, border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer', fontSize: 12 }}
+          >
+            Clear filters
+          </button>
+        )}
       </div>
 
       {allTags.length > 0 && (
