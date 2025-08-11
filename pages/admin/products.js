@@ -1,286 +1,164 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
+import PimAdminProductList from '../../components/PimAdminProductList';
+import ExportCsvLink from '../../components/ExportCsvLink';
+import StockFilterToggle from '../../components/StockFilterToggle';
 
-function TextInput({ label, value, onChange, placeholder }) {
-  return (
-    <label style={{ display: "block", marginBottom: 12 }}>
-      <div style={{ fontSize: 12, fontWeight: 600, color: "#444", marginBottom: 4 }}>{label}</div>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        style={{ width: "100%", padding: 8, border: "1px solid #ccc", borderRadius: 4 }}
-      />
-    </label>
-  );
-}
+const AdminProductsPage = () => {
+  const router = useRouter();
+  const [products, setProducts] = useState([]);
+  const [query, setQuery] = useState('');
+  const [allTags, setAllTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [inStockOnly, setInStockOnly] = useState(false);
 
-function NumberInput({ label, value, onChange, placeholder }) {
-  return (
-    <label style={{ display: "block", marginBottom: 12 }}>
-      <div style={{ fontSize: 12, fontWeight: 600, color: "#444", marginBottom: 4 }}>{label}</div>
-      <input
-        type="number"
-        value={value}
-        onChange={(e) => onChange(parseInt(e.target.value || 0, 10))}
-        placeholder={placeholder}
-        style={{ width: "100%", padding: 8, border: "1px solid #ccc", borderRadius: 4 }}
-      />
-    </label>
-  );
-}
+  const initializedFromUrl = useRef(false);
 
-function TextArea({ label, value, onChange, rows = 6 }) {
-  return (
-    <label style={{ display: "block", marginBottom: 12 }}>
-      <div style={{ fontSize: 12, fontWeight: 600, color: "#444", marginBottom: 4 }}>{label}</div>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={rows}
-        style={{ width: "100%", padding: 8, border: "1px solid #ccc", borderRadius: 4, fontFamily: "monospace" }}
-      />
-    </label>
-  );
-}
+  // Initialize filter state from URL on first render
+  useEffect(() => {
+    if (initializedFromUrl.current) return;
+    const q = router?.query || {};
+    if (typeof q.search === 'string') setQuery(q.search);
+    if (typeof q.tags === 'string' && q.tags.trim()) {
+      setSelectedTags(q.tags.split(',').map((t) => decodeURIComponent(t)));
+    }
+    if (q.inStock === '1' || q.inStock === 'true') setInStockOnly(true);
+    initializedFromUrl.current = true;
+  }, [router?.query]);
 
-export default function AdminProducts() {
-  const [products, setProducts] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [saving, setSaving] = React.useState(false);
-  const [editingId, setEditingId] = React.useState(null);
-  const [msg, setMsg] = React.useState("");
+  // Keep URL in sync with filters (for shareable links and CSV export)
+  useEffect(() => {
+    const nextQuery = {};
+    if (query) nextQuery.search = query;
+    if (selectedTags.length) nextQuery.tags = selectedTags.join(',');
+    if (inStockOnly) nextQuery.inStock = '1';
 
-  const [name, setName] = React.useState("");
-  const [sku, setSku] = React.useState("");
-  const [price, setPrice] = React.useState(0);
-  const [currency, setCurrency] = React.useState("USD");
-  const [description, setDescription] = React.useState("");
-  const [attributesJson, setAttributesJson] = React.useState("[]");
-  const [variantsJson, setVariantsJson] = React.useState("[]");
+    const current = router?.query || {};
+    const same =
+      current.search === nextQuery.search &&
+      (current.tags || '') === (nextQuery.tags || '') &&
+      (current.inStock || '') === (nextQuery.inStock || '');
 
-  const resetForm = () => {
-    setEditingId(null);
-    setName("");
-    setSku("");
-    setPrice(0);
-    setCurrency("USD");
-    setDescription("");
-    setAttributesJson(
-      JSON.stringify(
-        [
-          { group: "General", items: [{ name: "Brand", value: "SimplePIM" }] },
-          { group: "Specs", items: [{ name: "Color", value: "Black" }] }
-        ],
-        null,
-        2
-      )
-    );
-    setVariantsJson(
-      JSON.stringify(
-        [
-          { sku: "SKU-VAR-1", attributes: [{ name: "Size", value: "M" }], priceDelta: 0, stock: 10 }
-        ],
-        null,
-        2
-      )
-    );
-  };
+    if (!same) {
+      router.replace({ pathname: router.pathname, query: nextQuery }, undefined, { shallow: true });
+    }
+  }, [query, selectedTags, inStockOnly]);
 
-  React.useEffect(() => {
-    resetForm();
+  // Load available tags
+  useEffect(() => {
+    let cancelled = false;
+    const loadTags = async () => {
+      try {
+        const res = await fetch('/api/tags');
+        const data = await res.json();
+        if (!cancelled) setAllTags(Array.isArray(data) ? data : []);
+      } catch (e) {
+        if (!cancelled) setAllTags([]);
+      }
+    };
+    loadTags();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const load = async () => {
-    setLoading(true);
-    setMsg("");
-    try {
-      const res = await fetch("/api/admin/products");
-      const json = await res.json();
-      if (json.ok) setProducts(json.data);
-      else setMsg(json.error?.message || "Failed to load");
-    } catch (e) {
-      setMsg("Network error while loading products");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Load products when filters change
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
 
-  React.useEffect(() => {
-    load();
-  }, []);
+    const fetchProducts = async () => {
+      const params = [];
+      if (query) params.push(`search=${encodeURIComponent(query)}`);
+      if (selectedTags.length > 0) params.push(`tags=${selectedTags.map(encodeURIComponent).join(',')}`);
+      if (inStockOnly) params.push('inStock=1');
+      const qs = params.length ? `?${params.join('&')}` : '';
+      const res = await fetch(`/api/products${qs}`, { signal: controller.signal });
+      const data = await res.json();
+      if (active) setProducts(data);
+    };
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    setMsg("");
-    try {
-      let attributes = [];
-      let variants = [];
-      try {
-        attributes = JSON.parse(attributesJson || "[]");
-      } catch (e) {
-        setMsg("Attributes JSON is invalid");
-        setSaving(false);
-        return;
-      }
-      try {
-        variants = JSON.parse(variantsJson || "[]");
-      } catch (e) {
-        setMsg("Variants JSON is invalid");
-        setSaving(false);
-        return;
-      }
+    const t = setTimeout(fetchProducts, 250);
 
-      const payload = {
-        name,
-        sku,
-        price: parseInt(price || 0, 10),
-        currency,
-        description,
-        attributes,
-        variants
-      };
+    return () => {
+      active = false;
+      controller.abort();
+      clearTimeout(t);
+    };
+  }, [query, selectedTags, inStockOnly]);
 
-      const method = editingId ? "PUT" : "POST";
-      const body = editingId ? { id: editingId, ...payload } : payload;
-
-      const res = await fetch("/api/admin/products", {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error?.message || "Save failed");
-      setMsg(editingId ? "Updated" : "Created");
-      resetForm();
-      await load();
-    } catch (e) {
-      setMsg(e.message || "Save failed");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const onEdit = (p) => {
-    setEditingId(p.id);
-    setName(p.name || "");
-    setSku(p.sku || "");
-    setPrice(p.price || 0);
-    setCurrency(p.currency || "USD");
-    setDescription(p.description || "");
-    setAttributesJson(JSON.stringify(p.attributes || [], null, 2));
-    setVariantsJson(JSON.stringify(p.variants || [], null, 2));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const onDelete = async (id) => {
-    if (!confirm("Delete this product?")) return;
-    setMsg("");
-    try {
-      const res = await fetch(`/api/admin/products?id=${encodeURIComponent(id)}`, { method: "DELETE" });
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error?.message || "Delete failed");
-      setMsg("Deleted");
-      await load();
-    } catch (e) {
-      setMsg(e.message || "Delete failed");
-    }
+  const toggleTag = (tag) => {
+    setSelectedTags((prev) => {
+      if (prev.includes(tag)) return prev.filter((t) => t !== tag);
+      return [...prev, tag];
+    });
   };
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto", padding: 24 }}>
-      <h1 style={{ fontSize: 24, marginBottom: 8 }}>Admin • Products</h1>
-      <p style={{ color: "#666", marginBottom: 24 }}>Manage rich product data with attribute groups and basic variants.</p>
+    <div style={{ maxWidth: 1000, margin: '0 auto', padding: '1rem' }}>
+      <h1 style={{ marginBottom: '0.75rem' }}>Products</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+        <input
+          type="search"
+          placeholder="Search products by name, SKU or description..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          style={{ flex: 1, minWidth: 260, padding: '0.5rem 0.75rem', border: '1px solid #ddd', borderRadius: 6 }}
+          aria-label="Search products"
+        />
+        <StockFilterToggle checked={inStockOnly} onChange={setInStockOnly} />
+        <span style={{ color: '#666', fontSize: 12 }}>
+          {products?.length || 0} result{(products?.length || 0) === 1 ? '' : 's'}
+        </span>
+        <ExportCsvLink style={{ fontSize: 12 }} />
+      </div>
 
-      {msg ? (
-        <div style={{ background: "#eef9f1", border: "1px solid #b7ebc6", padding: 8, marginBottom: 16, color: "#156f3a" }}>{msg}</div>
-      ) : null}
-
-      <form onSubmit={onSubmit} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 32, alignItems: "start" }}>
-        <div>
-          <TextInput label="Name" value={name} onChange={setName} placeholder="Product name" />
-          <TextInput label="SKU" value={sku} onChange={setSku} placeholder="SKU" />
-          <NumberInput label="Price (minor units, e.g. cents)" value={price} onChange={setPrice} placeholder="1999" />
-          <TextInput label="Currency" value={currency} onChange={setCurrency} placeholder="USD" />
-          <TextArea label="Description" value={description} onChange={setDescription} rows={4} />
-          <div style={{ display: "flex", gap: 8 }}>
-            <button type="submit" disabled={saving} style={{ padding: "10px 14px", background: "#111", color: "white", border: 0, borderRadius: 4 }}>
-              {saving ? "Saving…" : editingId ? "Update Product" : "Create Product"}
-            </button>
-            {editingId ? (
-              <button type="button" onClick={resetForm} style={{ padding: "10px 14px", background: "#eee", color: "#333", border: 0, borderRadius: 4 }}>
-                Cancel Edit
+      {allTags.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+          {allTags.map((tag) => {
+            const active = selectedTags.includes(tag);
+            return (
+              <button
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                aria-pressed={active}
+                style={{
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: 999,
+                  border: '1px solid ' + (active ? '#0b64d8' : '#ddd'),
+                  background: active ? '#e7f1ff' : 'white',
+                  color: active ? '#0b64d8' : '#333',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                }}
+              >
+                {tag}
               </button>
-            ) : null}
-          </div>
+            );
+          })}
+          {selectedTags.length > 0 && (
+            <button
+              onClick={() => setSelectedTags([])}
+              style={{
+                marginLeft: 'auto',
+                padding: '0.25rem 0.5rem',
+                borderRadius: 6,
+                border: '1px solid #ddd',
+                background: '#fafafa',
+                cursor: 'pointer',
+                fontSize: 12,
+              }}
+              aria-label="Clear selected tags"
+            >
+              Clear tags
+            </button>
+          )}
         </div>
-        <div>
-          <TextArea label="Attribute Groups (JSON)" value={attributesJson} onChange={setAttributesJson} rows={10} />
-          <TextArea label="Variants (JSON)" value={variantsJson} onChange={setVariantsJson} rows={10} />
-        </div>
-      </form>
+      )}
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <h2 style={{ fontSize: 18, margin: 0 }}>Products</h2>
-        <button onClick={load} disabled={loading} style={{ padding: "6px 10px", border: "1px solid #ccc", background: "white", borderRadius: 4 }}>{loading ? "Loading…" : "Refresh"}</button>
-      </div>
-
-      <div style={{ overflowX: "auto", border: "1px solid #eee", borderRadius: 6 }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "#fafafa" }}>
-              <th style={{ textAlign: "left", padding: 10, borderBottom: "1px solid #eee" }}>Name</th>
-              <th style={{ textAlign: "left", padding: 10, borderBottom: "1px solid #eee" }}>SKU</th>
-              <th style={{ textAlign: "left", padding: 10, borderBottom: "1px solid #eee" }}>Price</th>
-              <th style={{ textAlign: "left", padding: 10, borderBottom: "1px solid #eee" }}>Variants</th>
-              <th style={{ textAlign: "left", padding: 10, borderBottom: "1px solid #eee" }}>Attributes</th>
-              <th style={{ textAlign: "right", padding: 10, borderBottom: "1px solid #eee" }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((p) => (
-              <tr key={p.id}>
-                <td style={{ padding: 10, borderBottom: "1px solid #f1f1f1" }}>
-                  <div style={{ fontWeight: 600 }}>{p.name}</div>
-                  <div style={{ color: "#888", fontSize: 12 }}>{p.slug}</div>
-                </td>
-                <td style={{ padding: 10, borderBottom: "1px solid #f1f1f1" }}>{p.sku}</td>
-                <td style={{ padding: 10, borderBottom: "1px solid #f1f1f1" }}>
-                  {new Intl.NumberFormat(undefined, { style: "currency", currency: p.currency || "USD" }).format((p.price || 0) / 100)}
-                </td>
-                <td style={{ padding: 10, borderBottom: "1px solid #f1f1f1", maxWidth: 240 }}>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                    {(p.variants || []).slice(0, 4).map((v) => (
-                      <span key={v.id || v.sku} style={{ fontSize: 12, padding: "2px 6px", border: "1px solid #ddd", borderRadius: 4 }}>
-                        {v.attributes?.map((a) => `${a.name}:${a.value}`).join("/") || v.sku}
-                      </span>
-                    ))}
-                    {p.variants && p.variants.length > 4 ? <span style={{ fontSize: 12, color: "#666" }}>+{p.variants.length - 4} more</span> : null}
-                  </div>
-                </td>
-                <td style={{ padding: 10, borderBottom: "1px solid #f1f1f1", maxWidth: 240 }}>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                    {(p.attributes || []).map((g) => (
-                      <span key={g.group} style={{ fontSize: 12, padding: "2px 6px", background: "#f7f7f7", border: "1px solid #eee", borderRadius: 4 }}>
-                        {g.group}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td style={{ padding: 10, borderBottom: "1px solid #f1f1f1", textAlign: "right" }}>
-                  <button onClick={() => onEdit(p)} style={{ padding: "6px 10px", marginRight: 8, border: "1px solid #ccc", background: "white", borderRadius: 4 }}>Edit</button>
-                  <button onClick={() => onDelete(p.id)} style={{ padding: "6px 10px", border: 0, background: "#e5484d", color: "white", borderRadius: 4 }}>Delete</button>
-                </td>
-              </tr>
-            ))}
-            {products.length === 0 && !loading ? (
-              <tr>
-                <td colSpan={6} style={{ padding: 20, textAlign: "center", color: "#666" }}>No products yet.</td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
+      <PimAdminProductList products={products} />
     </div>
   );
-}
+};
+
+export default AdminProductsPage;
