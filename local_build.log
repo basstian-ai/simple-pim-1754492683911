@@ -52,6 +52,7 @@ Page                                  Size     First Load JS
 ├ λ /api/attribute-groups             0 B            63.6 kB
 ├ λ /api/attribute-groups/[id]        0 B            63.6 kB
 ├ λ /api/attribute-groups/export      0 B            63.6 kB
+├ λ /api/attribute-groups/validate    0 B            63.6 kB
 ├ λ /api/attributes                   0 B            63.6 kB
 ├ λ /api/attributes/suggest           0 B            63.6 kB
 ├ λ /api/dashboard                    0 B            63.6 kB
