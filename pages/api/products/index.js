@@ -5,6 +5,7 @@ import withErrorHandling from '../../../lib/api/withErrorHandling';
 // Keeps the underlying handler behaviour intact while reducing repeated load
 // from clients by instructing the CDN/edge to cache responses briefly.
 async function handler(req, res) {
+  // Short edge cache for GETs to reduce repeated load
   if (req.method === 'GET') {
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
   }
@@ -16,11 +17,17 @@ async function handler(req, res) {
   // from very long-running backend operations that can exceed platform limits.
   const TIMEOUT_MS = 30_000; // 30 seconds
   let finished = false;
+  const start = Date.now();
 
   const timeoutId = setTimeout(() => {
     if (!finished && !res.headersSent) {
       try {
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      } catch (_) {}
+      try {
+        // Mark that this response was a timeout and include elapsed time for debugging.
+        res.setHeader('X-Timeout', 'true');
+        res.setHeader('X-Response-Time-ms', String(Date.now() - start));
       } catch (_) {}
       // Best-effort 504 response on timeout
       try {
@@ -34,6 +41,12 @@ async function handler(req, res) {
     await productsHandler(req, res);
   } finally {
     finished = true;
+    // Expose timing to help diagnose long-running handlers without changing behavior.
+    try {
+      if (!res.headersSent) {
+        res.setHeader('X-Response-Time-ms', String(Date.now() - start));
+      }
+    } catch (_) {}
     clearTimeout(timeoutId);
   }
 }
