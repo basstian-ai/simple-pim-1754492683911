@@ -3,8 +3,6 @@
 
 ## Progress
 
-- - Exposes CommonJS default (module.exports), named export (.slugify), and .default shim for ESM interop
-- - Adds internal helper removeDiacritics via module.exports._impl for testing/debugging
 - - Implemented export shape compatibility to reduce import errors when codebase mixes require() and import default syntax
 - - Added pages/api/health-hub.js
 - - New consolidated health + readiness endpoint that:
@@ -22,6 +20,8 @@
 - - module.exports.default = slugify
 - - exports.slugify = slugify
 - - Purpose: ensure callers using either require() or import default (or named) can reliably import slugify without runtime import errors.
+- - lib/slugify.js: replaced implementation with more robust slugifier that removes diacritics, normalizes, collapses non-alphanumeric runs, and exposes multiple export shapes (module.exports, .slugify, .default, and ._impl)
+- - This improves interoperability for modules that default-import or named-import slugify (fixes potential runtime errors when consumers use different import styles).
   - module.exports = slugify
   - module.exports.slugify = slugify
   - module.exports.default = slugify
@@ -29,10 +29,6 @@
 
 ## Next Steps
 
-- - Add tests to ensure other utilities expose consistent default/named exports (slugify, exportCsv, isInStock).
-- - Optionally extend readiness to verify optional services (databases, caches) when integrated.
-- - Audit other core utilities for consistent export shapes (priority):
-- 1. lib/products.js — ensure default and named exports where used
 - 2. lib/isInStock.js — confirm named export exists alongside default (it already provides default)
 - 3. lib/exportCsv.js — already includes multiple shims; verify consumers use preferred shape
 - - Add unit tests verifying slugify behavior (tests/slugify.test.js):
@@ -49,3 +45,7 @@
 - - Audit other core utility modules (lib/exportCsv.js, lib/products.js, lib/isInStock.js) for consistent export shapes; add interop shims where consumers import with different styles.
 - - Consider adding a small unit test validating slugify behavior for edge cases: accents, punctuation, whitespace, empty input.
 - - Optionally consolidate health endpoints into a single health hub (per roadmap) and add readiness/health tests.
+- - Add unit tests verifying slugify behavior for edge cases (accents, punctuation, whitespace, empty input) — tests/slugify.test.js
+- - Audit other core utilities for consistent export shapes (lib/products.js, lib/isInStock.js) and add interop shims where needed.
+- - Add CI check to run the test suite to catch import/export mismatches early.
+- - Consider consolidating health endpoints into a single health hub and add unit tests for /api/health-hub to cover success and failure cases.

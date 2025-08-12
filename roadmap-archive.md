@@ -95,6 +95,8 @@
 - - Best-effort package.json version included in response.
 - - This implements roadmap item: "Add health/readiness endpoints" and provides a deploy-friendly readiness check.
 - - Ensured robust slugify utility with Unicode diacritics removal and stable slug generation (lib/slugify.js)
+- - Exposes CommonJS default (module.exports), named export (.slugify), and .default shim for ESM interop
+- - Adds internal helper removeDiacritics via module.exports._impl for testing/debugging
 ## Next Steps
 
 - # NEXT STEPS
@@ -156,3 +158,7 @@
 - - Add unit tests for the readiness endpoint (success + missing data scenarios).
 - - Add monitoring/uptime probe to call /api/ready in production (e.g., UptimeRobot, Pingdom).
 - - Consider consolidating similar health endpoints (health, health-check, healthz, ready) into a single health API hub to avoid duplication.
+- - Add tests to ensure other utilities expose consistent default/named exports (slugify, exportCsv, isInStock).
+- - Optionally extend readiness to verify optional services (databases, caches) when integrated.
+- - Audit other core utilities for consistent export shapes (priority):
+- 1. lib/products.js — ensure default and named exports where used
