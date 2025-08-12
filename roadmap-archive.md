@@ -144,6 +144,19 @@
 - +
 - - Implemented robust slugifier and improved module interop (lib/slugify.js)
 - - Unicode NFKD normalization + diacritic removal
+- - Lowercase, safe character collapsing to hyphens, optional maxLength support
+- - Exports: module.exports, module.exports.default, module.exports.slugify, and __esModule flag for broad compatibility
+- - Added small _impl helpers for debugging
+- - Roadmap item implemented: "Improved lib/slugify.js" (Unicode-safe slugifier, export compatibility)
+- - Improved lib/slugify.js:
+- - Replaced former simplistic slugifier with a Unicode-aware implementation using NFKD normalization and safe stripping of combining marks.
+- - Collapses non-alphanumerics to hyphens, lowercases, trims, and supports optional maxLength.
+- - Exposed multiple export shapes for compatibility: module.exports (function), module.exports.default, module.exports.slugify, exports.slugify, and __esModule = true.
+- - Added small _impl.toAscii helper for diagnostics.
+- - No other files modified.
+- - Fixed malformed/corrupted pages/api/health-lite.js by replacing its content with a clean, consistent health endpoint implementation:
+- - Ensures permissive CORS for probes, supports OPTIONS preflight, returns 200 JSON for GET with uptime and optional package version, sets short edge caching headers, and returns 405 for unsupported methods.
+- - No other files modified.
 ## Next Steps
 
 - # NEXT STEPS
@@ -233,3 +246,8 @@
 - [ ] Implement role-based access control for admin functionality.
 - [ ] Surface inventory metrics and recent activity in dashboard widgets.
 - +- Run full test suite (npm test) in CI to ensure other modules using slugify behave as expected.
+- +- Audit other small helper modules to ensure consistent CommonJS/ESM interop (e.g., functions that are sometimes required and sometimes imported as default).
+- +- Consider adding a small unit test for slugify edge-cases (accents, long strings, trimming) to guard regressions.
+- - Run full test suite: npm test (CI) to catch any remaining import/interop issues across modules.
+- - Add unit tests specifically for slugify edge cases (accents, long strings, punctuation).
+- - Audit other internal helper modules for consistent CommonJS/ESM export patterns (e.g., lib/exportCsv, lib/variants) and add similar compatibility shims where needed.
