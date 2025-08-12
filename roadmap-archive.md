@@ -171,6 +171,17 @@
 - - Added optional maxLength support via slugify(input, { maxLength: N })
 - - Exported function in multiple shapes for broad compatibility:
 - - module.exports = slugify
+- - module.exports.default = slugify
+- - module.exports.slugify = slugify
+- - exports.slugify = slugify
+- - module.exports.__esModule = true
+- - Exposed small _impl.toAscii helper for diagnostics/tests
+- - No other files modified.
+- - pages/api/attribute-groups/index.js
+- - Return both { data: groups, groups } for GET responses to provide compatibility for UI consumers that expect either shape.
+- - Keeps cache and CORS headers intact.
+- - Fixed/Improved lib/slugify.js:
+- - Replaced legacy slugify with robust implementation using Unicode NFKD normalization to strip diacritics and produce cleaner ASCII slugs.
 ## Next Steps
 
 - # NEXT STEPS
@@ -277,3 +288,7 @@
 - - Consider centralizing health endpoints behavior to a shared helper to keep consistency across /api/health*, /api/ready, /api/status.
 - - Run full CI test suite (npm test) and fix any callers that relied on previous slug output edge-cases.
 - - Add unit tests for slugify edge-cases:
+- - accented characters, long truncation, non-Latin inputs, empty input.
+- - Audit other internal helper modules for CommonJS/ESM interop mismatches and add compatibility shims similar to lib/slugify.js where appropriate (e.g., lib/variants, lib/exportCsv already includes shims).
+- - Consider adding lightweight transliteration for non-Latin scripts if broader international slug support is required (without introducing heavy dependencies).
+- - Add unit tests for slugify edge-cases: accented input, long truncation, non-Latin input, empty/null values.
