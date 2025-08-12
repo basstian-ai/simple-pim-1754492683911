@@ -20,6 +20,8 @@ async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   } catch (_) {}
 
+  // Answer preflight requests early and consistently so clients/tools don't
+  // accidentally invoke the underlying handler when only a preflight is needed.
   if (req.method === 'OPTIONS') {
     // No body for preflight responses.
     res.status(204).end();
