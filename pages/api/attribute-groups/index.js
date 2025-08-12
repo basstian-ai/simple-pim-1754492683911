@@ -25,7 +25,9 @@ async function handler(req, res) {
     try {
       res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
     } catch (_) {}
-    res.status(200).json({ groups });
+    // Return both `data` (used by some UI callers) and `groups` (existing shape)
+    // to maximize compatibility across different consumers of this API.
+    res.status(200).json({ data: groups, groups });
     return;
   }
 

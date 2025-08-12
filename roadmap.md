@@ -2,9 +2,6 @@
 
 ## Progress
 
-- - Fixed CommonJS/ESM interop for slugify and provided a robust Unicode-aware implementation:
-- - Modified: lib/slugify.js
-- - Implements NFKD normalization and diacritic stripping (_toAscii)
 - - Collapses non-alphanumerics to hyphens, trims, optional maxLength
 - - Exposes multiple export shapes: module.exports, module.exports.default, module.exports.slugify, and ESM named/default exports
 - - Adds slugify._impl.toAscii helper for diagnostics/tests
@@ -22,16 +19,15 @@
 - - module.exports.__esModule = true
 - - Exposed small _impl.toAscii helper for diagnostics/tests
 - - No other files modified.
+- - pages/api/attribute-groups/index.js
+- - Return both { data: groups, groups } for GET responses to provide compatibility for UI consumers that expect either shape.
+- - Keeps cache and CORS headers intact.
   - Replaced the placeholder implementation with a robust slugifier that removes diacritics via Unicode normalization.
   - Trimmed leading and trailing hyphens, added optional max-length support, and exported multiple shapes for CommonJS/ES module interop.
   - Added a small `_impl` diagnostics object for debugging.
 
 ## Next Steps
 
-- - If desired, extend slugify with transliteration tables for non-Latin scripts (currently relies on Unicode normalization only).
-- - Run full test suite (npm test) in CI to ensure all modules depending on slugify behave as expected.
-- - If tests reveal regressions, adjust callers that relied on previous slug behavior (e.g., stricter code generation) or add adapter wrappers where necessary.
-- - Add unit tests specifically for slugify edge-cases: accented characters, long strings with maxLength, non-Latin input, and empty/invalid input.
 - - Audit other internal helper modules for consistent CommonJS/ESM interop and add similar compatibility shims (e.g., lib/exportCsv already has shims; search for modules missing them).
 - - Consider adding transliteration for non-Latin scripts if broader multilingual slug support is required (e.g., use small transliteration maps without adding heavy deps).
 - - Run full CI test suite (npm test) to confirm no other route files contain accidental corruption.
@@ -48,3 +44,7 @@
 - - Audit other helper modules for similar CommonJS/ESM interop issues (e.g., lib/variants, lib/exportCsv already has shims).
 - - Optionally add lightweight transliteration for non-Latin scripts if broader multilingual slug support is required (avoid heavy deps).
 - - If any callers expected the previous slug behavior, adjust them or add adapter wrappers to preserve backward compatibility.
+- - Run full test suite in CI (npm test) to catch any other API shape mismatches.
+- - Audit other API routes for inconsistent response shapes (e.g., some return { data }, others return raw arrays) and standardize where helpful.
+- - Consider documenting API response shapes (data vs groups) in README or an OpenAPI spec for clearer client expectations.
+- - If desired, add deprecation notices for older shapes and migrate callers to a single canonical response format over time.

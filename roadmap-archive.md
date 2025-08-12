@@ -157,6 +157,9 @@
 - - Fixed malformed/corrupted pages/api/health-lite.js by replacing its content with a clean, consistent health endpoint implementation:
 - - Ensures permissive CORS for probes, supports OPTIONS preflight, returns 200 JSON for GET with uptime and optional package version, sets short edge caching headers, and returns 405 for unsupported methods.
 - - No other files modified.
+- - Fixed CommonJS/ESM interop for slugify and provided a robust Unicode-aware implementation:
+- - Modified: lib/slugify.js
+- - Implements NFKD normalization and diacritic stripping (_toAscii)
 ## Next Steps
 
 - # NEXT STEPS
@@ -251,3 +254,7 @@
 - - Run full test suite: npm test (CI) to catch any remaining import/interop issues across modules.
 - - Add unit tests specifically for slugify edge cases (accents, long strings, punctuation).
 - - Audit other internal helper modules for consistent CommonJS/ESM export patterns (e.g., lib/exportCsv, lib/variants) and add similar compatibility shims where needed.
+- - If desired, extend slugify with transliteration tables for non-Latin scripts (currently relies on Unicode normalization only).
+- - Run full test suite (npm test) in CI to ensure all modules depending on slugify behave as expected.
+- - If tests reveal regressions, adjust callers that relied on previous slug behavior (e.g., stricter code generation) or add adapter wrappers where necessary.
+- - Add unit tests specifically for slugify edge-cases: accented characters, long strings with maxLength, non-Latin input, and empty/invalid input.
