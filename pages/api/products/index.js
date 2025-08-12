@@ -8,7 +8,32 @@ async function handler(req, res) {
   if (req.method === 'GET') {
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
   }
-  return productsHandler(req, res);
+
+  // Prevent extremely long-running requests from hanging serverless functions.
+  // If the underlying handler takes longer than TIMEOUT_MS, we respond with 504.
+  // Note: this does not abort the inner handler; it avoids leaving the client waiting.
+  const TIMEOUT_MS = 2 * 60 * 1000; // 2 minutes
+  let finished = false;
+
+  const timeoutId = setTimeout(() => {
+    if (!finished && !res.headersSent) {
+      try {
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      } catch (_) {}
+      // Best-effort 504 response on timeout
+      try {
+        res.status(504).json({ error: `Request timed out after ${Math.floor(TIMEOUT_MS / 1000)}s` });
+      } catch (_) {}
+    }
+  }, TIMEOUT_MS);
+
+  try {
+    // Await in case the handler returns a promise; otherwise works with sync handlers too.
+    await productsHandler(req, res);
+  } finally {
+    finished = true;
+    clearTimeout(timeoutId);
+  }
 }
 
 export default withErrorHandling(handler);
