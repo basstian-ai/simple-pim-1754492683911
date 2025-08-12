@@ -68,14 +68,29 @@ export default function AttributesPage() {
               </tr>
             </thead>
             <tbody>
-              {attrs.map((a) => (
-                <tr key={a.id || a.code}>
-                  <td>{a.code}</td>
-                  <td>{a.label}</td>
-                  <td>{a.type}</td>
-                  <td>{Array.isArray(a.options) ? a.options.join(', ') : ''}</td>
-                </tr>
-              ))}
+              {attrs.map((a) => {
+                // Options in sample data may be simple strings or objects like { code, label }.
+                const opts = Array.isArray(a.options)
+                  ? a.options
+                      .map((o) => {
+                        if (o == null) return '';
+                        if (typeof o === 'string') return o;
+                        if (typeof o === 'object') return o.label || o.value || o.code || '';
+                        return String(o);
+                      })
+                      .filter(Boolean)
+                      .join(', ')
+                  : '';
+
+                return (
+                  <tr key={a.id || a.code}>
+                    <td>{a.code}</td>
+                    <td>{a.label}</td>
+                    <td>{a.type}</td>
+                    <td>{opts}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )
