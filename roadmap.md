@@ -55,6 +55,16 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - - exports.slugify = slugify (best-effort for ESM consumers)
 - - Adds minimal metadata property module.exports._impl for debugging.
 - - Purpose: implements roadmap item to make utility exports consistent and fixes issues where callers import slugify using different styles.
+- - lib/slugify.js
+- - Replaced placeholder implementation with a robust, Unicode-aware slugify function.
+- - Ensured compatibility by exporting as CommonJS default and providing named + default properties:
+- - module.exports = slugify
+- - module.exports.slugify = slugify
+- - module.exports.default = slugify
+- - exports.slugify = slugify
+- - Added minimal metadata module.exports._impl for debugging.
+- - Roadmap item implemented:
+- - "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." — implemented for slugify.
   - module.exports = slugify
   - module.exports.slugify = slugify
   - module.exports.default = slugify
@@ -66,3 +76,9 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - Add a lightweight unit test for lib/slugify.js (e.g., tests/slugify.test.js) to guard against regressions.
 - Update README with a short "Developer troubleshooting" note about common import styles and how utilities export defaults.
 - Optionally, add a lint or CI step that detects ambiguous import/exports between CommonJS and ESM patterns.
+- - Audit other utility modules for consistent export shapes and add similar interop shims where necessary:
+- - lib/exportCsv.js, lib/isInStock.js, lib/products.js — ensure they export usable defaults and named exports.
+- - Add unit tests for slugify (tests/slugify.test.js) covering:
+- - Accented characters, punctuation, multiple spaces, underscores, and edge-cases (empty, null, undefined).
+- - Update README or developer docs with a short note describing how utilities are exported and how to import them in both CommonJS and ESM contexts.
+- - Consider adding a small CI lint/test that verifies common utilities expose both default and named exports to prevent regressions.
