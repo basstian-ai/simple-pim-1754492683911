@@ -36,6 +36,10 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - Multi-tenant improvements, RBAC, and audit logs.
 
 # NEXT STEPS
+- - Audit other utility modules (e.g., lib/exportCsv.js, lib/isInStock.js) for consistent export shapes and add similar compatibility shims if needed.
+- - Add a small unit test ensuring lib/slugify.js exports the function in both require() and import scenarios.
+- - Update README developer troubleshooting to mention export compatibility guidelines.
+- - If any runtime logs indicate other modules failing due to import/export mismatches, apply the same pattern to those modules.
 
 Priority follow-ups (ordered):
 
@@ -56,6 +60,19 @@ If you'd like, I can:
 ## Progress
 - # CHANGES SUMMARY
 - lib/slugify.js: Replaced with a robust slugify implementation and added interoperability exports:
+- - lib/slugify.js
+- - Replaced/updated implementation with a robust slugify function that:
+- - Normalizes Unicode (removes diacritics),
+- - Replaces non-alphanumeric runs with hyphens,
+- - Trims leading/trailing hyphens,
+- - Returns lowercased slugs.
+- - Ensured interoperability:
+- - module.exports = slugify (CommonJS default)
+- - module.exports.slugify = slugify (named)
+- - module.exports.default = slugify (interop)
+- - exports.slugify = slugify (best-effort for ESM consumers)
+- - Adds minimal metadata property module.exports._impl for debugging.
+- - Purpose: implements roadmap item to make utility exports consistent and fixes issues where callers import slugify using different styles.
   - module.exports = slugify
   - module.exports.slugify = slugify
   - module.exports.default = slugify
