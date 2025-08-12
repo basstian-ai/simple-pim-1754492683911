@@ -35,24 +35,6 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - Add background jobs for large exports and async processing.
 - Multi-tenant improvements, RBAC, and audit logs.
 
-# NEXT STEPS
-- - Audit other utility modules (e.g., lib/exportCsv.js, lib/isInStock.js) for consistent export shapes and add similar compatibility shims if needed.
-- - Add a small unit test ensuring lib/slugify.js exports the function in both require() and import scenarios.
-- - Update README developer troubleshooting to mention export compatibility guidelines.
-- - If any runtime logs indicate other modules failing due to import/export mismatches, apply the same pattern to those modules.
-
-Priority follow-ups (ordered):
-
-1. Audit lib/slugify.js and other utility modules to ensure both CommonJS and ESM import patterns work reliably (add default export where needed).
-2. Add a small integration test for the public health and products endpoints (e.g., GET /api/health-check, GET /api/products).
-3. Review API timeout settings and ensure long-running handlers respond with 504 and log context when timeouts trigger.
-4. Improve documentation in README.md with quick start steps referencing the sample products and attribute groups.
-5. Add tests and CI checks to guard against regressions when refactoring core libs (attribute parsing, product filtering).
-
-If you'd like, I can:
-- add a minimal test or CI config,
-- add the slugify default-export shim,
-- or add a small README section with quick start / API examples.
 
 — Project maintainer
 
