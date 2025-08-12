@@ -1,5 +1,4 @@
 import React from 'react';
-import Layout from '../../components/Layout';
 
 export default function BulkTagsAdminPage() {
   const [skuText, setSkuText] = React.useState('');
@@ -35,9 +34,8 @@ export default function BulkTagsAdminPage() {
   }
 
   return (
-    <Layout title="Bulk Tagging Preview">
-      <div style={container}>
-        <h1>Bulk Tagging Preview</h1>
+    <div style={container}>
+      <h1>Bulk Tagging Preview</h1>
         <p>Paste SKUs and specify tags to add or remove. This tool previews changes and does not persist updates.</p>
 
         <form onSubmit={onPreview} style={form}>
@@ -85,8 +83,8 @@ export default function BulkTagsAdminPage() {
           <div style={{ marginTop: 24 }}>
             <h2>Result</h2>
             <div style={{ color: '#374151' }}>
-              Matched: <strong>{result.stats.matched}</strong>, Updated: <strong>{result.stats.updated}</strong>,
-              Added tags: <strong>{result.stats.added}</strong>, Removed tags: <strong>{result.stats.removed}</strong>
+              Matched: <strong>{result.stats.matched}</strong>, Updated: <strong>{result.stats.updated}</strong>, Added tags:{' '}
+              <strong>{result.stats.added}</strong>, Removed tags: <strong>{result.stats.removed}</strong>
             </div>
             <table style={table}>
               <thead>
@@ -101,7 +99,9 @@ export default function BulkTagsAdminPage() {
               <tbody>
                 {result.items.map((it) => (
                   <tr key={it.sku}>
-                    <td style={td}><code>{it.sku}</code></td>
+                    <td style={td}>
+                      <code>{it.sku}</code>
+                    </td>
                     <td style={td}>{Array.isArray(it.before) ? it.before.join(', ') : ''}</td>
                     <td style={td}>{Array.isArray(it.after) ? it.after.join(', ') : ''}</td>
                     <td style={td}>{Array.isArray(it.added) ? it.added.join(', ') : ''}</td>
@@ -113,7 +113,6 @@ export default function BulkTagsAdminPage() {
           </div>
         ) : null}
       </div>
-    </Layout>
   );
 }
 
