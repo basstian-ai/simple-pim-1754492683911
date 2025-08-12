@@ -97,6 +97,12 @@
 - - Ensured robust slugify utility with Unicode diacritics removal and stable slug generation (lib/slugify.js)
 - - Exposes CommonJS default (module.exports), named export (.slugify), and .default shim for ESM interop
 - - Adds internal helper removeDiacritics via module.exports._impl for testing/debugging
+- - Implemented export shape compatibility to reduce import errors when codebase mixes require() and import default syntax
+- - Added pages/api/health-hub.js
+- - New consolidated health + readiness endpoint that:
+- - Returns process metadata (uptime, package version, commit)
+- - Performs lightweight checks for data/products.json and data/attribute-groups.json
+- - Returns 200 when both checks pass, 503 when any check fails
 ## Next Steps
 
 - # NEXT STEPS
@@ -162,3 +168,7 @@
 - - Optionally extend readiness to verify optional services (databases, caches) when integrated.
 - - Audit other core utilities for consistent export shapes (priority):
 - 1. lib/products.js — ensure default and named exports where used
+- 2. lib/isInStock.js — confirm named export exists alongside default (it already provides default)
+- 3. lib/exportCsv.js — already includes multiple shims; verify consumers use preferred shape
+- - Add unit tests verifying slugify behavior (tests/slugify.test.js):
+- - accented characters, punctuation, whitespace collapse, underscores, numbers, empty/null input
