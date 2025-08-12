@@ -3,17 +3,6 @@
 
 ## Progress
 
-- - Removes diacritics using String.prototype.normalize when available
-- - Lowercases, trims, collapses non-alphanumeric sequences into hyphens
-- - Trims leading/trailing hyphens and enforces optional max length
-- - Exposed multiple export shapes for interoperability:
-- - module.exports = slugify
-- - module.exports.slugify = slugify
-- - module.exports.default = slugify
-- - exports.slugify = slugify
-- - Added small _impl and _version fields for debugging
-- - Roadmap alignment:
-- - Implements the known-safe pattern to support both default and named imports of lib/slugify so API routes and pages using different import styles won't fail at runtime.
 - +- Improved lib/slugify.js:
 - +  - Replaced placeholder implementation with a robust slugifier that:
 - +    - Removes diacritics using Unicode normalization
@@ -22,6 +11,17 @@
 - +  - Added small _impl diagnostics object for debugging
 - +
 - +
+- - lib/slugify.js
+- - Replaced placeholder implementation with a robust slugifier:
+- - Removes diacritics via Unicode normalization (fallback table when unavailable).
+- - Lowercases, collapses non-alphanumeric sequences into hyphens, trims, and supports optional maxLength.
+- - Exports multiple shapes for interoperability:
+- - module.exports = slugify
+- - module.exports.slugify = slugify
+- - module.exports.default = slugify
+- - exports.slugify = slugify
+- - Adds small _impl and _version fields for debugging.
+- - Purpose: improves reliability of slug generation across the codebase and ensures both default and named import styles work (addresses roadmap interop goal).
   - module.exports = slugify
   - module.exports.slugify = slugify
   - module.exports.default = slugify
@@ -29,11 +29,6 @@
 
 ## Next Steps
 
-- - Audit other core utility modules (lib/exportCsv.js, lib/products.js, lib/isInStock.js) for consistent export shapes; add interop shims where consumers import with different styles.
-- - Consider adding a small unit test validating slugify behavior for edge cases: accents, punctuation, whitespace, empty input.
-- - Optionally consolidate health endpoints into a single health hub (per roadmap) and add readiness/health tests.
-- - Add unit tests verifying slugify behavior for edge cases (accents, punctuation, whitespace, empty input) — tests/slugify.test.js
-- - Audit other core utilities for consistent export shapes (lib/products.js, lib/isInStock.js) and add interop shims where needed.
 - - Add CI check to run the test suite to catch import/export mismatches early.
 - - Consider consolidating health endpoints into a single health hub and add unit tests for /api/health-hub to cover success and failure cases.
 - - Add a small interop unit test to assert lib/isInStock shapes (default vs named) are accepted by lib/exportCsv.
@@ -49,3 +44,8 @@
 - +- Audit other core utility modules (lib/isInStock, lib/exportCsv, lib/products) to ensure they expose friendly interop shapes; add shims where needed.
 - +- Run full test suite (npm test) in CI to detect interop mismatches across the codebase.
 - +- Optionally add a small integration test calling pages/api/slugify and pages/tools/slugify to guard against regressions in different runtime environments.
+- 1. Add unit tests for slugify edge cases (accents, punctuation, repeated separators, empty input, long input) — e.g., tests/slugify.test.js.
+- 2. Audit other core utility modules for export interop (lib/isInStock.js, lib/exportCsv.js, lib/products.js). Add similar shims where consumers import with mixed styles.
+- 3. Run full test-suite (npm test / CI) to discover any remaining import/export mismatches.
+- 4. Optionally consolidate health endpoints into a single health hub and add readiness/health tests as noted in roadmap.
+- 5. Consider adding a small lint/CI check to detect critical utilities missing default/named exports to prevent regressions.

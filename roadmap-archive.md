@@ -124,6 +124,17 @@
 - - Adds a trailing newline to generated CSV for better compatibility with tools.
 - - Fixed/improved lib/slugify.js:
 - - Replaced placeholder implementation with robust slugifier that:
+- - Removes diacritics using String.prototype.normalize when available
+- - Lowercases, trims, collapses non-alphanumeric sequences into hyphens
+- - Trims leading/trailing hyphens and enforces optional max length
+- - Exposed multiple export shapes for interoperability:
+- - module.exports = slugify
+- - module.exports.slugify = slugify
+- - module.exports.default = slugify
+- - exports.slugify = slugify
+- - Added small _impl and _version fields for debugging
+- - Roadmap alignment:
+- - Implements the known-safe pattern to support both default and named imports of lib/slugify so API routes and pages using different import styles won't fail at runtime.
 ## Next Steps
 
 - # NEXT STEPS
@@ -202,3 +213,8 @@
 - - Consider extending readiness checks to validate optional integrations (databases, caches) when those are added.
 - - Audit utility exports for consistent default/named shapes (slugify, exportCsv, etc.) and add CI checks to avoid import/export mismatches.
 - - Run full test suite (npm test) in CI to catch any ESM/CJS import edge-cases across the codebase.
+- - Audit other core utility modules (lib/exportCsv.js, lib/products.js, lib/isInStock.js) for consistent export shapes; add interop shims where consumers import with different styles.
+- - Consider adding a small unit test validating slugify behavior for edge cases: accents, punctuation, whitespace, empty input.
+- - Optionally consolidate health endpoints into a single health hub (per roadmap) and add readiness/health tests.
+- - Add unit tests verifying slugify behavior for edge cases (accents, punctuation, whitespace, empty input) — tests/slugify.test.js
+- - Audit other core utilities for consistent export shapes (lib/products.js, lib/isInStock.js) and add interop shims where needed.
