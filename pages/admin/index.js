@@ -48,24 +48,43 @@ export default function AdminDashboard() {
   const [data, setData] = React.useState({ products: [], attributes: [] });
 
   React.useEffect(() => {
+    // Add a client-side timeout and abort to avoid long-hanging requests
     let isMounted = true;
+    const controller = new AbortController();
+    const timeoutMs = 30_000; // 30s
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
     async function load() {
       try {
-        const res = await fetch("/api/admin/products");
-        if (!res.ok) throw new Error("Failed to load products");
+        const res = await fetch("/api/admin/products", { signal: controller.signal });
+        if (!res.ok) {
+          // If request was aborted, fetch may throw; this ensures we surface a helpful message.
+          throw new Error(`Failed to load products (${res.status})`);
+        }
         const json = await res.json();
         if (isMounted) {
           setData({ products: json.products || [], attributes: json.attributes || [] });
         }
       } catch (e) {
-        if (isMounted) setError(e.message || String(e));
+        if (!isMounted) return;
+        if (e && e.name === "AbortError") {
+          setError("Request timed out after 30s");
+        } else {
+          setError(e.message || String(e));
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
     }
+
     load();
+
     return () => {
       isMounted = false;
+      clearTimeout(timer);
+      try {
+        controller.abort();
+      } catch (_) {}
     };
   }, []);
 
