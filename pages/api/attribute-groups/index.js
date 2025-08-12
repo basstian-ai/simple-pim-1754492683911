@@ -8,6 +8,15 @@ async function handler(req, res) {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
   } catch (_) {}
 
+  // Add permissive CORS headers so this read-only endpoint can be easily
+  // called from browser-based tools and local development without extra server config.
+  // This is conservative (GET/OPTIONS) and safe for a public read endpoint.
+  try {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  } catch (_) {}
+
   if (req.method === 'GET') {
     const { loadAttributeGroups } = require('../../../lib/attributeGroups');
     const groups = loadAttributeGroups();
@@ -21,7 +30,10 @@ async function handler(req, res) {
   }
 
   if (req.method === 'OPTIONS') {
-    res.setHeader('Allow', 'GET,OPTIONS');
+    // Ensure preflight responses include the same CORS headers.
+    try {
+      res.setHeader('Allow', 'GET,OPTIONS');
+    } catch (_) {}
     res.status(204).end();
     return;
   }
@@ -32,4 +44,3 @@ async function handler(req, res) {
 
 // Wrap the handler with a 30s timeout and the existing error handler.
 export default withErrorHandling(withTimeout(handler, 30_000));
-
