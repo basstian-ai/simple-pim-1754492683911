@@ -1,0 +1,96 @@
+# Roadmap Archive
+
+## Progress
+
+- # CHANGES SUMMARY
+- lib/slugify.js: Replaced with a robust slugify implementation and added interoperability exports:
+- - lib/slugify.js
+- - Replaced/updated implementation with a robust slugify function that:
+- - Normalizes Unicode (removes diacritics),
+- - Replaces non-alphanumeric runs with hyphens,
+- - Trims leading/trailing hyphens,
+- - Returns lowercased slugs.
+- - Ensured interoperability:
+- - module.exports = slugify (CommonJS default)
+- - module.exports.slugify = slugify (named)
+- - module.exports.default = slugify (interop)
+- - exports.slugify = slugify (best-effort for ESM consumers)
+- - Adds minimal metadata property module.exports._impl for debugging.
+- - Purpose: implements roadmap item to make utility exports consistent and fixes issues where callers import slugify using different styles.
+- - lib/slugify.js
+- - Replaced placeholder implementation with a robust, Unicode-aware slugify function.
+- - Ensured compatibility by exporting as CommonJS default and providing named + default properties:
+- - module.exports = slugify
+- - module.exports.slugify = slugify
+- - module.exports.default = slugify
+- - exports.slugify = slugify
+- - Added minimal metadata module.exports._impl for debugging.
+- - Roadmap item implemented:
+- - "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." — implemented for slugify.
+- - lib/slugify.js
+- - Replaced prior implementation with a robust Unicode-aware slugify function.
+- - Ensured interoperability across import styles:
+- - module.exports = slugify (CommonJS default)
+- - module.exports.slugify = slugify (named)
+- - module.exports.default = slugify (.default property for ESM interop)
+- - exports.slugify = slugify
+- - Added minimal metadata helper module.exports._impl for debugging.
+- Roadmap item implemented:
+- - "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." — implemented for lib/slugify.js.
+- - lib/slugify.js
+- - Replaced/updated slugify implementation with a robust Unicode-aware function.
+- - Ensured interoperability across import styles:
+- - module.exports = slugify
+- - module.exports.slugify = slugify
+- - module.exports.default = slugify
+- - exports.slugify = slugify
+- - Added small metadata _impl for easier debugging.
+- - Implemented roadmap item: "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." (slugify implemented)
+- - lib/exportCsv.js
+- - Exported the CSV serializer as the module's default (function) and attached named shims:
+- - productsToCsv, toCsv, exportProductsToCsv, default
+- - Added a small _impl property exposing internals for easier debugging.
+- - Purpose: improve CommonJS/ESM interoperability so callers (including pages/api/products/export.js) can reliably discover a CSV export function.
+- - lib/slugify.js
+- - Replaced the previous minimal implementation with a robust Unicode-aware slugify function.
+- - Ensured CommonJS + ESM interop by exporting:
+- - module.exports = slugify (default)
+- - module.exports.slugify = slugify (named)
+- - module.exports.default = slugify (ESM interop)
+- - exports.slugify = slugify
+- - Added a small _impl surface for debugging.
+- - "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." — implemented for lib/slugify.js.
+## Next Steps
+
+- # NEXT STEPS
+- Audit other utility modules (e.g., exportCsv, isInStock) for consistent export shapes; add .default or named shims where needed.
+- Add a lightweight unit test for lib/slugify.js (e.g., tests/slugify.test.js) to guard against regressions.
+- Update README with a short "Developer troubleshooting" note about common import styles and how utilities export defaults.
+- Optionally, add a lint or CI step that detects ambiguous import/exports between CommonJS and ESM patterns.
+- - Audit other utility modules for consistent export shapes and add similar interop shims where necessary:
+- - lib/exportCsv.js, lib/isInStock.js, lib/products.js — ensure they export usable defaults and named exports.
+- - Add unit tests for slugify (tests/slugify.test.js) covering:
+- - Accented characters, punctuation, multiple spaces, underscores, and edge-cases (empty, null, undefined).
+- - Update README or developer docs with a short note describing how utilities are exported and how to import them in both CommonJS and ESM contexts.
+- - Consider adding a small CI lint/test that verifies common utilities expose both default and named exports to prevent regressions.
+- - Audit other utility modules for consistent export shapes and add similar interop shims where needed:
+- - lib/exportCsv.js
+- - lib/isInStock.js
+- - lib/products.js
+- - Add unit tests for slugify (tests/slugify.test.js) covering:
+- - Accented characters, punctuation, multiple spaces, underscores, and edge-cases (empty, null).
+- - Update README/developer docs with a short note about import patterns for utilities (CommonJS vs ESM interop).
+- - Consider adding a lightweight CI lint/test that verifies critical utilities expose both default and named exports to prevent regressions.
+- - Audit other utility modules for consistent export shapes and add similar interop shims where necessary:
+- - lib/exportCsv.js
+- - lib/isInStock.js
+- - lib/products.js
+- - Add unit tests for slugify (e.g., tests/slugify.test.js) to guard against regressions (cover accented characters, punctuation, empty input).
+- - Update README or developer docs with guidance about importing utilities in CommonJS vs ESM contexts.
+- - Consider adding a small CI lint/test that verifies critical utilities expose both default and named exports to prevent regressions.
+- - Audit other utility modules to ensure consistent export shapes (e.g., lib/products.js, lib/slugify.js, lib/isInStock.js) and add similar interop shims where needed.
+- - Add unit tests covering export CSV discovery (ensure pickCsvFn finds the serializer) and CSV output shape (tests/api-products-export.test.js).
+- - Update README with developer note about utility import patterns and interop guidance.
+- - Optionally add a CI lint/test that detects ambiguous default/named export expectations for key utilities.
+- - Audit other utilities for consistent export shapes and add similar shims where necessary:
+- - lib/products.js, lib/exportCsv.js, lib/isInStock.js (exportCsv and isInStock already have interop shims; verify and align others).
