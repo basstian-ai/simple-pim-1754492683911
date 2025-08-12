@@ -103,6 +103,19 @@
 - - Returns process metadata (uptime, package version, commit)
 - - Performs lightweight checks for data/products.json and data/attribute-groups.json
 - - Returns 200 when both checks pass, 503 when any check fails
+- - Exposes permissive CORS and short edge caching for probes
+- - lib/slugify.js
+- - Replaced with a robust slugify implementation that:
+- - Removes Unicode diacritics using String.prototype.normalize when available
+- - Lowercases, trims, replaces non-alphanumeric characters with dashes, collapses repeats
+- - Exposes multiple export shapes for interop:
+- - module.exports = slugify
+- - module.exports.slugify = slugify
+- - module.exports.default = slugify
+- - exports.slugify = slugify
+- - Purpose: ensure callers using either require() or import default (or named) can reliably import slugify without runtime import errors.
+- - lib/slugify.js: replaced implementation with more robust slugifier that removes diacritics, normalizes, collapses non-alphanumeric runs, and exposes multiple export shapes (module.exports, .slugify, .default, and ._impl)
+- - This improves interoperability for modules that default-import or named-import slugify (fixes potential runtime errors when consumers use different import styles).
 ## Next Steps
 
 - # NEXT STEPS
@@ -172,3 +185,8 @@
 - 3. lib/exportCsv.js — already includes multiple shims; verify consumers use preferred shape
 - - Add unit tests verifying slugify behavior (tests/slugify.test.js):
 - - accented characters, punctuation, whitespace collapse, underscores, numbers, empty/null input
+- - Add CI check that critical utilities expose both default and named exports to prevent regressions
+- - Consider consolidating health endpoints into a single health hub for consistency (pages/api/health.*)
+- - Update README/developer docs describing import compatibility guidance (require vs import) and how to use provided utility shims
+- - Add automated uptime probe (e.g., UptimeRobot) for /api/health-hub to detect data-file regressions.
+- - Consolidate other health endpoints (health, health-check, healthz, ready, status) into a small health hub or router to avoid duplication.

@@ -3,25 +3,25 @@
 
 ## Progress
 
-- - Exposes permissive CORS and short edge caching for probes
-- - lib/slugify.js
-- - Replaced with a robust slugify implementation that:
-- - Removes Unicode diacritics using String.prototype.normalize when available
-- - Lowercases, trims, replaces non-alphanumeric characters with dashes, collapses repeats
-- - Exposes multiple export shapes for interop:
-- - module.exports = slugify
-- - module.exports.slugify = slugify
-- - module.exports.default = slugify
-- - exports.slugify = slugify
-- - Purpose: ensure callers using either require() or import default (or named) can reliably import slugify without runtime import errors.
-- - lib/slugify.js: replaced implementation with more robust slugifier that removes diacritics, normalizes, collapses non-alphanumeric runs, and exposes multiple export shapes (module.exports, .slugify, .default, and ._impl)
-- - This improves interoperability for modules that default-import or named-import slugify (fixes potential runtime errors when consumers use different import styles).
 - - lib/exportCsv.js
 - - Improved robustness when resolving the isInStock utility:
 - - Accepts function exported directly, named export isInStock, or default export.
 - - Falls back to a conservative in-memory heuristic if the module shape is unexpected.
 - - Ensures CSV serializer remains available through multiple common CommonJS/ESM shapes (module.exports, .default, .toCsv, etc.).
 - - Adds a trailing newline to generated CSV for better compatibility with tools.
+- - Fixed/improved lib/slugify.js:
+- - Replaced placeholder implementation with robust slugifier that:
+- - Removes diacritics using String.prototype.normalize when available
+- - Lowercases, trims, collapses non-alphanumeric sequences into hyphens
+- - Trims leading/trailing hyphens and enforces optional max length
+- - Exposed multiple export shapes for interoperability:
+- - module.exports = slugify
+- - module.exports.slugify = slugify
+- - module.exports.default = slugify
+- - exports.slugify = slugify
+- - Added small _impl and _version fields for debugging
+- - Roadmap alignment:
+- - Implements the known-safe pattern to support both default and named imports of lib/slugify so API routes and pages using different import styles won't fail at runtime.
   - module.exports = slugify
   - module.exports.slugify = slugify
   - module.exports.default = slugify
@@ -29,11 +29,6 @@
 
 ## Next Steps
 
-- - Add CI check that critical utilities expose both default and named exports to prevent regressions
-- - Consider consolidating health endpoints into a single health hub for consistency (pages/api/health.*)
-- - Update README/developer docs describing import compatibility guidance (require vs import) and how to use provided utility shims
-- - Add automated uptime probe (e.g., UptimeRobot) for /api/health-hub to detect data-file regressions.
-- - Consolidate other health endpoints (health, health-check, healthz, ready, status) into a small health hub or router to avoid duplication.
 - - Add unit tests for /api/health-hub covering success and failure cases.
 - - Consider extending readiness checks to validate optional integrations (databases, caches) when those are added.
 - - Audit utility exports for consistent default/named shapes (slugify, exportCsv, etc.) and add CI checks to avoid import/export mismatches.
@@ -49,3 +44,8 @@
 - - Audit other core utilities for similar import/export interop issues (lib/slugify, lib/isInStock, lib/products) and add compatibility shims where needed.
 - - Add CI test that runs the export CSV endpoint and validates headers/columns to catch regressions.
 - - Consider harmonizing module export styles across the codebase (prefer consistent CommonJS or ESM) to avoid needing defensive adapters.
+- - Add a unit test (tests/slugify.test.js) covering edge cases: accents, punctuation, repeated separators, empty input, long input.
+- - Run full test suite in CI (npm test) to ensure no other import/export interop issues exist.
+- - Audit other core utilities for consistent export shapes (lib/isInStock, lib/products, lib/exportCsv) and add shims where necessary.
+- - Consider adding a small CI lint rule to detect when critical utilities (slugify, exportCsv) do not expose both default and named exports to prevent regressions.
+- - Optionally consolidate health endpoints into a single health hub and add unit tests for readiness/health probes.
