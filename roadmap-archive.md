@@ -79,6 +79,12 @@
 - - exports.slugify = slugify
 - - Exposed module.exports._impl.removeDiacritics helper for debugging/testing.
 - - "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." — implemented for lib/slugify.js.
+- - Added pages/api/ready.js
+- - New lightweight readiness endpoint that:
+- - Validates presence and basic shape of data/products.json and data/attribute-groups.json
+- - Returns 200 when checks pass, 503 if any check fails
+- - Includes permissive CORS and short edge caching
+- - Roadmap alignment:
 ## Next Steps
 
 - # NEXT STEPS
@@ -131,3 +137,8 @@
 - 3. lib/exportCsv.js (already includes shims; verify consumers)
 - - Add unit tests for slugify (tests/slugify.test.js) covering:
 - - Accented characters, punctuation, whitespace collapse, underscores, numbers, empty/null/undefined input.
+- - Update README or developer docs with guidance about importing utilities in CommonJS vs ESM contexts.
+- - Optionally add a CI lint/test that verifies critical utilities expose both default and named exports to prevent regressions.
+- - Add monitoring/alerting probes to call /api/ready in production (e.g., uptime checks).
+- - Extend readiness checks to verify optional services (databases, caches) when integrated.
+- - Add unit tests for the readiness endpoint (tests/api-ready.test.js) to cover success and failure scenarios.
