@@ -135,6 +135,8 @@
 - - Added small _impl and _version fields for debugging
 - - Roadmap alignment:
 - - Implements the known-safe pattern to support both default and named imports of lib/slugify so API routes and pages using different import styles won't fail at runtime.
+- Improved `lib/slugify.js`:
+- +- lib/slugify.js
 ## Next Steps
 
 - # NEXT STEPS
@@ -218,3 +220,4 @@
 - - Optionally consolidate health endpoints into a single health hub (per roadmap) and add readiness/health tests.
 - - Add unit tests verifying slugify behavior for edge cases (accents, punctuation, whitespace, empty input) — tests/slugify.test.js
 - - Audit other core utilities for consistent export shapes (lib/products.js, lib/isInStock.js) and add interop shims where needed.
+- [ ] Design and implement an admin dashboard to manage products and categories.
