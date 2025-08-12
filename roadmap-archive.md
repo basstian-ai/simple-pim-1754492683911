@@ -116,6 +116,14 @@
 - - Purpose: ensure callers using either require() or import default (or named) can reliably import slugify without runtime import errors.
 - - lib/slugify.js: replaced implementation with more robust slugifier that removes diacritics, normalizes, collapses non-alphanumeric runs, and exposes multiple export shapes (module.exports, .slugify, .default, and ._impl)
 - - This improves interoperability for modules that default-import or named-import slugify (fixes potential runtime errors when consumers use different import styles).
+- - lib/exportCsv.js
+- - Improved robustness when resolving the isInStock utility:
+- - Accepts function exported directly, named export isInStock, or default export.
+- - Falls back to a conservative in-memory heuristic if the module shape is unexpected.
+- - Ensures CSV serializer remains available through multiple common CommonJS/ESM shapes (module.exports, .default, .toCsv, etc.).
+- - Adds a trailing newline to generated CSV for better compatibility with tools.
+- - Fixed/improved lib/slugify.js:
+- - Replaced placeholder implementation with robust slugifier that:
 ## Next Steps
 
 - # NEXT STEPS
@@ -190,3 +198,7 @@
 - - Update README/developer docs describing import compatibility guidance (require vs import) and how to use provided utility shims
 - - Add automated uptime probe (e.g., UptimeRobot) for /api/health-hub to detect data-file regressions.
 - - Consolidate other health endpoints (health, health-check, healthz, ready, status) into a small health hub or router to avoid duplication.
+- - Add unit tests for /api/health-hub covering success and failure cases.
+- - Consider extending readiness checks to validate optional integrations (databases, caches) when those are added.
+- - Audit utility exports for consistent default/named shapes (slugify, exportCsv, etc.) and add CI checks to avoid import/export mismatches.
+- - Run full test suite (npm test) in CI to catch any ESM/CJS import edge-cases across the codebase.

@@ -3,14 +3,6 @@
 
 ## Progress
 
-- - lib/exportCsv.js
-- - Improved robustness when resolving the isInStock utility:
-- - Accepts function exported directly, named export isInStock, or default export.
-- - Falls back to a conservative in-memory heuristic if the module shape is unexpected.
-- - Ensures CSV serializer remains available through multiple common CommonJS/ESM shapes (module.exports, .default, .toCsv, etc.).
-- - Adds a trailing newline to generated CSV for better compatibility with tools.
-- - Fixed/improved lib/slugify.js:
-- - Replaced placeholder implementation with robust slugifier that:
 - - Removes diacritics using String.prototype.normalize when available
 - - Lowercases, trims, collapses non-alphanumeric sequences into hyphens
 - - Trims leading/trailing hyphens and enforces optional max length
@@ -22,6 +14,14 @@
 - - Added small _impl and _version fields for debugging
 - - Roadmap alignment:
 - - Implements the known-safe pattern to support both default and named imports of lib/slugify so API routes and pages using different import styles won't fail at runtime.
+- +- Improved lib/slugify.js:
+- +  - Replaced placeholder implementation with a robust slugifier that:
+- +    - Removes diacritics using Unicode normalization
+- +    - Trims leading/trailing hyphens and supports optional max length
+- +  - Exported multiple shapes to improve CommonJS/ES interop:
+- +  - Added small _impl diagnostics object for debugging
+- +
+- +
   - module.exports = slugify
   - module.exports.slugify = slugify
   - module.exports.default = slugify
@@ -29,10 +29,6 @@
 
 ## Next Steps
 
-- - Add unit tests for /api/health-hub covering success and failure cases.
-- - Consider extending readiness checks to validate optional integrations (databases, caches) when those are added.
-- - Audit utility exports for consistent default/named shapes (slugify, exportCsv, etc.) and add CI checks to avoid import/export mismatches.
-- - Run full test suite (npm test) in CI to catch any ESM/CJS import edge-cases across the codebase.
 - - Audit other core utility modules (lib/exportCsv.js, lib/products.js, lib/isInStock.js) for consistent export shapes; add interop shims where consumers import with different styles.
 - - Consider adding a small unit test validating slugify behavior for edge cases: accents, punctuation, whitespace, empty input.
 - - Optionally consolidate health endpoints into a single health hub (per roadmap) and add readiness/health tests.
@@ -49,3 +45,7 @@
 - - Audit other core utilities for consistent export shapes (lib/isInStock, lib/products, lib/exportCsv) and add shims where necessary.
 - - Consider adding a small CI lint rule to detect when critical utilities (slugify, exportCsv) do not expose both default and named exports to prevent regressions.
 - - Optionally consolidate health endpoints into a single health hub and add unit tests for readiness/health probes.
+- +- Add unit tests for slugify edge cases (accents, punctuation, empty input, long input) — e.g., tests/slugify.test.js.
+- +- Audit other core utility modules (lib/isInStock, lib/exportCsv, lib/products) to ensure they expose friendly interop shapes; add shims where needed.
+- +- Run full test suite (npm test) in CI to detect interop mismatches across the codebase.
+- +- Optionally add a small integration test calling pages/api/slugify and pages/tools/slugify to guard against regressions in different runtime environments.
