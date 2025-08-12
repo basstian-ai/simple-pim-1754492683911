@@ -6,13 +6,18 @@ export default function AttributesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Use an AbortController with a client-side timeout to avoid long-hanging fetches
+    // (e.g. when a backend query is slow). Keeps the UI responsive.
     let mounted = true;
-    fetch('/api/attributes')
-      .then((r) => {
-        if (!r.ok) throw new Error('Failed to load attributes');
-        return r.json();
-      })
-      .then((data) => {
+    const controller = new AbortController();
+    const timeoutMs = 30_000; // 30 seconds
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    async function load() {
+      try {
+        const res = await fetch('/api/attributes', { signal: controller.signal });
+        if (!res.ok) throw new Error(`Failed to load attributes (${res.status})`);
+        const data = await res.json();
         if (!mounted) return;
         // API may return either an array or an object with groups/attributes.
         let list = [];
@@ -21,15 +26,26 @@ export default function AttributesPage() {
         else if (data && Array.isArray(data.attributes)) list = data.attributes;
         else list = [];
         setAttrs(list);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         if (!mounted) return;
-        setError(err.message || 'Error loading attributes');
-        setLoading(false);
-      });
+        if (err && err.name === 'AbortError') {
+          setError('Request timed out after 30s');
+        } else {
+          setError(err.message || 'Error loading attributes');
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    load();
+
     return () => {
       mounted = false;
+      clearTimeout(timer);
+      try {
+        controller.abort();
+      } catch (_) {}
     };
   }, []);
 
