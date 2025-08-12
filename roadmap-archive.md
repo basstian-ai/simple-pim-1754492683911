@@ -160,6 +160,11 @@
 - - Fixed CommonJS/ESM interop for slugify and provided a robust Unicode-aware implementation:
 - - Modified: lib/slugify.js
 - - Implements NFKD normalization and diacritic stripping (_toAscii)
+- - Collapses non-alphanumerics to hyphens, trims, optional maxLength
+- - Exposes multiple export shapes: module.exports, module.exports.default, module.exports.slugify, and ESM named/default exports
+- - Adds slugify._impl.toAscii helper for diagnostics/tests
+- - Reason: Many modules in the codebase import slugify via different module styles (default import vs require). This change ensures callers receive a working default function and improves slug correctness for international input.
+- - Fixed CommonJS/ESM interoperability and improved international slug handling:
 ## Next Steps
 
 - # NEXT STEPS
@@ -258,3 +263,7 @@
 - - Run full test suite (npm test) in CI to ensure all modules depending on slugify behave as expected.
 - - If tests reveal regressions, adjust callers that relied on previous slug behavior (e.g., stricter code generation) or add adapter wrappers where necessary.
 - - Add unit tests specifically for slugify edge-cases: accented characters, long strings with maxLength, non-Latin input, and empty/invalid input.
+- - Audit other internal helper modules for consistent CommonJS/ESM interop and add similar compatibility shims (e.g., lib/exportCsv already has shims; search for modules missing them).
+- - Consider adding transliteration for non-Latin scripts if broader multilingual slug support is required (e.g., use small transliteration maps without adding heavy deps).
+- - Run full CI test suite (npm test) to confirm no other route files contain accidental corruption.
+- - Add a small unit test for /api/health-lite (e.g., tests/api-health-lite.test.js) to guard against regressions.

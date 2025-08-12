@@ -2,11 +2,6 @@
 
 ## Progress
 
-- - Collapses non-alphanumerics to hyphens, trims, optional maxLength
-- - Exposes multiple export shapes: module.exports, module.exports.default, module.exports.slugify, and ESM named/default exports
-- - Adds slugify._impl.toAscii helper for diagnostics/tests
-- - Reason: Many modules in the codebase import slugify via different module styles (default import vs require). This change ensures callers receive a working default function and improves slug correctness for international input.
-- - Fixed CommonJS/ESM interoperability and improved international slug handling:
 - - Modified lib/slugify.js
 - - Added Unicode normalization (NFKD) and diacritic stripping via toAscii
 - - Replaced fragile regex with robust sequence: normalize -> ascii -> lowercase -> non-alnum → hyphen -> collapse -> trim
@@ -22,16 +17,17 @@
 - - pages/api/attribute-groups/index.js
 - - Return both { data: groups, groups } for GET responses to provide compatibility for UI consumers that expect either shape.
 - - Keeps cache and CORS headers intact.
+- - Fixed/Improved lib/slugify.js:
+- - Replaced legacy slugify with robust implementation using Unicode NFKD normalization to strip diacritics and produce cleaner ASCII slugs.
+- - Collapses non-alphanumeric characters into single hyphens, trims, and supports optional maxLength.
+- - Exported the function in multiple shapes for compatibility: module.exports, module.exports.default, module.exports.slugify, and exports.slugify. Added slugify._impl.toAscii helper.
+- - No other files modified.
   - Replaced the placeholder implementation with a robust slugifier that removes diacritics via Unicode normalization.
   - Trimmed leading and trailing hyphens, added optional max-length support, and exported multiple shapes for CommonJS/ES module interop.
   - Added a small `_impl` diagnostics object for debugging.
 
 ## Next Steps
 
-- - Audit other internal helper modules for consistent CommonJS/ESM interop and add similar compatibility shims (e.g., lib/exportCsv already has shims; search for modules missing them).
-- - Consider adding transliteration for non-Latin scripts if broader multilingual slug support is required (e.g., use small transliteration maps without adding heavy deps).
-- - Run full CI test suite (npm test) to confirm no other route files contain accidental corruption.
-- - Add a small unit test for /api/health-lite (e.g., tests/api-health-lite.test.js) to guard against regressions.
 - - Audit other API route files for accidental merge artifacts or malformed content and fix as needed.
 - - Consider centralizing health endpoints behavior to a shared helper to keep consistency across /api/health*, /api/ready, /api/status.
 - - Run full CI test suite (npm test) and fix any callers that relied on previous slug output edge-cases.
@@ -48,3 +44,7 @@
 - - Audit other API routes for inconsistent response shapes (e.g., some return { data }, others return raw arrays) and standardize where helpful.
 - - Consider documenting API response shapes (data vs groups) in README or an OpenAPI spec for clearer client expectations.
 - - If desired, add deprecation notices for older shapes and migrate callers to a single canonical response format over time.
+- - Run the full test suite: npm test — this change touches a widely-imported helper; run tests to ensure no regressions.
+- - Audit modules that manipulate slugs or rely on previous slug edge-cases; adjust them if stricter ASCII transliteration changes behavior (rare).
+- - Optionally add unit tests for slugify edge-cases (accents, long truncation, non-string inputs, empty values) to tests/slugify.test.js.
+- - Consider lightweight transliteration for non-Latin scripts if broader internationalization is required (without adding heavy dependencies).
