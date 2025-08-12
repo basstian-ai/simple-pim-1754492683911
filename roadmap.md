@@ -15,6 +15,12 @@
 - - Exports: module.exports, module.exports.default, module.exports.slugify, and __esModule flag for broad compatibility
 - - Added small _impl helpers for debugging
 - - Roadmap item implemented: "Improved lib/slugify.js" (Unicode-safe slugifier, export compatibility)
+- - Improved lib/slugify.js:
+- - Replaced former simplistic slugifier with a Unicode-aware implementation using NFKD normalization and safe stripping of combining marks.
+- - Collapses non-alphanumerics to hyphens, lowercases, trims, and supports optional maxLength.
+- - Exposed multiple export shapes for compatibility: module.exports (function), module.exports.default, module.exports.slugify, exports.slugify, and __esModule = true.
+- - Added small _impl.toAscii helper for diagnostics.
+- - No other files modified.
   - Replaced the placeholder implementation with a robust slugifier that removes diacritics via Unicode normalization.
   - Trimmed leading and trailing hyphens, added optional max-length support, and exported multiple shapes for CommonJS/ES module interop.
   - Added a small `_impl` diagnostics object for debugging.
@@ -33,3 +39,8 @@
 - - Add unit tests specifically for slugify edge cases (accents, long strings, punctuation).
 - - Audit other internal helper modules for consistent CommonJS/ESM export patterns (e.g., lib/exportCsv, lib/variants) and add similar compatibility shims where needed.
 - - If desired, extend slugify with transliteration tables for non-Latin scripts (currently relies on Unicode normalization only).
+- - Run full test suite (npm test) in CI to ensure all modules depending on slugify behave as expected.
+- - If tests reveal regressions, adjust callers that relied on previous slug behavior (e.g., stricter code generation) or add adapter wrappers where necessary.
+- - Add unit tests specifically for slugify edge-cases: accented characters, long strings with maxLength, non-Latin input, and empty/invalid input.
+- - Audit other internal helper modules for consistent CommonJS/ESM interop and add similar compatibility shims (e.g., lib/exportCsv already has shims; search for modules missing them).
+- - Consider adding transliteration for non-Latin scripts if broader multilingual slug support is required (e.g., use small transliteration maps without adding heavy deps).
