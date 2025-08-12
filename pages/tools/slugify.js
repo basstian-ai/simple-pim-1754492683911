@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { slugify } from "../../lib/slugify";
+import slugify from "../../lib/slugify";
 
 export default function SlugifyTool() {
   const [value, setValue] = useState("");

@@ -1,4 +1,4 @@
-import generateNameSuggestions from '../../../lib/generateNameSuggestions';
+const { generateNameSuggestions } = require('../../../lib/generateNameSuggestions');
 
 export default function handler(req, res) {
   if (req.method !== 'POST') {
