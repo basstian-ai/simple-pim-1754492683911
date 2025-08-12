@@ -76,6 +76,15 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - - Added minimal metadata helper module.exports._impl for debugging.
 - Roadmap item implemented:
 - - "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." — implemented for lib/slugify.js.
+- - lib/slugify.js
+- - Replaced/updated slugify implementation with a robust Unicode-aware function.
+- - Ensured interoperability across import styles:
+- - module.exports = slugify
+- - module.exports.slugify = slugify
+- - module.exports.default = slugify
+- - exports.slugify = slugify
+- - Added small metadata _impl for easier debugging.
+- - Implemented roadmap item: "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." (slugify implemented)
   - module.exports = slugify
   - module.exports.slugify = slugify
   - module.exports.default = slugify
@@ -102,3 +111,10 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - - Accented characters, punctuation, multiple spaces, underscores, and edge-cases (empty, null).
 - - Update README/developer docs with a short note about import patterns for utilities (CommonJS vs ESM interop).
 - - Consider adding a lightweight CI lint/test that verifies critical utilities expose both default and named exports to prevent regressions.
+- - Audit other utility modules for consistent export shapes and add similar interop shims where necessary:
+- - lib/exportCsv.js
+- - lib/isInStock.js
+- - lib/products.js
+- - Add unit tests for slugify (e.g., tests/slugify.test.js) to guard against regressions (cover accented characters, punctuation, empty input).
+- - Update README or developer docs with guidance about importing utilities in CommonJS vs ESM contexts.
+- - Consider adding a small CI lint/test that verifies critical utilities expose both default and named exports to prevent regressions.
