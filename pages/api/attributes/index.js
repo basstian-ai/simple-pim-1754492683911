@@ -24,6 +24,8 @@ function allowCors(res) {
 
 async function handler(req, res) {
   allowCors(res);
+  // Always respond with JSON from this API
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
   const { method } = req;
 
   if (method === 'OPTIONS') {
@@ -33,6 +35,9 @@ async function handler(req, res) {
 
   if (method === 'GET') {
     const data = loadAttributes();
+    // Cache for 60s on the edge, allow stale while revalidating for 5m.
+    // Keeps client/server load down for repeated requests to sample data.
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
     res.status(200).json(data);
     return;
   }
