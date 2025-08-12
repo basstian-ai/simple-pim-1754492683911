@@ -41,13 +41,6 @@ Status: lightweight roadmap for the next milestones (early-stage).
 
 ## Progress
 
-- - lib/slugify.js
-- - Replaced previous implementation with a robust Unicode-aware slugify function.
-- - Added interoperability exports:
-- - module.exports = slugify (CommonJS default)
-- - module.exports.slugify = slugify (named)
-- - module.exports.default = slugify (.default for ESM interop)
-- - exports.slugify = slugify
 - - Exposed module.exports._impl.removeDiacritics for debugging/tests.
 - - Roadmap item implemented: "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." (slugify covered)
 - - lib/slugify.js
@@ -60,6 +53,13 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - - exports.slugify = slugify
 - - Exposed module.exports._impl.removeDiacritics helper for debugging/testing.
 - - "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." — implemented for lib/slugify.js.
+- - Added pages/api/ready.js
+- - New lightweight readiness endpoint that:
+- - Validates presence and basic shape of data/products.json and data/attribute-groups.json
+- - Returns 200 when checks pass, 503 if any check fails
+- - Includes permissive CORS and short edge caching
+- - Roadmap alignment:
+- - Implements a near-term stability improvement: "Add health/readiness endpoints" — provides a small, deploy-friendly readiness check suitable for probes.
   - module.exports = slugify
   - module.exports.slugify = slugify
   - module.exports.default = slugify
@@ -67,10 +67,6 @@ Status: lightweight roadmap for the next milestones (early-stage).
 
 ## Next Steps
 
-- - Add unit tests for slugify (tests/slugify.test.js) covering:
-- - Accented characters, punctuation, whitespace collapse, empty/null input.
-- - Add a short developer note in README about preferred import patterns for utilities (CommonJS vs ESM interop).
-- - Optionally add a CI lint/test to detect ambiguous/missing default exports on key utility modules.
 - - Audit other utility modules for consistent export shapes (suggested priority):
 - 1) lib/products.js
 - 2) lib/isInStock.js (already provides default but confirm named export)
@@ -87,3 +83,7 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - - Accented characters, punctuation, whitespace collapse, underscores, numbers, empty/null/undefined input.
 - - Update README or developer docs with guidance about importing utilities in CommonJS vs ESM contexts.
 - - Optionally add a CI lint/test that verifies critical utilities expose both default and named exports to prevent regressions.
+- - Add monitoring/alerting probes to call /api/ready in production (e.g., uptime checks).
+- - Extend readiness checks to verify optional services (databases, caches) when integrated.
+- - Add unit tests for the readiness endpoint (tests/api-ready.test.js) to cover success and failure scenarios.
+- - Consider consolidating similar health endpoints (health, health-check, healthz-check, ready) into a small health API hub to avoid duplication and keep responses consistent.
