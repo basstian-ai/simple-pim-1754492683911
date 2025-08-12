@@ -3,10 +3,6 @@
 
 ## Progress
 
-- - module.exports.default = slugify (ESM interop)
-- - exports.slugify = slugify
-- - Exposed module.exports._impl.removeDiacritics helper for debugging/testing.
-- - "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." — implemented for lib/slugify.js.
 - - Added pages/api/ready.js
 - - New lightweight readiness endpoint that:
 - - Validates presence and basic shape of data/products.json and data/attribute-groups.json
@@ -22,6 +18,10 @@
 - - Supports OPTIONS preflight and includes permissive CORS and short edge cache headers.
 - - Best-effort package.json version included in response.
 - - This implements roadmap item: "Add health/readiness endpoints" and provides a deploy-friendly readiness check.
+- - Ensured robust slugify utility with Unicode diacritics removal and stable slug generation (lib/slugify.js)
+- - Exposes CommonJS default (module.exports), named export (.slugify), and .default shim for ESM interop
+- - Adds internal helper removeDiacritics via module.exports._impl for testing/debugging
+- - Implemented export shape compatibility to reduce import errors when codebase mixes require() and import default syntax
   - module.exports = slugify
   - module.exports.slugify = slugify
   - module.exports.default = slugify
@@ -29,15 +29,6 @@
 
 ## Next Steps
 
-- - Accented characters, punctuation, whitespace collapse, underscores, numbers, empty/null/undefined input.
-- - Update README with short developer guidance on importing utilities across CommonJS and ESM.
-- - Optionally add a CI lint/test that verifies key utilities expose both default and named exports.
-- - Audit other utility modules for consistent export shapes (priority):
-- 1. lib/products.js
-- 2. lib/isInStock.js (already provides default but confirm named export)
-- 3. lib/exportCsv.js (already includes shims; verify consumers)
-- - Add unit tests for slugify (tests/slugify.test.js) covering:
-- - Accented characters, punctuation, whitespace collapse, underscores, numbers, empty/null/undefined input.
 - - Update README or developer docs with guidance about importing utilities in CommonJS vs ESM contexts.
 - - Optionally add a CI lint/test that verifies critical utilities expose both default and named exports to prevent regressions.
 - - Add monitoring/alerting probes to call /api/ready in production (e.g., uptime checks).
@@ -49,3 +40,12 @@
 - - Consider consolidating similar health endpoints (health, health-check, healthz, ready) into a single health API hub to avoid duplication.
 - - Add tests to ensure other utilities expose consistent default/named exports (slugify, exportCsv, isInStock).
 - - Optionally extend readiness to verify optional services (databases, caches) when integrated.
+- - Audit other core utilities for consistent export shapes (priority):
+- 1. lib/products.js — ensure default and named exports where used
+- 2. lib/isInStock.js — confirm named export exists alongside default (it already provides default)
+- 3. lib/exportCsv.js — already includes multiple shims; verify consumers use preferred shape
+- - Add unit tests verifying slugify behavior (tests/slugify.test.js):
+- - accented characters, punctuation, whitespace collapse, underscores, numbers, empty/null input
+- - Add CI check that critical utilities expose both default and named exports to prevent regressions
+- - Consider consolidating health endpoints into a single health hub for consistency (pages/api/health.*)
+- - Update README/developer docs describing import compatibility guidance (require vs import) and how to use provided utility shims

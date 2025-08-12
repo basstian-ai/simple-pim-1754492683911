@@ -75,6 +75,10 @@
 - - Added interoperability exports:
 - - module.exports = slugify (CommonJS default)
 - - module.exports.slugify = slugify (named)
+- - module.exports.default = slugify (ESM interop)
+- - exports.slugify = slugify
+- - Exposed module.exports._impl.removeDiacritics helper for debugging/testing.
+- - "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." — implemented for lib/slugify.js.
 ## Next Steps
 
 - # NEXT STEPS
@@ -118,3 +122,12 @@
 - 2) lib/isInStock.js (already provides default but confirm named export)
 - 3) lib/exportCsv.js (already includes shims; verify consumers)
 - - Add unit tests for slugify (tests/slugify.test.js) covering:
+- - Accented characters, punctuation, whitespace collapse, underscores, numbers, empty/null/undefined input.
+- - Update README with short developer guidance on importing utilities across CommonJS and ESM.
+- - Optionally add a CI lint/test that verifies key utilities expose both default and named exports.
+- - Audit other utility modules for consistent export shapes (priority):
+- 1. lib/products.js
+- 2. lib/isInStock.js (already provides default but confirm named export)
+- 3. lib/exportCsv.js (already includes shims; verify consumers)
+- - Add unit tests for slugify (tests/slugify.test.js) covering:
+- - Accented characters, punctuation, whitespace collapse, underscores, numbers, empty/null/undefined input.
