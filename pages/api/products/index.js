@@ -5,6 +5,12 @@ import withErrorHandling from '../../../lib/api/withErrorHandling';
 // Keeps the underlying handler behaviour intact while reducing repeated load
 // from clients by instructing the CDN/edge to cache responses briefly.
 async function handler(req, res) {
+  // Ensure we always respond with JSON content-type for observability and clients.
+  // Setting this early prevents ambiguous responses if we hit the timeout path.
+  try {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  } catch (_) {}
+
   // Short edge cache for GETs to reduce repeated load
   if (req.method === 'GET') {
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
