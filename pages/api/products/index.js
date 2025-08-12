@@ -11,6 +11,21 @@ async function handler(req, res) {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
   } catch (_) {}
 
+  // Add permissive CORS headers to make this API easier to call from tools
+  // and local development without changing server behaviour. Preflight (OPTIONS)
+  // requests are answered early.
+  try {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  } catch (_) {}
+
+  if (req.method === 'OPTIONS') {
+    // No body for preflight responses.
+    res.status(204).end();
+    return;
+  }
+
   // Short edge cache for GETs to reduce repeated load
   if (req.method === 'GET') {
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
