@@ -90,6 +90,15 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - - productsToCsv, toCsv, exportProductsToCsv, default
 - - Added a small _impl property exposing internals for easier debugging.
 - - Purpose: improve CommonJS/ESM interoperability so callers (including pages/api/products/export.js) can reliably discover a CSV export function.
+- - lib/slugify.js
+- - Replaced the previous minimal implementation with a robust Unicode-aware slugify function.
+- - Ensured CommonJS + ESM interop by exporting:
+- - module.exports = slugify (default)
+- - module.exports.slugify = slugify (named)
+- - module.exports.default = slugify (ESM interop)
+- - exports.slugify = slugify
+- - Added a small _impl surface for debugging.
+- - "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." — implemented for lib/slugify.js.
   - module.exports = slugify
   - module.exports.slugify = slugify
   - module.exports.default = slugify
@@ -127,3 +136,9 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - - Add unit tests covering export CSV discovery (ensure pickCsvFn finds the serializer) and CSV output shape (tests/api-products-export.test.js).
 - - Update README with developer note about utility import patterns and interop guidance.
 - - Optionally add a CI lint/test that detects ambiguous default/named export expectations for key utilities.
+- - Audit other utilities for consistent export shapes and add similar shims where necessary:
+- - lib/products.js, lib/exportCsv.js, lib/isInStock.js (exportCsv and isInStock already have interop shims; verify and align others).
+- - Add unit tests for slugify (tests/slugify.test.js) covering:
+- - Accented characters, punctuation, whitespace collapse, empty/null input.
+- - Add a short developer note in README about preferred import patterns for utilities (CommonJS vs ESM interop).
+- - Optionally add a CI lint/test to detect ambiguous/missing default exports on key utility modules.
