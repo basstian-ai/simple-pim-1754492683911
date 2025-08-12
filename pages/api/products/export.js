@@ -42,6 +42,7 @@ export default async function handler(req, res) {
   }
 
   const products = await getProducts({});
+  // prefer discovered CSV serializer from lib/exportCsv; fallback to defaultCsv
   const toCsv = pickCsvFn(csvModule) || defaultCsv;
 
   let csv;
@@ -55,3 +56,5 @@ export default async function handler(req, res) {
   res.setHeader('Content-Disposition', 'attachment; filename="products.csv"');
   res.status(200).send(csv);
 }
+
+

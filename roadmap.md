@@ -85,6 +85,11 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - - exports.slugify = slugify
 - - Added small metadata _impl for easier debugging.
 - - Implemented roadmap item: "Ensure common utilities (slugify, isInStock, exportCsv) export both CommonJS and ESM-compatible defaults for predictable imports." (slugify implemented)
+- - lib/exportCsv.js
+- - Exported the CSV serializer as the module's default (function) and attached named shims:
+- - productsToCsv, toCsv, exportProductsToCsv, default
+- - Added a small _impl property exposing internals for easier debugging.
+- - Purpose: improve CommonJS/ESM interoperability so callers (including pages/api/products/export.js) can reliably discover a CSV export function.
   - module.exports = slugify
   - module.exports.slugify = slugify
   - module.exports.default = slugify
@@ -118,3 +123,7 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - - Add unit tests for slugify (e.g., tests/slugify.test.js) to guard against regressions (cover accented characters, punctuation, empty input).
 - - Update README or developer docs with guidance about importing utilities in CommonJS vs ESM contexts.
 - - Consider adding a small CI lint/test that verifies critical utilities expose both default and named exports to prevent regressions.
+- - Audit other utility modules to ensure consistent export shapes (e.g., lib/products.js, lib/slugify.js, lib/isInStock.js) and add similar interop shims where needed.
+- - Add unit tests covering export CSV discovery (ensure pickCsvFn finds the serializer) and CSV output shape (tests/api-products-export.test.js).
+- - Update README with developer note about utility import patterns and interop guidance.
+- - Optionally add a CI lint/test that detects ambiguous default/named export expectations for key utilities.
