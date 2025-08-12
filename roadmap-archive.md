@@ -137,6 +137,13 @@
 - - Implements the known-safe pattern to support both default and named imports of lib/slugify so API routes and pages using different import styles won't fail at runtime.
 - Improved `lib/slugify.js`:
 - +- lib/slugify.js
+- +  - Replaced/updated slugify implementation with robust Unicode normalization, diacritic stripping, and safe character collapsing.
+- +  - Added compatibility exports: module.exports, module.exports.default, exports.slugify to ensure both CommonJS and common ESM import-default patterns work.
+- +  - Exposed a small _impl diagnostic object for tests/debugging.
+- +
+- +
+- - Implemented robust slugifier and improved module interop (lib/slugify.js)
+- - Unicode NFKD normalization + diacritic removal
 ## Next Steps
 
 - # NEXT STEPS
@@ -221,3 +228,8 @@
 - - Add unit tests verifying slugify behavior for edge cases (accents, punctuation, whitespace, empty input) — tests/slugify.test.js
 - - Audit other core utilities for consistent export shapes (lib/products.js, lib/isInStock.js) and add interop shims where needed.
 - [ ] Design and implement an admin dashboard to manage products and categories.
+- [ ] Create user interface components for creating, editing, and deleting products directly in the dashboard.
+- [ ] Add intuitive navigation with a sidebar and breadcrumb trail to improve orientation.
+- [ ] Implement role-based access control for admin functionality.
+- [ ] Surface inventory metrics and recent activity in dashboard widgets.
+- +- Run full test suite (npm test) in CI to ensure other modules using slugify behave as expected.
