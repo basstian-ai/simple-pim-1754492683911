@@ -165,6 +165,12 @@
 - - Adds slugify._impl.toAscii helper for diagnostics/tests
 - - Reason: Many modules in the codebase import slugify via different module styles (default import vs require). This change ensures callers receive a working default function and improves slug correctness for international input.
 - - Fixed CommonJS/ESM interoperability and improved international slug handling:
+- - Modified lib/slugify.js
+- - Added Unicode normalization (NFKD) and diacritic stripping via toAscii
+- - Replaced fragile regex with robust sequence: normalize -> ascii -> lowercase -> non-alnum → hyphen -> collapse -> trim
+- - Added optional maxLength support via slugify(input, { maxLength: N })
+- - Exported function in multiple shapes for broad compatibility:
+- - module.exports = slugify
 ## Next Steps
 
 - # NEXT STEPS
@@ -267,3 +273,7 @@
 - - Consider adding transliteration for non-Latin scripts if broader multilingual slug support is required (e.g., use small transliteration maps without adding heavy deps).
 - - Run full CI test suite (npm test) to confirm no other route files contain accidental corruption.
 - - Add a small unit test for /api/health-lite (e.g., tests/api-health-lite.test.js) to guard against regressions.
+- - Audit other API route files for accidental merge artifacts or malformed content and fix as needed.
+- - Consider centralizing health endpoints behavior to a shared helper to keep consistency across /api/health*, /api/ready, /api/status.
+- - Run full CI test suite (npm test) and fix any callers that relied on previous slug output edge-cases.
+- - Add unit tests for slugify edge-cases:
