@@ -12,7 +12,9 @@ async function handler(req, res) {
   // Prevent extremely long-running requests from hanging serverless functions.
   // If the underlying handler takes longer than TIMEOUT_MS, we respond with 504.
   // Note: this does not abort the inner handler; it avoids leaving the client waiting.
-  const TIMEOUT_MS = 2 * 60 * 1000; // 2 minutes
+  // Reduce the default timeout to 30s to better protect serverless executions
+  // from very long-running backend operations that can exceed platform limits.
+  const TIMEOUT_MS = 30_000; // 30 seconds
   let finished = false;
 
   const timeoutId = setTimeout(() => {
@@ -37,4 +39,3 @@ async function handler(req, res) {
 }
 
 export default withErrorHandling(handler);
-
