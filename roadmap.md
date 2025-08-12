@@ -9,7 +9,7 @@ Status: lightweight roadmap for the next milestones (early-stage).
 - Improve UX for common workflows: attribute modeling, bulk tagging, variant generation.
 - Keep the platform simple and self-contained (no external dependencies required for core features).
 
-## Near-term milestones (0 — 2 weeks)
+## Near-term milestones 
 
 1) Stabilize API surface and error handling
    - Audit API routes for consistent JSON responses and CORS where appropriate.
@@ -25,12 +25,12 @@ Status: lightweight roadmap for the next milestones (early-stage).
    - Add copy/export affordances for sample products and CSV export links.
    - Make admin attribute editors resilient to missing data.
 
-## Mid-term milestones (2 — 8 weeks)
+## Mid-term milestones 
 - Add an "Import / Export" mini-workflow to seed/restore attribute groups (local or file upload).
 - Add lightweight telemetry for admins (counts, last-updated timestamps).
 - Implement role-aware actions and confirmation flows for destructive ops (delete group, remove attribute).
 
-## Longer-term (1+ quarter)
+## Longer-term 
 - Integrate optional external enrichment (AI assisted suggestions) behind feature flags and env variables.
 - Add background jobs for large exports and async processing.
 - Multi-tenant improvements, RBAC, and audit logs.
