@@ -5,6 +5,11 @@ queue:
     details: |-
       ```yaml
       queue:
+       - id: IDEA-INGEST-20250813-001
+          title: "Harden log ingestion: classify infra vs app; ignore Vercel API timeouts"
+          details: "Observed 'Query Duration Limit Exceeded' while fetching runtime logs from Vercel. This is an ingestion/infra error, not an app bug. Add classifier + retries/backoff; route such events to new.md or ops.md instead of bugs.md."
+          created: "2025-08-13T20:35:00Z"
+
         - id: IDEA-20250813-011
           title: "Command palette + keyboard shortcuts"
           details: "Quick actions (jump to product, run bulk edit, open saved view) with discoverable shortcut hints."
