@@ -12,3 +12,4 @@
 - 2025-08-13: ✅ AGENT-20250813-007 — Added **lock** and **state** mechanisms to avoid thrash.
 - 2025-08-13: ✅ AGENT-20250813-008 — Added **prompts** for log → bugs, review → ideas, task synthesis, and implement plan.
 
+- 2025-08-13T21:10:39.123Z: ✅ TSK-20250813-001 — Operations Overview dashboard (KPIs + widgets)
