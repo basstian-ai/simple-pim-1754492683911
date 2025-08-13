@@ -1,1 +1,1 @@
-- 2025-08-13T21:36:41.333Z Implemented: Data Quality dashboard with heatmap and rule leaderboard
+- 2025-08-13T21:47:26.070Z Implemented: Global search + advanced filters + saved views
