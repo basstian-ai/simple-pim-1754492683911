@@ -13,3 +13,4 @@
 - 2025-08-13: ✅ AGENT-20250813-008 — Added **prompts** for log → bugs, review → ideas, task synthesis, and implement plan.
 
 - 2025-08-13T21:10:39.123Z: ✅ TSK-20250813-001 — Operations Overview dashboard (KPIs + widgets)
+- 2025-08-13T21:36:42.907Z: ✅ TSK-20250813-002 — Data Quality dashboard with heatmap and rule leaderboard
