@@ -198,6 +198,18 @@
 - - Collapses non-alphanumerics to single hyphens, trims, and supports maxLength option.
 - - Exports for broad compatibility:
 - - module.exports = slugify (CommonJS function)
+- - module.exports.default = slugify (ESM default)
+- - module.exports.slugify and exports.slugify (named)
+- - module.exports._impl exposes toAscii and DEFAULT_MAX_LENGTH for tests/diagnostics
+- - Ensures __esModule flag is present to help interop.
+- - lib/slugify.js
+- - Replaced previous simple placeholder with a robust slugifier:
+- - Unicode NFKD normalization + combining mark stripping to remove diacritics
+- - Small transliteration map for common ligatures (æ, œ, ß, ø, etc.)
+- - Collapses non-alphanumerics to hyphens, trims edges, optional maxLength
+- - Exports compatible shapes for CommonJS and ESM consumers:
+- - module.exports (function), module.exports.default, module.exports.slugify, exports.slugify
+- - Exposes _impl { toAscii, DEFAULT_MAX_LENGTH } for tests/diagnostics
 ## Next Steps
 
 - # NEXT STEPS
@@ -316,3 +328,8 @@
 - - Audit other API routes for inconsistent response shapes (e.g., some return { data }, others return raw arrays) and standardize where helpful.
 - - Consider documenting API response shapes (data vs groups) in README or an OpenAPI spec for clearer client expectations.
 - - If desired, add deprecation notices for older shapes and migrate callers to a single canonical response format over time.
+- - Run the full test suite: npm test — this change touches a widely-imported helper; run tests to ensure no regressions.
+- - Audit modules that manipulate slugs or rely on previous slug edge-cases; adjust them if stricter ASCII transliteration changes behavior (rare).
+- - Optionally add unit tests for slugify edge-cases (accents, long truncation, non-string inputs, empty values) to tests/slugify.test.js.
+- - Consider lightweight transliteration for non-Latin scripts if broader internationalization is required (without adding heavy dependencies).
+- - Run full test suite: npm test — this change touches a widely-used helper; run CI to catch any regressions.
