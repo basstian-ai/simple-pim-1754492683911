@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - id: TSK-20250813-003
-    type: feature
-    title: Global search + advanced filters + saved views
-    desc: >-
-      Implement global entity search (ID/SKU/attributes) and an advanced filter builder with facets (channel, locale,
-      status). Add saved views with shareable URLs.
-    source: vision
-    created: '2025-08-13T12:11:00Z'
-    priority: 3
   - id: TSK-20250813-004
     type: feature
     title: Variant matrix editor (size/color) with bulk fill/copy
