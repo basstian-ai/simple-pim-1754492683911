@@ -1,1 +1,1 @@
-- 2025-08-13T21:10:37.595Z Implemented: Operations Overview dashboard (KPIs + widgets)
+- 2025-08-13T21:36:41.333Z Implemented: Data Quality dashboard with heatmap and rule leaderboard
