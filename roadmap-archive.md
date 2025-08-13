@@ -220,6 +220,11 @@
 - - Wraps logic in try/catch and logs server-side errors while returning a safe 500 JSON error to clients.
 - - lib/slugify.js
 - - Replaced legacy/basic slugifier with a robust implementation:
+- - Unicode NFKD normalization and diacritic stripping
+- - Small transliteration map (æ, œ, ß, ø, ñ, etc.)
+- - Collapses non-alphanumerics to hyphens and trims edges
+- - Optional maxLength truncation
+- - Added compatibility exports:
 ## Next Steps
 
 - # NEXT STEPS
@@ -347,3 +352,7 @@
 - - If wider international transliteration is required (e.g., Cyrillic, Greek, CJK), consider a lightweight optional transliteration layer or document current behavior.
 - - Audit other utility modules for CommonJS/ESM interop and add compatibility shims where necessary (pattern used here can be reused).
 - - Run full CI (npm test) to exercise all modules that rely on slugify and catch any edge regressions.
+- - Add unit tests for slugify edge-cases (tests/slugify.test.js): accented input, ligatures, very long strings (truncation), non-Latin input behavior, null/undefined inputs.
+- - Consider adding optional transliteration for non-Latin scripts (Cyrillic/Greek) if broader international slug support is required — keep it as an opt-in enhancement to avoid adding heavy dependencies.
+- - Audit other utility modules for CJS/ESM interop consistency; apply the same export shim pattern where appropriate (e.g., lib/variants, lib/isInStock) if tests surface interop issues.
+- - Run full CI (npm test) to exercise all modules that rely on slugify and catch any regressions.
