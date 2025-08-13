@@ -190,6 +190,14 @@
 - - Collapses non-alphanumeric characters to single hyphens, trims, and supports optional maxLength
 - - Exports for CommonJS/ESM interop: module.exports, default, slugify named export, and exports.slugify
 - - Exposes small _impl { toAscii, DEFAULT_MAX_LENGTH } for diagnostics/tests
+- - No other files modified.
+- - lib/slugify.js
+- - Replaced prior implementation with a robust, dependency-free slugifier.
+- - Adds Unicode NFKD normalization + combining mark stripping to remove diacritics.
+- - Adds small transliteration mapping for common ligatures (æ, œ, ß, ø, etc.).
+- - Collapses non-alphanumerics to single hyphens, trims, and supports maxLength option.
+- - Exports for broad compatibility:
+- - module.exports = slugify (CommonJS function)
 ## Next Steps
 
 - # NEXT STEPS
@@ -304,3 +312,7 @@
 - - Audit other helper modules for similar CommonJS/ESM interop issues (e.g., lib/variants, lib/exportCsv already has shims).
 - - Optionally add lightweight transliteration for non-Latin scripts if broader multilingual slug support is required (avoid heavy deps).
 - - If any callers expected the previous slug behavior, adjust them or add adapter wrappers to preserve backward compatibility.
+- - Run full test suite in CI (npm test) to catch any other API shape mismatches.
+- - Audit other API routes for inconsistent response shapes (e.g., some return { data }, others return raw arrays) and standardize where helpful.
+- - Consider documenting API response shapes (data vs groups) in README or an OpenAPI spec for clearer client expectations.
+- - If desired, add deprecation notices for older shapes and migrate callers to a single canonical response format over time.

@@ -2,14 +2,6 @@
 
 ## Progress
 
-- - No other files modified.
-- - lib/slugify.js
-- - Replaced prior implementation with a robust, dependency-free slugifier.
-- - Adds Unicode NFKD normalization + combining mark stripping to remove diacritics.
-- - Adds small transliteration mapping for common ligatures (æ, œ, ß, ø, etc.).
-- - Collapses non-alphanumerics to single hyphens, trims, and supports maxLength option.
-- - Exports for broad compatibility:
-- - module.exports = slugify (CommonJS function)
 - - module.exports.default = slugify (ESM default)
 - - module.exports.slugify and exports.slugify (named)
 - - module.exports._impl exposes toAscii and DEFAULT_MAX_LENGTH for tests/diagnostics
@@ -22,16 +14,20 @@
 - - Exports compatible shapes for CommonJS and ESM consumers:
 - - module.exports (function), module.exports.default, module.exports.slugify, exports.slugify
 - - Exposes _impl { toAscii, DEFAULT_MAX_LENGTH } for tests/diagnostics
+- - pages/api/tags.js
+- - Improved robustness:
+- - Sets Content-Type and permissive CORS headers.
+- - Handles OPTIONS preflight with 204 response.
+- - Enforces allowed methods (GET, OPTIONS) and returns 405 for others.
+- - Adds short edge caching header (s-maxage=60, stale-while-revalidate=300).
+- - Accepts both `search` and `q` query parameter names.
+- - Wraps logic in try/catch and logs server-side errors while returning a safe 500 JSON error to clients.
   - Replaced the placeholder implementation with a robust slugifier that removes diacritics via Unicode normalization.
   - Trimmed leading and trailing hyphens, added optional max-length support, and exported multiple shapes for CommonJS/ES module interop.
   - Added a small `_impl` diagnostics object for debugging.
 
 ## Next Steps
 
-- - Run full test suite in CI (npm test) to catch any other API shape mismatches.
-- - Audit other API routes for inconsistent response shapes (e.g., some return { data }, others return raw arrays) and standardize where helpful.
-- - Consider documenting API response shapes (data vs groups) in README or an OpenAPI spec for clearer client expectations.
-- - If desired, add deprecation notices for older shapes and migrate callers to a single canonical response format over time.
 - - Run the full test suite: npm test — this change touches a widely-imported helper; run tests to ensure no regressions.
 - - Audit modules that manipulate slugs or rely on previous slug edge-cases; adjust them if stricter ASCII transliteration changes behavior (rare).
 - - Optionally add unit tests for slugify edge-cases (accents, long truncation, non-string inputs, empty values) to tests/slugify.test.js.
@@ -48,3 +44,7 @@
 - - Add unit tests for slugify edge-cases (accents, ligatures, very long input, null/undefined) under tests/slugify.test.js.
 - - Audit other utility modules for CJS/ESM interop and add similar shims if tests reveal mismatches.
 - - If broader transliteration (Cyrillic/Greek/CJK) is required, consider an optional transliteration layer or document current behavior to set expectations.
+- - Run full test suite (npm test) in CI to ensure integration tests pass after header and behavior changes.
+- - Consider standardizing API response shapes across endpoints (some return arrays, others { data: ... }) and update clients accordingly.
+- - Add lightweight documentation for API caching and CORS behavior in README or API docs.
+- - If necessary, add similar CORS/error/caching patterns to other public read endpoints for consistency (e.g., /api/tags/stats, /api/attributes).
