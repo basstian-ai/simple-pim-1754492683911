@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - id: TSK-20250813-002
-    type: improvement
-    title: Data Quality dashboard with heatmap and rule leaderboard
-    desc: >-
-      Expose DQ metrics per channel/locale/category; render heatmap and a 'top failing rules' leaderboard. Link each
-      widget to a filtered bulk-fix view.
-    source: vision
-    created: '2025-08-13T12:10:30Z'
-    priority: 2
   - id: TSK-20250813-003
     type: feature
     title: Global search + advanced filters + saved views
