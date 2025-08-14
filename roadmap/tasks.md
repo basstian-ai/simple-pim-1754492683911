@@ -1,7 +1,25 @@
 # Tasks (single source of truth)
 
 ```yaml
-items: []
+items:
+  - id: TSK-1755186495053
+    type: improvement
+    title: Batch task synthesis
+    desc: |-
+      ```yaml
+      items:
+        - type: bug
+          title: App runtime errors & warnings from latest deployment
+          desc: |-
+            The system throws an error when a query exceeds the maximum allowed duration of 5 minutes, potentially impacting
+            user experience and performance.
+          source: user
+          created: '2025-08-14T06:26:07.056Z'
+          priority: 1
+      ```
+    source: review
+    created: '2025-08-14T15:48:15.053Z'
+    priority: 1
 ```yaml
 items:
   - id: TSK-1755116649102
