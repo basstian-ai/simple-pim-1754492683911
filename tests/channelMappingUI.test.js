@@ -1,10 +1,11 @@
-// Test suite for Channel Mapping UI component
-
 describe('Channel Mapping UI', () => {
-  it('renders correctly', () => {
-    // Test rendering logic
+  it('should render correctly', () => {
+    // Test implementation
   });
-  it('handles attribute mapping', () => {
-    // Test attribute mapping logic
+  it('should transform fields correctly', () => {
+    // Test implementation
+  });
+  it('should show dry-run preview', () => {
+    // Test implementation
   });
 });
