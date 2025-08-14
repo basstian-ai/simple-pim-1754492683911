@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: feature
-    title: Global search + advanced filters + saved views
-    desc: >-
-      Implement global entity search (ID/SKU/attributes) and an advanced filter builder with facets (channel, locale,
-      status). Add saved views with shareable URLs.
-    source: vision
-    created: '2025-08-13T12:11:00Z'
-    priority: 4
-  - type: feature
     title: Variant matrix editor (size/color) with bulk fill/copy
     desc: >-
       Grid editing for variant attributes; support bulk copy across rows/columns and pattern fills. Persist changes
