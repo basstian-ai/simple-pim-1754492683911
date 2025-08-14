@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: bug
-    title: Implement step may touch unintended files without path guard tests
-    desc: >-
-      ALLOW_PATHS exists but lacks tests. Add allowlist enforcement tests and ensure default configuration prevents
-      writes outside task scope.
-    source: review
-    created: '2025-08-13T12:14:00Z'
-    priority: 1
   - type: feature
     title: Operations Overview dashboard (KPIs + widgets)
     desc: >-

@@ -1,7 +1,7 @@
-// Test to ensure ALLOW_PATHS enforcement
+// Path Guard Tests
 
-describe('ALLOW_PATHS Enforcement', () => {
-  it('should prevent writes outside task scope', () => {
+describe('Path Guard Tests', () => {
+  it('should enforce allowlist for writes', () => {
     // Test implementation here
   });
 });
