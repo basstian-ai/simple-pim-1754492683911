@@ -189,6 +189,25 @@ items:
     source: review
     created: '2025-08-13T21:26:02.204Z'
     priority: 10
+  - id: TSK-1755146539428
+    type: improvement
+    title: Batch task synthesis
+    desc: |-
+      ```yaml
+      items:
+        - id: 
+          type: bug
+          title: App runtime errors & warnings from latest deployment
+          desc: >-
+            The system throws an error when a query exceeds the maximum allowed duration of 5 minutes, potentially impacting
+            long-running operations and user experience.
+          source: review
+          created: '2025-08-14T01:11:37.637Z'
+          priority: 1
+      ```
+    source: review
+    created: '2025-08-14T04:42:19.428Z'
+    priority: 9
 ```yaml
 items:
   - id: TSK-1755116649102
