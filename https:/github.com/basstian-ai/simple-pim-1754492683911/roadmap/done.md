@@ -1,0 +1,1 @@
+- 2025-08-14T06:31:17.685Z: ✅ TSK-20250813-004 — Add Variant Matrix Editor component with tests
