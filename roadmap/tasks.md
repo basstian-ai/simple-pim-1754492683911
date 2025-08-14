@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - id: TSK-20250813-005
-    type: improvement
-    title: Completeness rule builder UI (channel/locale aware)
-    desc: >-
-      Rule authoring for required fields, conditional requirements, and thresholds per channel/locale. Inline validation
-      and preview of affected SKUs.
-    source: vision
-    created: '2025-08-13T12:12:00Z'
-    priority: 5
   - id: TSK-20250813-006
     type: feature
     title: Channel mapping UI + field transformers + dry-run preview
