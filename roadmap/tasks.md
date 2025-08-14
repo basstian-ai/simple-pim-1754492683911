@@ -1,1 +1,5 @@
-- 2025-08-14: ✅ TSK-20250814-001 — Add guardrail to prevent writing to roadmap/vision.md
+# Tasks (single source of truth)
+
+```yaml
+items: []
+```
