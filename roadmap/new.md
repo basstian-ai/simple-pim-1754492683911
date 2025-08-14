@@ -38,4 +38,14 @@ queue:
           created: '2025-08-14T17:00:00Z'
       ```
     created: '2025-08-14T19:44:41.036Z'
+  - id: IDEA-1755205092159
+    title: Architect review batch
+    details: |-
+      ```yaml
+      queue:
+        - title: Conduct user testing for localization workspace
+          details: Organize user testing sessions for the localization workspace to gather feedback and improve usability.
+          created: '2025-08-14T17:00:00Z'
+      ```
+    created: '2025-08-14T20:58:12.159Z'
 ```
