@@ -38,6 +38,7 @@ Explore the API routes under `/pages/api/*`. Common ones include:
 
 - `/api/products`, `/api/products/[sku]`, `/api/products/search`, `/api/products/export`
 - `/api/products/[sku]/attributes/flat` (flatten a product's Attribute Groups for easy export/inspection)
+- 
 - `/api/tags`, `/api/tags/stats`, `/api/tags/export`
 - `/api/attributes`, `/api/attributes/suggest`
 - `/api/attribute-groups`, `/api/attribute-groups/flat`, `/api/attribute-groups/export`, `/api/attribute-groups/grouped`
