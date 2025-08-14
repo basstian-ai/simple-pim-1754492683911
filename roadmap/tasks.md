@@ -2,12 +2,6 @@
 
 ```yaml
 items:
-  - type: improvement
-    title: Enhance Inline Validation Explainability
-    desc: Improve the explainability of inline validation errors by adding detailed descriptions and potential solutions.
-    source: vision
-    created: '2025-08-15T00:00:00Z'
-    priority: 2
   - type: feature
     title: Create a user guide for Channel Mapping UI
     desc: Develop a comprehensive user guide for the Channel Mapping UI to assist users in understanding its features.
