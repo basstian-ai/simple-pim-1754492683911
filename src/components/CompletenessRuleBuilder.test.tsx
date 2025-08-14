@@ -1,1 +1,1 @@
-Add tests for inline validation in the Completeness Rule Builder component.
+Add tests for inline validation functionality in the Completeness Rule Builder.
