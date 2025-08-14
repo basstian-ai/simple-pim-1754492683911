@@ -2,6 +2,14 @@
 
 ```yaml
 items:
+  - type: bug
+    title: Query Duration Limit Exceeded
+    desc: >-
+      The system throws an error when a query exceeds the maximum allowed duration of 5 minutes, potentially impacting
+      user experience and data retrieval efficiency.
+    source: logs
+    created: '2025-08-14T18:24:39.709Z'
+    priority: 1
   - type: improvement
     title: Implement Retry Mechanism for Export Jobs
     desc: Develop a retry mechanism for export jobs to enhance reliability and reduce failure rates.
