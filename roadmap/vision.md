@@ -1,6 +1,4 @@
-Here’s the original roadmap/vision.md you asked for (vendor-neutral, no timeline, with added focus on dashboards, front-end GUI/UX, and best practices):
 
-⸻
 
 PIM Product Vision
 
