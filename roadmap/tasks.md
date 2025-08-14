@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - id: TSK-20250813-008
-    type: bug
-    title: YAML block parser should handle multiple fenced blocks per file
-    desc: >-
-      Current helper reads only the first ```yaml block. Update parser to support multiple named blocks or identify by
-      heading context to avoid collisions.
-    source: review
-    created: '2025-08-13T12:13:30Z'
-    priority: 8
   - id: TSK-20250813-009
     type: bug
     title: Implement step may touch unintended files without path guard tests
