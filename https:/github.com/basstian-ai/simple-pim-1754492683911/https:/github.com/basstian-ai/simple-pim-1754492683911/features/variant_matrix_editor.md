@@ -1,16 +1,14 @@
 # Variant Matrix Editor
 
 ## Overview
-The Variant Matrix Editor allows users to edit variant attributes such as size and color in a grid format. This feature supports bulk copy across rows and columns, as well as pattern fills for efficient editing.
+The Variant Matrix Editor allows users to edit variant attributes in a grid format, supporting bulk copy across rows and columns, as well as pattern fills.
 
 ## Features
-- Grid editing for variant attributes
-- Bulk fill and copy functionality
-- Atomic persistence of changes
+- Grid editing for size/color variants
+- Bulk fill/copy functionality
 - Optimistic UI for immediate feedback
-- Undo functionality for recent changes
+- Undo functionality for changes
 
-## User Stories
-1. As a user, I want to edit multiple variant attributes at once to save time.
-2. As a user, I want to copy attributes from one variant to another to ensure consistency.
-3. As a user, I want to undo my last action in case of mistakes.
+## Implementation Details
+- Changes are persisted atomically to ensure data integrity.
+- The editor will be accessible from the product detail page.
