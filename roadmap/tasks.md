@@ -2,12 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Create a user guide for Channel Mapping UI
-    desc: Develop a comprehensive user guide for the Channel Mapping UI to assist users in understanding its features.
-    source: user
-    created: '2025-08-14T17:00:00Z'
-    priority: 2
   - type: improvement
     title: Implement error handling for Channel Mapping UI
     desc: Add robust error handling mechanisms in the Channel Mapping UI to improve reliability.
