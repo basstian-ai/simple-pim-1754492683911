@@ -1,9 +1,8 @@
-const { expect } = require('chai');
-const { fetchData } = require('../src/dataFetcher');
+// Test for Query Duration Limit Exceeded issue
 
-describe('Query Duration Tests', () => {
-  it('should not exceed duration limit', async () => {
-    const result = await fetchData();
-    expect(result).to.not.throw();
+describe('Query Duration Limit', () => {
+  it('should not exceed the maximum duration', async () => {
+    const result = await queryFunction();
+    expect(result).not.toThrow();
   });
 });
