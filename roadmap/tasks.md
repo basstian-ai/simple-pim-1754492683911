@@ -1,1 +1,5 @@
-- TSK-20250814-001 — Implement side-by-side localization workspace with glossary enforcement
+# Tasks (single source of truth)
+
+```yaml
+items: []
+```
