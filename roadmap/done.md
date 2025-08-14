@@ -35,3 +35,4 @@
 - 2025-08-14T17:13:21.355Z: ✅  — Implement inline validation for Completeness Rule Builder
 - 2025-08-14T17:33:59.557Z: ✅  — Add user guide for Channel Mapping UI
 - 2025-08-14T17:50:00.014Z: ✅  — Implement error handling for Channel Mapping UI
+- 2025-08-14T18:25:02.865Z: ✅  — Add user testing task for localization workspace and related tests
