@@ -40,3 +40,4 @@
 - 2025-08-14T19:12:20.338Z: ✅  — Add Channel Mapping UI task and initial tests
 - 2025-08-14T19:25:50.811Z: ✅  — Add localization workspace task and initial tests
 - 2025-08-14T19:48:34.936Z: ✅  — Add guardrail to prevent edits to roadmap/vision.md
+- 2025-08-14T20:52:40.121Z: ✅  — Fix query duration limit exceeded issue and add tests
