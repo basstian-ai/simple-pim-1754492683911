@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Variant matrix editor (size/color) with bulk fill/copy
-    desc: >-
-      Grid editing for variant attributes; support bulk copy across rows/columns and pattern fills. Persist changes
-      atomically with optimistic UI + undo.
-    source: vision
-    created: '2025-08-13T12:11:30Z'
-    priority: 5
   - type: improvement
     title: Completeness rule builder UI (channel/locale aware)
     desc: >-
