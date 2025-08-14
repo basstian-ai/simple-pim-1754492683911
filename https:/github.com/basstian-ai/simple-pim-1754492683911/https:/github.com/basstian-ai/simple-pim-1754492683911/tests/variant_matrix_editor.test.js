@@ -1,17 +1,17 @@
-const { render, screen, fireEvent } = require('@testing-library/react');
-const VariantMatrixEditor = require('../components/VariantMatrixEditor');
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react';
+import VariantMatrixEditor from '../features/variant_matrix_editor';
 
 describe('VariantMatrixEditor', () => {
   test('renders correctly', () => {
-    render(<VariantMatrixEditor />);
-    expect(screen.getByText(/Variant Matrix Editor/i)).toBeInTheDocument();
+    const { getByText } = render(<VariantMatrixEditor />);
+    expect(getByText(/Grid Editing/i)).toBeInTheDocument();
   });
 
   test('bulk copy functionality', () => {
-    // Add test for bulk copy functionality
-  });
-
-  test('undo functionality', () => {
-    // Add test for undo functionality
+    const { getByText } = render(<VariantMatrixEditor />);
+    // Simulate bulk copy action
+    fireEvent.click(getByText(/Copy/i));
+    expect(getByText(/Attributes copied/i)).toBeInTheDocument();
   });
 });
