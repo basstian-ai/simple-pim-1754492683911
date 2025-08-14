@@ -1,0 +1,1 @@
+Implement inline validation logic for completeness rules.
