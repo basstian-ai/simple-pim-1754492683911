@@ -8,14 +8,10 @@ describe('VariantMatrixEditor', () => {
   });
 
   test('bulk fill functionality', () => {
-    // Implement test for bulk fill
-  });
-
-  test('copy functionality', () => {
-    // Implement test for copy across rows/columns
+    // Implement test for bulk fill functionality
   });
 
   test('undo functionality', () => {
-    // Implement test for undo action
+    // Implement test for undo functionality
   });
 });
