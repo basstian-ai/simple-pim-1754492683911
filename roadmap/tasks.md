@@ -3,13 +3,37 @@
 ```yaml
 items:
   - type: improvement
+    title: Add inline validation for completeness rule builder
+    desc: Implement inline validation for the completeness rule builder UI to enhance user experience.
+    source: user
+    created: '2025-08-14T17:00:00Z'
+    priority: 1
+  - type: feature
+    title: Create a user guide for Channel Mapping UI
+    desc: Develop a comprehensive user guide for the Channel Mapping UI to assist users in understanding its features.
+    source: user
+    created: '2025-08-14T17:00:00Z'
+    priority: 2
+  - type: improvement
+    title: Implement error handling for Channel Mapping UI
+    desc: Add robust error handling mechanisms in the Channel Mapping UI to improve reliability.
+    source: user
+    created: '2025-08-14T17:00:00Z'
+    priority: 3
+  - type: feature
+    title: Conduct user testing for localization workspace
+    desc: Organize user testing sessions for the localization workspace to gather feedback and improve usability.
+    source: user
+    created: '2025-08-14T17:00:00Z'
+    priority: 4
+  - type: improvement
     title: Completeness rule builder UI (channel/locale aware)
     desc: >-
       Rule authoring for required fields, conditional requirements, and thresholds per channel/locale. Inline validation
       and preview of affected SKUs.
     source: vision
     created: '2025-08-13T12:12:00Z'
-    priority: 6
+    priority: 5
   - type: feature
     title: Channel mapping UI + field transformers + dry-run preview
     desc: >-
@@ -17,7 +41,7 @@ items:
       to export.
     source: vision
     created: '2025-08-13T12:12:30Z'
-    priority: 7
+    priority: 6
   - type: improvement
     title: Localization workspace (side-by-side) with glossary enforcement
     desc: >-
@@ -25,5 +49,5 @@ items:
       flow with review checklist.
     source: vision
     created: '2025-08-13T12:13:00Z'
-    priority: 8
+    priority: 7
 ```
