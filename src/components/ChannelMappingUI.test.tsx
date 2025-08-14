@@ -1,4 +1,3 @@
-// ChannelMappingUI component tests
 import React from 'react';
 import { render } from '@testing-library/react';
 import ChannelMappingUI from './ChannelMappingUI';
