@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - id: TSK-20250813-006
-    type: feature
-    title: Channel mapping UI + field transformers + dry-run preview
-    desc: >-
-      Visual mapping of PIM attributes to each channel payload with transform snippets and a dry-run JSON preview prior
-      to export.
-    source: vision
-    created: '2025-08-13T12:12:30Z'
-    priority: 6
   - id: TSK-20250813-007
     type: improvement
     title: Localization workspace (side-by-side) with glossary enforcement
