@@ -74,4 +74,23 @@ queue:
           created: "2025-08-13T12:16:30Z"
       ```
     created: '2025-08-14T06:04:23.693Z'
+  - id: IDEA-1755186397169
+    title: Architect review batch
+    details: |-
+      ```yaml
+      queue:
+        - title: "Implement path guard tests"
+          details: "Add tests to ensure path guard functionality is working as intended."
+          created: "2025-08-14T11:29:31.378Z"
+        - title: "Update documentation for Channel Mapping UI"
+          details: "Ensure all recent changes to the Channel Mapping UI are reflected in the documentation."
+          created: "2025-08-14T10:45:35.323Z"
+        - title: "Add tests for Completeness Rule Builder UI"
+          details: "Implement unit tests to validate the functionality of the Completeness Rule Builder UI."
+          created: "2025-08-14T10:12:57.401Z"
+        - title: "Implement instrumentation for Channel Mapping UI events"
+          details: "Add tracking for key UI events in the Channel Mapping UI to gather usage data."
+          created: "2025-08-14T11:42:37.239Z"
+      ```
+    created: '2025-08-14T15:46:37.169Z'
 ```
