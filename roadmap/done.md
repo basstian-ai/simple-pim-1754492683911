@@ -48,3 +48,4 @@
 - 2025-08-14T22:34:35.061Z: ✅  — Add task for fixing query duration limit issue and related tests
 - 2025-08-14T22:50:47.638Z: ✅  — Fix Query Duration Limit Exceeded Issue and Add Tests
 - 2025-08-14T23:13:46.385Z: ✅  — Enhance Inline Validation Explainability in Completeness Rule Builder
+- 2025-08-14T23:30:44.665Z: ✅  — Add Dry-Run JSON Preview for Transform Snippets
