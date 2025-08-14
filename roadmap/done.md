@@ -39,3 +39,4 @@
 - 2025-08-14T18:51:32.742Z: ✅  — Add Completeness Rule Builder UI task and initial tests
 - 2025-08-14T19:12:20.338Z: ✅  — Add Channel Mapping UI task and initial tests
 - 2025-08-14T19:25:50.811Z: ✅  — Add localization workspace task and initial tests
+- 2025-08-14T19:48:34.936Z: ✅  — Add guardrail to prevent edits to roadmap/vision.md
