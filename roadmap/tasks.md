@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - id: TSK-20250813-010
-    type: improvement
-    title: Instrumentation of key UI events for dashboards & UX KPIs
-    desc: >-
-      Emit structured events (apply_filter, bulk_edit, dq_fix, publish_dry_run, publish_execute, translation_accept,
-      undo). Ship minimal analytics adapter and validate in dashboards.
-    source: vision
-    created: '2025-08-13T12:14:30Z'
-    priority: 10
   - id: TSK-1755120362204
     type: improvement
     title: Batch task synthesis
