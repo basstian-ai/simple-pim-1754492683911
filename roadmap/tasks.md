@@ -26,4 +26,26 @@ items:
     source: user
     created: '2025-08-14T17:00:00Z'
     priority: 4
+  - type: improvement
+    title: Improve error messages in Channel Mapping UI
+    desc: >-
+      Enhance the clarity and helpfulness of error messages displayed in the Channel Mapping UI to assist users in
+      troubleshooting.
+    source: user
+    created: '2025-08-14T22:00:00Z'
+    priority: 5
+  - type: feature
+    title: Create a testing plan for user guide
+    desc: Develop a testing plan to validate the effectiveness and clarity of the user guide for the Channel Mapping UI.
+    source: user
+    created: '2025-08-14T22:00:00Z'
+    priority: 6
+  - type: improvement
+    title: Review and update dashboard KPIs
+    desc: >-
+      Assess the current KPIs in the Operations Overview dashboard and update them based on user feedback and
+      performance metrics.
+    source: user
+    created: '2025-08-14T22:00:00Z'
+    priority: 7
 ```
