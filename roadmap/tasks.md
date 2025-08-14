@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Operations Overview dashboard (KPIs + widgets)
-    desc: >-
-      Implement backend metrics endpoints and frontend cards for: pending approvals, blocked by validation, publish
-      failures, missing assets/translations, and avg time-to-publish 7d. Include 'My queue' list and 'Publish pipeline'
-      stage chips.
-    source: vision
-    created: '2025-08-13T12:10:00Z'
-    priority: 2
   - type: improvement
     title: Data Quality dashboard with heatmap and rule leaderboard
     desc: >-
