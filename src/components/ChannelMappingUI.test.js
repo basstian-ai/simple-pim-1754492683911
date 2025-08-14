@@ -1,4 +1,9 @@
-// Added tests for emitted events
-it('should emit apply_filter event on button click', () => {
-  // Test logic to verify event emission
+import React from 'react';
+import { render } from '@testing-library/react';
+import ChannelMappingUI from './ChannelMappingUI';
+
+test('renders Channel Mapping UI', () => {
+  const { getByText } = render(<ChannelMappingUI />);
+  const linkElement = getByText(/Channel Mapping UI/i);
+  expect(linkElement).toBeInTheDocument();
 });
