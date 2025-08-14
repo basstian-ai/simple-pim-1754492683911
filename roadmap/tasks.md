@@ -2,6 +2,14 @@
 
 ```yaml
 items:
+  - type: bug
+    title: Fix query duration limit exceeded issue
+    desc: >-
+      The system throws an error when a query exceeds the maximum allowed duration of 5 minutes, impacting user
+      experience and data retrieval efficiency.
+    source: logs
+    created: '2025-08-14T21:13:17.104Z'
+    priority: 1
   - type: feature
     title: Create a user guide for Channel Mapping UI
     desc: Develop a comprehensive user guide for the Channel Mapping UI to assist users in understanding its features.
