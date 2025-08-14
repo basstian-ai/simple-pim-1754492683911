@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Add Dry-Run JSON Preview for Transform Snippets
-    desc: >-
-      Implement a feature to allow users to preview JSON transformations in a dry-run mode to ensure accuracy before
-      publishing.
-    source: vision
-    created: '2025-08-15T00:00:00Z'
-    priority: 1
   - type: improvement
     title: Implement Retry Mechanism for Export Jobs
     desc: Develop a retry mechanism for export jobs to enhance reliability and reduce failure rates.
