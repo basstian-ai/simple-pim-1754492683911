@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: bug
-    title: Fix Query Duration Limit Exceeded Issue
-    desc: >-
-      The system throws an error when a query exceeds the maximum allowed duration of 5 minutes, impacting user
-      experience and data retrieval efficiency. This fix is critical to ensure smooth operations.
-    source: logs
-    created: '2025-08-14T21:31:11.395Z'
-    priority: 1
   - type: improvement
     title: Enhance Inline Validation Explainability
     desc: Improve the explainability of inline validation errors by adding detailed descriptions and potential solutions.
