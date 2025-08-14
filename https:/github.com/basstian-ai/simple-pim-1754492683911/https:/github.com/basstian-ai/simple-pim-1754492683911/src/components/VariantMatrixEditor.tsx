@@ -2,7 +2,7 @@
 import React from 'react';
 
 const VariantMatrixEditor = () => {
-  // Component logic for grid editing, bulk fill/copy, and optimistic UI
+  // Component logic for handling variant attributes
   return <div>Variant Matrix Editor</div>;
 };
 
