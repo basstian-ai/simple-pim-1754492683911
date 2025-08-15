@@ -1,121 +1,146 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-export type Failure = {
+type FilterState = Record<string, any>;
+
+type Item = {
   id: string;
-  channel?: string;
-  timestamp?: string;
-  message: string;
+  title: string;
 };
 
 type Props = {
-  failures?: Failure[];
-  onRefresh?: () => void;
-  docsUrl?: string;
+  items: Item[];
+  initialFilters?: FilterState;
+  // Called when the user drills into a job. Consumers should perform navigation.
+  // RecentFailureFeed will save scroll+filter state before calling this.
+  onNavigate?: (jobId: string) => void;
 };
 
-const containerStyle: React.CSSProperties = {
-  borderRadius: 8,
-  padding: 20,
-  background: '#fff',
-  boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-};
+// Key used to store feed state inside history.state for the current pathname.
+const feedStateKeyForPath = (path: string) => `${path}::recentFailureFeed:v1`;
 
-const emptyStateStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 12,
-  padding: 28,
-  color: '#333',
-};
+export const RecentFailureFeed: React.FC<Props> = ({
+  items,
+  initialFilters = {},
+  onNavigate,
+}) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [filters, setFilters] = useState<FilterState>(initialFilters);
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+  const stateKey = feedStateKeyForPath(pathname);
 
-const titleStyle: React.CSSProperties = {
-  fontSize: 18,
-  fontWeight: 600,
-};
+  // On mount, attempt to restore filters + scroll from history.state if present.
+  useEffect(() => {
+    try {
+      const hs = window.history.state || {};
+      const saved = hs[stateKey];
+      if (saved) {
+        if (saved.filters) setFilters(saved.filters);
+        // restore scroll after paint
+        requestAnimationFrame(() => {
+          if (containerRef.current && typeof saved.scrollTop === 'number') {
+            containerRef.current.scrollTop = saved.scrollTop;
+          }
+        });
+      }
+    } catch (e) {
+      // be resilient; don't block render if history.state access fails
+      // eslint-disable-next-line no-console
+      console.warn('Could not restore RecentFailureFeed state', e);
+    }
+    // ensure there's an entry so consumers can update/replace later
+    try {
+      const hs = window.history.state || {};
+      if (!hs[stateKey]) {
+        const copy = Object.assign({}, hs, { [stateKey]: { filters: initialFilters, scrollTop: 0 } });
+        window.history.replaceState(copy, document.title);
+      }
+    } catch (e) {
+      // noop
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-const hintStyle: React.CSSProperties = {
-  fontSize: 13,
-  color: '#555',
-  textAlign: 'center',
-  maxWidth: 520,
-};
+  // Save handler used before navigation to job details.
+  const saveState = () => {
+    try {
+      const scrollTop = containerRef.current ? containerRef.current.scrollTop : 0;
+      const hs = window.history.state || {};
+      const copy = Object.assign({}, hs, { [stateKey]: { filters, scrollTop } });
+      // use replaceState so we don't create extra history entries — user expects back to go back to where they were
+      window.history.replaceState(copy, document.title);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn('Could not save RecentFailureFeed state', e);
+    }
+  };
 
-const buttonStyle: React.CSSProperties = {
-  padding: '8px 12px',
-  borderRadius: 6,
-  border: '1px solid #ddd',
-  background: '#f7f7f8',
-  cursor: 'pointer',
-};
+  const handleDrill = (jobId: string) => {
+    saveState();
+    if (onNavigate) {
+      onNavigate(jobId);
+    } else {
+      // default: navigate by setting location.href — this will unload the page
+      window.location.href = `/jobs/${jobId}`;
+    }
+  };
 
-export default function RecentFailureFeed({
-  failures = [],
-  onRefresh,
-  docsUrl = '/docs/publish-health',
-}: Props) {
-  const isEmpty = failures.length === 0;
-
-  if (isEmpty) {
-    return (
-      <div style={containerStyle} role="region" aria-label="Recent Failure Feed">
-        <div style={emptyStateStyle}>
-          <div aria-hidden style={{ fontSize: 40 }}>
-            ✅
-          </div>
-          <div style={titleStyle}>All clear — no recent failures</div>
-          <div style={hintStyle}>
-            There are currently no recent publish failures. If you're expecting activity, try refreshing or
-            check the Publish Health documentation for troubleshooting tips and next steps.
-          </div>
-
-          <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-            <button
-              type="button"
-              style={buttonStyle}
-              onClick={() => onRefresh && onRefresh()}
-              aria-label="Refresh failures"
-            >
-              Refresh
-            </button>
-
-            <a
-              href={docsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: 'none' }}
-              aria-label="Open Publish Health docs"
-            >
-              <button type="button" style={buttonStyle}>View Publish Health docs</button>
-            </a>
-          </div>
-
-          <ul style={{ marginTop: 12, color: '#666', fontSize: 13, textAlign: 'left' }}>
-            <li>Check channel credentials and recent job logs.</li>
-            <li>Confirm payloads are valid for the target channel.</li>
-            <li>Search the Recent Failure Feed for job IDs or product IDs.</li>
-          </ul>
-        </div>
-      </div>
-    );
-  }
+  // Example filter change that updates internal filters state.
+  // Consumers will likely wire to real filter controls; exposing here for completeness.
+  const updateFilter = (key: string, value: any) => {
+    setFilters((prev) => {
+      const next = { ...prev, [key]: value };
+      // Immediately persist to history state so browser back/forward preserves changes
+      try {
+        const hs = window.history.state || {};
+        const scrollTop = containerRef.current ? containerRef.current.scrollTop : 0;
+        const copy = Object.assign({}, hs, { [stateKey]: { filters: next, scrollTop } });
+        window.history.replaceState(copy, document.title);
+      } catch (e) {
+        // noop
+      }
+      return next;
+    });
+  };
 
   return (
-    <div style={containerStyle} role="region" aria-label="Recent Failure Feed">
-      <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {failures.map((f) => (
-          <li
-            key={f.id}
-            style={{ padding: 12, borderRadius: 6, border: '1px solid #f0f0f0', background: '#fff' }}
-            data-testid={`failure-item-${f.id}`}
+    <div>
+      <div style={{ marginBottom: 8 }}>
+        {/* Minimal filter UI for example/testing purposes */}
+        <label>
+          Search:
+          <input
+            aria-label="feed-search"
+            value={String(filters.search || '')}
+            onChange={(e) => updateFilter('search', e.target.value)}
+          />
+        </label>
+      </div>
+
+      <div
+        ref={containerRef}
+        data-testid="feed-container"
+        style={{ height: 200, overflowY: 'auto', border: '1px solid #ddd', padding: 8 }}
+      >
+        {items.length === 0 && <div data-testid="empty">No recent failures</div>}
+        {items.map((it) => (
+          <div
+            key={it.id}
+            style={{ padding: 8, borderBottom: '1px solid #eee', cursor: 'pointer' }}
+            role="button"
+            tabIndex={0}
+            onClick={() => handleDrill(it.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') handleDrill(it.id);
+            }}
+            data-testid={`job-${it.id}`}
           >
-            <div style={{ fontWeight: 600 }}>{f.channel ?? 'Unknown channel'}</div>
-            <div style={{ color: '#444', marginTop: 6 }}>{f.message}</div>
-            {f.timestamp && <div style={{ color: '#888', marginTop: 6, fontSize: 12 }}>{f.timestamp}</div>}
-          </li>
+            <strong>{it.title}</strong>
+            <div style={{ color: '#666', fontSize: 12 }}>Job ID: {it.id}</div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
-}
+};
+
+export default RecentFailureFeed;
