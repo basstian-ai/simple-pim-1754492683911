@@ -1,0 +1,14 @@
+# Keep docs; ignore everything else by default
+*
+!.gitignore
+!*.md
+!*.png
+!*.jpg
+!.gitkeep
+
+# Common noisy artifacts
+*.log
+*.diff
+*.patch
+*.json
+.ai-keepalive/
