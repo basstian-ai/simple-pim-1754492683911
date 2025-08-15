@@ -1,0 +1,28 @@
+/* Minimal RTL helper stylesheet
+ * - Uses the dir attribute on the root element to opt-in styling
+ * - Prefer logical CSS properties where possible (margin-inline-start/end),
+ *   but include a couple of helper classes for exceptional cases.
+ */
+
+/* Ensure basic directional flow follows the dir attribute */
+[dir="rtl"] {
+  direction: rtl;
+}
+
+/* Mirror utility: flip coordinate system for purely visual pieces (use sparingly).
+ * Note: children are flipped back to normal so text/images inside remain readable.
+ */
+.rtl-mirror {
+  transform: scaleX(-1);
+}
+.rtl-mirror * {
+  transform: scaleX(-1);
+}
+
+/* Example helper: align text using logical properties where supported */
+.text-start {
+  text-align: start;
+}
+.text-end {
+  text-align: end;
+}
