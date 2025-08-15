@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Enhance Error Messages for Dry-Run JSON Preview
-    desc: >-
-      Improve the clarity and helpfulness of error messages displayed during the Dry-Run JSON Preview to assist users in
-      troubleshooting. This will lead to a better user experience.
-    source: vision
-    created: '2025-08-15T07:00:00Z'
-    priority: 1
-  - type: improvement
     title: Improve Localization Support for RTL Languages
     desc: >-
       Ensure full RTL support across the localization workspace (layout mirroring, text direction, and component
