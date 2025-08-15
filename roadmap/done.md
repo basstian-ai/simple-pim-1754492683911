@@ -93,3 +93,4 @@
 - 2025-08-15T14:56:25.055Z: ✅  — feat(admin): add products page filters (search/tag/in-stock) + CSV export and integration test
 - 2025-08-15T15:12:01.422Z: ✅  — feat(attribute-groups): add flat & grouped CSV exports (service + routes + tests)
 - 2025-08-15T15:33:27.457Z: ✅  — feat(attribute-groups): add search endpoint (filters & pagination) with tests
+- 2025-08-15T17:57:45.068Z: ✅  — feat(attribute-groups): add search service, route and tests (filters & pagination)
