@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Inline failed-payload preview with PII redaction
-    desc: >
-      Add a modal/preview for failed payloads (first N KB) with configurable PII redaction rules (emails, tokens, SSNs).
-      Include Copy/Download actions from the modal and redact-by-default policy for safety.
-    source: review
-    created: '2025-08-15T11:13:00Z'
-    priority: 2
-  - type: improvement
     title: Shareable URLs for Recent Failure Feed filters
     desc: >
       Sync channel/env/time-window and active filters to the URL and add a "Copy link" action to share exact views.
