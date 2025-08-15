@@ -2,6 +2,15 @@
 
 ```yaml
 items:
+  - type: bug
+    title: Query Duration Limit Exceeded — investigate & mitigate
+    desc: >
+      Investigate recurring "Query Duration Limit Exceeded" errors from recent deployments, identify root causes
+      (queries, infra, or config), and implement fixes and graceful handling. Provide monitoring/alerts and a short-term
+      mitigation (retries, cancellations, or guidance).
+    source: logs
+    created: '2025-08-15T10:00:00Z'
+    priority: 1
   - type: improvement
     title: Add inline timeout guidance banner for long queries
     desc: >
@@ -260,4 +269,22 @@ items:
     source: user
     created: '2025-08-14T22:00:00Z'
     priority: 37
+  - type: feature
+    title: Variant Matrix Editor with bulk actions & undo
+    desc: >
+      Build a variant matrix editor enabling multi-dimension variant management (size/color/etc.) with bulk-edit,
+      bulk-create, and an undo/rollback workflow to reduce manual edits and mistakes. Include unit and E2E tests and
+      user docs.
+    source: vision
+    created: '2025-08-15T10:01:00Z'
+    priority: 38
+  - type: feature
+    title: Side-by-side Localization Workspace with glossary checks
+    desc: >
+      Implement a localization workspace that shows side-by-side source and translated content with glossary
+      suggestions, inline quality checks, and quick-apply translations to speed localizer throughput. Include keyboard
+      navigation and QA filters.
+    source: vision
+    created: '2025-08-15T10:02:00Z'
+    priority: 39
 ```
