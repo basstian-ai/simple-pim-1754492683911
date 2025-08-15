@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: improvement
-    title: Document Retry Mechanism for Export Jobs
-    desc: >-
-      Create documentation detailing the retry mechanism for export jobs, including configuration options and expected
-      behavior.
-    source: vision
-    created: '2025-08-15T02:00:00Z'
-    priority: 2
   - type: feature
     title: Conduct Usability Testing for Dashboard Widgets
     desc: >-
