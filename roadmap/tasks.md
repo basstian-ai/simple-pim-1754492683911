@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: feature
-    title: Attribute Groups Flat and Grouped Views + Export
-    desc: >
-      Provide flat and grouped UI views for attribute groups (expand/collapse grouped view), plus CSV export endpoints
-      for both views to support auditing and offline analysis.
-    source: vision
-    created: '2025-08-15T15:00:00.000Z'
-    priority: 3
-  - type: feature
     title: Bulk Tagging Preview and Apply in Admin UI
     desc: >
       Build a bulk-tagging workflow that previews tag additions/removals for a list of SKUs before applying changes in
