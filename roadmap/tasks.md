@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Implement Observability Enhancements
-    desc: >-
-      Add structured logs, metrics, and distributed traces across core services to improve system observability and
-      shorten time-to-detect and time-to-resolve incidents. Include dashboards and SLO-aligned alerts.
-    source: review
-    created: '2025-08-15T08:00:00Z'
-    priority: 1
-  - type: improvement
     title: Enhance Security Measures for API Access
     desc: >-
       Implement least-privilege access controls, audit logging, and credential rotation for API endpoints to reduce
