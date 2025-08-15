@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Add empty state and help link to Recent Failure Feed
-    desc: >
-      Display a friendly "All clear" empty state with guidance and a link to Publish Health docs when no failures exist.
-      Use the empty state to surface troubleshooting tips and next steps.
-    source: review
-    created: '2025-08-15T10:26:00Z'
-    priority: 3
-  - type: improvement
     title: Surface retry metrics in Publish Health dashboard
     desc: >
       Add charts for retry count, success-after-retry rate, and max attempts by channel with links to job drill-downs.
