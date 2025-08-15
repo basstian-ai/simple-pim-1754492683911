@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: improvement
-    title: Enhance Admin Products Page with Filters & CSV Export
-    desc: >
-      Add search, tag and in-stock filters to the admin products page with URL-query syncing, reactive list updates, and
-      a CSV export that respects current filters. Include integration tests.
-    source: vision
-    created: '2025-08-15T15:00:00.000Z'
-    priority: 2
   - type: feature
     title: Attribute Groups Flat and Grouped Views + Export
     desc: >
