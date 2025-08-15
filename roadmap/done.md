@@ -88,3 +88,4 @@
 - 2025-08-15T12:36:12.466Z: ✅  — feat(feed): preserve filters + scroll position for Recent Failure Feed via history.state
 - 2025-08-15T13:09:37.520Z: ✅  — feat(ui): wire QueryTimeoutBanner into Search and Reports views (cancellable queries)
 - 2025-08-15T13:39:40.803Z: ✅  — feat(a11y): accessible copy quick-action with ARIA live region + toast fallback
+- 2025-08-15T13:51:21.927Z: ✅  — feat(query-runner): add cancellable timeout+retry helper for long queries
