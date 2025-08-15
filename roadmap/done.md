@@ -91,3 +91,4 @@
 - 2025-08-15T13:51:21.927Z: ✅  — feat(query-runner): add cancellable timeout+retry helper for long queries
 - 2025-08-15T14:49:35.518Z: ✅  — feat(attribute-groups): add full CRUD helpers, admin UI and tests
 - 2025-08-15T14:56:25.055Z: ✅  — feat(admin): add products page filters (search/tag/in-stock) + CSV export and integration test
+- 2025-08-15T15:12:01.422Z: ✅  — feat(attribute-groups): add flat & grouped CSV exports (service + routes + tests)
