@@ -68,3 +68,4 @@
 - 2025-08-15T07:52:26.148Z: ✅  — feat(security): add API key auth, ACL middleware, audit logging & credential rotation with tests
 - 2025-08-15T07:58:48.756Z: ✅  — feat(adapters): add modular import/export adapter scaffolding (csv + json) and registry
 - 2025-08-15T08:25:10.900Z: ✅  — chore(audits): add dashboard widgets performance audit harness and task
+- 2025-08-15T08:45:29.913Z: ✅  — feat(dry-run): improve and standardize error messages for JSON preview
