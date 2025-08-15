@@ -84,3 +84,4 @@
 - 2025-08-15T11:38:33.677Z: ✅  — feat(ui): add FailedPayloadPreview modal with PII redaction and tests
 - 2025-08-15T11:45:33.846Z: ✅  — fix(query): add cancellable query runner with per-attempt timeout, retries and alerting; add regression tests
 - 2025-08-15T11:52:29.717Z: ✅  — feat(failure-feed): shareable URLs for Recent Failure Feed filters + copy-link helper
+- 2025-08-15T11:58:32.265Z: ✅  — feat(publish-health): add RetryMetricsPanel to surface retry metrics by channel
