@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Implement Graceful Handling for Long Queries
-    desc: >-
-      Develop a mechanism to handle long-running queries gracefully, possibly by providing feedback or alternative
-      solutions to users. This will improve the overall user experience.
-    source: vision
-    created: '2025-08-15T06:00:00Z'
-    priority: 2
-  - type: improvement
     title: Auto-refresh toggle with last-updated timestamp (Failure Feed)
     desc: >
       Add a user-controllable auto-refresh (30s/60s) with "pause on background tab" behavior and visible Last updated
