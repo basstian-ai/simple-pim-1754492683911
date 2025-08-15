@@ -75,3 +75,4 @@
 - 2025-08-15T09:46:14.852Z: ✅  — fix(db): add query runner with timeout, retry and graceful cancellation
 - 2025-08-15T09:52:36.773Z: ✅  — feat(ui): add QueryTimeoutBanner for inline timeout guidance
 - 2025-08-15T09:59:07.305Z: ✅  — feat(widget): add Recent Failure Feed (Publish Health)
+- 2025-08-15T10:20:22.652Z: ✅  — docs(dry-run): add comprehensive Dry-Run JSON Preview documentation and QA spec
