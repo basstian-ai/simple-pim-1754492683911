@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Update Documentation for Dry-Run JSON Preview
-    desc: >-
-      Update the system documentation to include detailed instructions and examples for using the Dry-Run JSON Preview
-      feature. This will help users understand and utilize the feature effectively.
-    source: vision
-    created: '2025-08-15T07:00:00Z'
-    priority: 4
-  - type: improvement
     title: Surface retry metrics in Publish Health dashboard
     desc: >
       Add charts for retry count, success-after-retry rate, and max attempts by channel with links to job drill-downs.
