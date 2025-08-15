@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: improvement
-    title: Improve Localization Support for RTL Languages
-    desc: >-
-      Ensure full RTL support across the localization workspace (layout mirroring, text direction, and component
-      behavior) and add tests to validate locale-specific rendering and interactions.
-    source: review
-    created: '2025-08-15T08:20:00Z'
-    priority: 2
   - type: feature
     title: Conduct Usability Testing for Dashboard Widgets
     desc: >-
