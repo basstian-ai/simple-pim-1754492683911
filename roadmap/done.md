@@ -63,3 +63,4 @@
 - 2025-08-15T06:49:22.426Z: ✅  — Fix Query Duration Limit Exceeded Issue and add tests
 - 2025-08-15T07:00:35.435Z: ✅  — Add User Feedback Mechanism for Dry-Run Previews
 - 2025-08-15T07:36:41.214Z: ✅  — Add Dry-Run JSON Preview code review artifacts (PR template, checklist, meeting template, verification script)
+- 2025-08-15T07:39:23.632Z: ✅  — docs: add Query Duration Limits guidance and quick checks
