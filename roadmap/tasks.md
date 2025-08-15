@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Add Inline Validation for Channel Mapping UI
-    desc: >-
-      Implement inline validation to enhance user experience and reduce errors during data entry in the Channel Mapping
-      UI.
-    source: vision
-    created: '2025-08-15T03:00:00Z'
-    priority: 1
-  - type: improvement
     title: Document Retry Mechanism for Export Jobs
     desc: >-
       Create documentation detailing the retry mechanism for export jobs, including configuration options and expected
