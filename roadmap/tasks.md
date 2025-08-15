@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Server-side pagination & row virtualization for Recent Failure Feed
-    desc: >
-      Implement cursor-based server pagination and client-side row virtualization for the Recent Failure Feed. Adds
-      loading skeleton rows and improves responsiveness for large feeds and slow connections.
-    source: review
-    created: '2025-08-15T11:15:00Z'
-    priority: 1
-  - type: improvement
     title: Inline failed-payload preview with PII redaction
     desc: >
       Add a modal/preview for failed payloads (first N KB) with configurable PII redaction rules (emails, tokens, SSNs).
