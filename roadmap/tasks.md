@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Develop Modular Import/Export Adapters
-    desc: >-
-      Design and implement modular adapters for data import/export to make integrations pluggable and versionable,
-      enabling faster channel onboarding and easier maintenance.
-    source: review
-    created: '2025-08-15T08:05:00Z'
-    priority: 3
   - type: improvement
     title: Conduct Performance Audit for Dashboard Widgets
     desc: >-
