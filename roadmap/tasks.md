@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Surface retry metrics in Publish Health dashboard
-    desc: >
-      Add charts for retry count, success-after-retry rate, and max attempts by channel with links to job drill-downs.
-      Enables teams to spot unstable integrations and prioritize fixes.
-    source: vision
-    created: '2025-08-15T09:45:00Z'
-    priority: 3
-  - type: improvement
     title: Preserve scroll + filter state when returning from Job Details
     desc: >
       Store and restore feed scroll offset and filter state (history state) so users return to the same position after
