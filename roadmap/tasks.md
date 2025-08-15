@@ -3,13 +3,29 @@
 ```yaml
 items:
   - type: feature
+    title: Attribute Groups Search (filters & pagination)
+    desc: >
+      Add a searchable endpoint and admin UI for attribute groups supporting code/label/type/required filters plus
+      paginated results. Include server-side filtering, robust error handling and API/UI tests.
+    source: vision
+    created: '2025-08-15T15:00:01.000Z'
+    priority: 1
+  - type: improvement
+    title: Filtered CSV Export for Products
+    desc: >
+      Ensure product CSV export respects current list filters (search, tags, in-stock) and pagination. Update export
+      endpoints, admin export link behavior and add tests to validate CSV contents match applied filters.
+    source: vision
+    created: '2025-08-15T15:00:02.000Z'
+    priority: 2
+  - type: feature
     title: Bulk Tagging Preview and Apply in Admin UI
     desc: >
       Build a bulk-tagging workflow that previews tag additions/removals for a list of SKUs before applying changes in
       batch. Include API preview endpoint and UI tests.
     source: vision
     created: '2025-08-15T15:00:00.000Z'
-    priority: 4
+    priority: 3
   - type: feature
     title: Dashboard with Key Product & Tag Metrics
     desc: >
@@ -17,7 +33,7 @@ items:
       with API aggregation, caching and error handling.
     source: vision
     created: '2025-08-15T15:00:00.000Z'
-    priority: 5
+    priority: 4
   - type: bug
     title: Query duration exceeded (long-running queries terminated)
     desc: >
@@ -26,5 +42,5 @@ items:
       add safeguards (timeouts, cancellations, retries) and regression tests.
     source: logs
     created: '2025-08-15T14:09:27.960Z'
-    priority: 6
+    priority: 5
 ```
