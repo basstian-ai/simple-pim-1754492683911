@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Attribute Groups Search (filters & pagination)
-    desc: >
-      Add a searchable endpoint and admin UI for attribute groups supporting code/label/type/required filters plus
-      paginated results. Include server-side filtering, robust error handling and API/UI tests.
-    source: vision
-    created: '2025-08-15T15:00:01.000Z'
-    priority: 1
   - type: improvement
     title: Filtered CSV Export for Products
     desc: >
