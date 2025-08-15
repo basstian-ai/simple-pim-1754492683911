@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Add quick actions to Recent Failure Feed items
-    desc: >
-      Provide per-item quick actions (Copy error text, Copy job ID, Download failed payload) in the overflow menu to
-      accelerate debugging and ticket triage workflows.
-    source: review
-    created: '2025-08-15T10:24:00Z'
-    priority: 2
   - type: improvement
     title: Add empty state and help link to Recent Failure Feed
     desc: >
