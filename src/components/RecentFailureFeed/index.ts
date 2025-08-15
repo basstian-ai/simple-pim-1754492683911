@@ -1,2 +1,2 @@
-export { RecentFailureFeed } from './RecentFailureFeed'
-export { default } from './RecentFailureFeed'
+export { RecentFailureItem } from './RecentFailureItem';
+export type { FailureItem } from './RecentFailureItem';
