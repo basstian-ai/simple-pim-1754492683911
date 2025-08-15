@@ -74,3 +74,4 @@
 - 2025-08-15T09:35:21.527Z: ✅  — feat(ui): add cancellable query hook + demo CancellableSearch component with last-result fallback
 - 2025-08-15T09:46:14.852Z: ✅  — fix(db): add query runner with timeout, retry and graceful cancellation
 - 2025-08-15T09:52:36.773Z: ✅  — feat(ui): add QueryTimeoutBanner for inline timeout guidance
+- 2025-08-15T09:59:07.305Z: ✅  — feat(widget): add Recent Failure Feed (Publish Health)
