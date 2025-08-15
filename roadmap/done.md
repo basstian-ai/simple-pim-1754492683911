@@ -70,3 +70,4 @@
 - 2025-08-15T08:25:10.900Z: ✅  — chore(audits): add dashboard widgets performance audit harness and task
 - 2025-08-15T08:45:29.913Z: ✅  — feat(dry-run): improve and standardize error messages for JSON preview
 - 2025-08-15T08:57:39.278Z: ✅  — feat(i18n): add RTL utilities, direction hook and tests
+- 2025-08-15T09:16:52.882Z: ✅  — chore(roadmap): add usability testing task + session materials for Dashboard Widgets
