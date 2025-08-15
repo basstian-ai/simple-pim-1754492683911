@@ -1,11 +1,11 @@
-# Ignore everything in audits by default; allow docs.
+# Keep docs; ignore everything else by default
 *
 !.gitignore
 !*.md
 !.gitkeep
-# If you really need JSON summaries, comment out the next line:
-*.json
 # Common noisy artifacts:
 *.log
-ai_response.json
+*.diff
+*.patch
+*.json
 .ai-keepalive/
