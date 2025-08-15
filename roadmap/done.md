@@ -82,3 +82,4 @@
 - 2025-08-15T11:16:32.507Z: ✅  — feat(ui): Recent Failure Feed empty state with docs link and refresh action
 - 2025-08-15T11:29:22.489Z: ✅  — feat(recent-failure-feed): cursor pagination + virtualized client feed
 - 2025-08-15T11:38:33.677Z: ✅  — feat(ui): add FailedPayloadPreview modal with PII redaction and tests
+- 2025-08-15T11:45:33.846Z: ✅  — fix(query): add cancellable query runner with per-attempt timeout, retries and alerting; add regression tests
