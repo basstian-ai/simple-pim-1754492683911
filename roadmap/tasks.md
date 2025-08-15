@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Add cancellable query UI with progress & last-result fallback
-    desc: >
-      Add a progress indicator and Cancel action for long-running searches. On cancel or timeout, surface the last
-      successful result (if available) and clear guidance on next steps. Improves perceived reliability and reduces user
-      frustration during timeouts.
-    source: vision
-    created: '2025-08-15T09:43:00Z'
-    priority: 1
   - type: improvement
     title: Add inline timeout guidance banner for long queries
     desc: >
