@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: feature
-    title: Add User Feedback Mechanism for Dry-Run Previews
-    desc: >-
-      Implement a feedback mechanism for users to provide input on the Dry-Run JSON Preview feature to gather insights
-      for improvements. This will enhance user engagement and product quality.
-    source: user
-    created: '2025-08-15T07:00:00Z'
-    priority: 2
-  - type: feature
     title: Conduct Code Review for Dry-Run JSON Preview Implementation
     desc: >-
       Organize a code review session to ensure the Dry-Run JSON Preview feature is implemented according to best
