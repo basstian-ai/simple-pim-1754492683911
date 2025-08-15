@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Accessible feedback for quick actions (copy/copy ID)
-    desc: >
-      Add ARIA live regions and toast fallbacks for quick actions (copy ID, copy error text) with clipboard API
-      fallback. Ensure screen reader announcements and keyboard focus behavior are reliable across browsers.
-    source: review
-    created: '2025-08-15T11:17:00Z'
-    priority: 1
-  - type: improvement
     title: Implement Graceful Handling for Long Queries
     desc: >-
       Develop a mechanism to handle long-running queries gracefully, possibly by providing feedback or alternative
