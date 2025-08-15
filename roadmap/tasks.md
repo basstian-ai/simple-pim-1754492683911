@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - type: bug
-    title: Query Duration Limit Exceeded (post-deploy runtime failures)
-    desc: >
-      Multiple runtime errors observed after the latest deployment indicating queries exceed the 5-minute duration limit
-      and fail. Investigate root cause, implement a fix or safe rollback, add regression tests and alerting, and ensure
-      graceful UX for timed-out queries.
-    source: logs
-    created: '2025-08-15T06:25:54.930Z'
-    priority: 1
   - type: improvement
     title: Shareable URLs for Recent Failure Feed filters
     desc: >
