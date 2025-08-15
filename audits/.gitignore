@@ -2,8 +2,11 @@
 *
 !.gitignore
 !*.md
+!*.png
+!*.jpg
 !.gitkeep
-# Common noisy artifacts:
+
+# Common noisy artifacts
 *.log
 *.diff
 *.patch

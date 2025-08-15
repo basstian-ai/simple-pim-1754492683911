@@ -1,4 +1,3 @@
-
 # PIM Product Vision
 
 ## Purpose

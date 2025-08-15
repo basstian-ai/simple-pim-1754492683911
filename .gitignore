@@ -8,3 +8,7 @@ vercel_build_issues.json
 vercel_runtime.log
 local_build.log
 vercel_build.log
+
+# Ignore agent state under roadmap
+roadmap/.lock
+roadmap/.state/
