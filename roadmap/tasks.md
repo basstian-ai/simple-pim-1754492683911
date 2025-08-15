@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Conduct Code Review for Dry-Run JSON Preview Implementation
-    desc: >-
-      Organize a code review session to ensure the Dry-Run JSON Preview feature is implemented according to best
-      practices and is maintainable. This will help in maintaining code quality.
-    source: vision
-    created: '2025-08-15T07:00:00Z'
-    priority: 3
   - type: improvement
     title: Update Documentation for Query Duration Limits
     desc: >-
