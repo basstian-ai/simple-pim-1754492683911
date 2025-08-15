@@ -9,7 +9,7 @@ items:
       endpoints, admin export link behavior and add tests to validate CSV contents match applied filters.
     source: vision
     created: '2025-08-15T15:00:02.000Z'
-    priority: 2
+    priority: 1
   - type: feature
     title: Bulk Tagging Preview and Apply in Admin UI
     desc: >
@@ -17,7 +17,7 @@ items:
       batch. Include API preview endpoint and UI tests.
     source: vision
     created: '2025-08-15T15:00:00.000Z'
-    priority: 3
+    priority: 2
   - type: feature
     title: Dashboard with Key Product & Tag Metrics
     desc: >
@@ -25,7 +25,7 @@ items:
       with API aggregation, caching and error handling.
     source: vision
     created: '2025-08-15T15:00:00.000Z'
-    priority: 4
+    priority: 3
   - type: bug
     title: Query duration exceeded (long-running queries terminated)
     desc: >
@@ -34,5 +34,13 @@ items:
       add safeguards (timeouts, cancellations, retries) and regression tests.
     source: logs
     created: '2025-08-15T14:09:27.960Z'
+    priority: 4
+  - type: improvement
+    title: Attribute Groups Search (filters & pagination)
+    desc: >
+      Provide searchable API and admin UI for attribute groups with filters (code, label, type, required) and
+      server-side pagination. Include robust error handling, API + UI tests and documentation updates.
+    source: vision
+    created: '2025-08-15T15:33:27.457Z'
     priority: 5
 ```
