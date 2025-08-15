@@ -1,1 +1,1 @@
-Add tests for error handling in Channel Mapping UI.
+Add tests for the inline validation functionality in the Channel Mapping UI.
