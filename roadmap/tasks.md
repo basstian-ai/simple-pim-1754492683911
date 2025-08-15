@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - type: bug
-    title: Query Duration Limit Exceeded — investigate & mitigate
-    desc: >
-      Investigate recurring "Query Duration Limit Exceeded" errors from recent deployments, identify root causes
-      (queries, infra, or config), and implement fixes and graceful handling. Provide monitoring/alerts and a short-term
-      mitigation (retries, cancellations, or guidance).
-    source: logs
-    created: '2025-08-15T10:00:00Z'
-    priority: 1
   - type: improvement
     title: Add inline timeout guidance banner for long queries
     desc: >
