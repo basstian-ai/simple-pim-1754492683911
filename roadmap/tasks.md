@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Add Dry-Run JSON Preview for Transform Snippets
-    desc: >-
-      Implement a feature that allows users to preview JSON transformations in a dry-run mode to ensure accuracy before
-      execution.
-    source: vision
-    created: '2025-08-15T05:00:00Z'
-    priority: 3
-  - type: improvement
     title: Update Documentation for Query Duration Limits
     desc: >-
       Update the system documentation to clearly specify the query duration limits and any related constraints or
