@@ -85,3 +85,4 @@
 - 2025-08-15T11:45:33.846Z: ✅  — fix(query): add cancellable query runner with per-attempt timeout, retries and alerting; add regression tests
 - 2025-08-15T11:52:29.717Z: ✅  — feat(failure-feed): shareable URLs for Recent Failure Feed filters + copy-link helper
 - 2025-08-15T11:58:32.265Z: ✅  — feat(publish-health): add RetryMetricsPanel to surface retry metrics by channel
+- 2025-08-15T12:36:12.466Z: ✅  — feat(feed): preserve filters + scroll position for Recent Failure Feed via history.state
