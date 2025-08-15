@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: improvement
-    title: Enhance Security Measures for API Access
-    desc: >-
-      Implement least-privilege access controls, audit logging, and credential rotation for API endpoints to reduce
-      blast radius and improve compliance posture. Include automated tests for ACLs and logging.
-    source: review
-    created: '2025-08-15T08:15:00Z'
-    priority: 2
   - type: feature
     title: Develop Modular Import/Export Adapters
     desc: >-
