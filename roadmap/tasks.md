@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: bug
-    title: Fix Query Duration Limit Exceeded Issue
-    desc: >-
-      Address the recurring issue where the system throws an error when a query exceeds the maximum allowed duration of
-      5 minutes. This impacts user experience and data retrieval efficiency.
-    source: logs
-    created: '2025-08-14T18:24:39.709Z'
-    priority: 1
   - type: improvement
     title: Document Retry Mechanism for Export Jobs
     desc: >-
