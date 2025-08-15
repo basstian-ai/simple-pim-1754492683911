@@ -50,3 +50,4 @@
 - 2025-08-14T23:13:46.385Z: ✅  — Enhance Inline Validation Explainability in Completeness Rule Builder
 - 2025-08-14T23:30:44.665Z: ✅  — Add Dry-Run JSON Preview for Transform Snippets
 - 2025-08-14T23:48:57.469Z: ✅  — Fix Query Duration Limit Exceeded issue and add tests
+- 2025-08-15T01:11:57.926Z: ✅  — Implement Retry Mechanism for Export Jobs
