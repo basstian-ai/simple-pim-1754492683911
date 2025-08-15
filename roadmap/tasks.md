@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: improvement
-    title: Add channel/env filters and time window to Recent Failure Feed
-    desc: >
-      Add multi-select Channel and Environment filters plus time presets (24h, 7d, 30d) to the Recent Failure Feed.
-      Persist user selections so investigators can quickly focus on relevant scopes.
-    source: review
-    created: '2025-08-15T10:22:00Z'
-    priority: 1
   - type: feature
     title: Add quick actions to Recent Failure Feed items
     desc: >
