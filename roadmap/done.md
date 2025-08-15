@@ -72,3 +72,4 @@
 - 2025-08-15T08:57:39.278Z: ✅  — feat(i18n): add RTL utilities, direction hook and tests
 - 2025-08-15T09:16:52.882Z: ✅  — chore(roadmap): add usability testing task + session materials for Dashboard Widgets
 - 2025-08-15T09:35:21.527Z: ✅  — feat(ui): add cancellable query hook + demo CancellableSearch component with last-result fallback
+- 2025-08-15T09:46:14.852Z: ✅  — fix(db): add query runner with timeout, retry and graceful cancellation
