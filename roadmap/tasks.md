@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Wire QueryTimeoutBanner into Search and Reports views
-    desc: >
-      Integrate the cancellable-query hook so the Query Timeout Banner surfaces in Search and Reports on timeouts. Offer
-      Retry and "narrow range" suggestions and a cancellable flow for long-running queries.
-    source: review
-    created: '2025-08-15T10:28:00Z'
-    priority: 1
-  - type: improvement
     title: Accessible feedback for quick actions (copy/copy ID)
     desc: >
       Add ARIA live regions and toast fallbacks for quick actions (copy ID, copy error text) with clipboard API
