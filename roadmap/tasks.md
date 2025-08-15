@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Update Documentation for Query Duration Limits
-    desc: >-
-      Update the system documentation to clearly specify the query duration limits and any related constraints or
-      behaviors. This will help users understand the limitations and avoid errors.
-    source: vision
-    created: '2025-08-15T06:00:00Z'
-    priority: 4
-  - type: improvement
     title: Enhance Error Messages for Dry-Run JSON Preview
     desc: >-
       Improve the clarity and helpfulness of error messages displayed during the Dry-Run JSON Preview to assist users in
