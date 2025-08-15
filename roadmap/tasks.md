@@ -1,4 +1,5 @@
+# Tasks (single source of truth)
 
-# Tasks (In Progress)
-(Selected items from `new.md` with acceptance criteria.)
-
+```yaml
+items: []
+```
