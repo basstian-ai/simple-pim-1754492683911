@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Full CRUD for Attribute Groups (API + Admin UI)
-    desc: >
-      Implement create, read, update and delete for attribute groups across API and admin UI with validation, error
-      handling and immediate UI reflection. Add tests for API handlers and admin pages to ensure correctness.
-    source: vision
-    created: '2025-08-15T15:00:00.000Z'
-    priority: 1
   - type: improvement
     title: Enhance Admin Products Page with Filters & CSV Export
     desc: >
