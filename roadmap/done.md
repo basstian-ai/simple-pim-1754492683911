@@ -66,3 +66,4 @@
 - 2025-08-15T07:39:23.632Z: ✅  — docs: add Query Duration Limits guidance and quick checks
 - 2025-08-15T07:45:53.301Z: ✅  — feat(observability): add lightweight structured logger, metrics and tracing helpers
 - 2025-08-15T07:52:26.148Z: ✅  — feat(security): add API key auth, ACL middleware, audit logging & credential rotation with tests
+- 2025-08-15T07:58:48.756Z: ✅  — feat(adapters): add modular import/export adapter scaffolding (csv + json) and registry
