@@ -81,3 +81,4 @@
 - 2025-08-15T10:58:51.739Z: ✅  — feat(recent-failure-feed): add quick actions (copy error text, copy job ID, download failed payload)
 - 2025-08-15T11:16:32.507Z: ✅  — feat(ui): Recent Failure Feed empty state with docs link and refresh action
 - 2025-08-15T11:29:22.489Z: ✅  — feat(recent-failure-feed): cursor pagination + virtualized client feed
+- 2025-08-15T11:38:33.677Z: ✅  — feat(ui): add FailedPayloadPreview modal with PII redaction and tests
