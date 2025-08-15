@@ -80,3 +80,4 @@
 - 2025-08-15T10:52:22.027Z: ✅  — feat(feed): add channel/env filters and time window to Recent Failure Feed with persistence
 - 2025-08-15T10:58:51.739Z: ✅  — feat(recent-failure-feed): add quick actions (copy error text, copy job ID, download failed payload)
 - 2025-08-15T11:16:32.507Z: ✅  — feat(ui): Recent Failure Feed empty state with docs link and refresh action
+- 2025-08-15T11:29:22.489Z: ✅  — feat(recent-failure-feed): cursor pagination + virtualized client feed
