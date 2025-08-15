@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Conduct Performance Testing for Retry Mechanism
-    desc: >-
-      Perform performance testing on the newly implemented retry mechanism for export jobs to ensure it meets the
-      required standards.
-    source: vision
-    created: '2025-08-15T02:00:00Z'
-    priority: 1
   - type: improvement
     title: Document Retry Mechanism for Export Jobs
     desc: >-
