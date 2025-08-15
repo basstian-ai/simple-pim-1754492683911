@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Add deep links from Recent Failure Feed to Job Details
-    desc: >
-      Link each failure item in the Recent Failure Feed to the corresponding job/run detail view with the error context
-      pre-selected. Preserve user's feed filters when navigating back to support quick investigation.
-    source: review
-    created: '2025-08-15T10:20:00Z'
-    priority: 1
   - type: improvement
     title: Add channel/env filters and time window to Recent Failure Feed
     desc: >
