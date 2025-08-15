@@ -78,3 +78,4 @@
 - 2025-08-15T10:20:22.652Z: ✅  — docs(dry-run): add comprehensive Dry-Run JSON Preview documentation and QA spec
 - 2025-08-15T10:41:43.241Z: ✅  — feat(feed): deep links from Recent Failure Feed to Job Details (preserve filters)
 - 2025-08-15T10:52:22.027Z: ✅  — feat(feed): add channel/env filters and time window to Recent Failure Feed with persistence
+- 2025-08-15T10:58:51.739Z: ✅  — feat(recent-failure-feed): add quick actions (copy error text, copy job ID, download failed payload)
