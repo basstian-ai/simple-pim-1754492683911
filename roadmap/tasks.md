@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Add Recent Failure Feed widget (Publish Health)
-    desc: >
-      Implement a widget listing the last ~50 failed jobs with status, error taxonomy, timestamps, and deep links to job
-      details/logs to speed troubleshooting and triage.
-    source: vision
-    created: '2025-08-15T09:40:00Z'
-    priority: 3
   - type: improvement
     title: Update Documentation for Dry-Run JSON Preview
     desc: >-
