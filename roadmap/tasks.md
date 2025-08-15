@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Shareable URLs for Recent Failure Feed filters
-    desc: >
-      Sync channel/env/time-window and active filters to the URL and add a "Copy link" action to share exact views.
-      Ensure links restore filter state when opened and are short/link-safe.
-    source: review
-    created: '2025-08-15T11:05:00Z'
-    priority: 2
-  - type: improvement
     title: Surface retry metrics in Publish Health dashboard
     desc: >
       Add charts for retry count, success-after-retry rate, and max attempts by channel with links to job drill-downs.
