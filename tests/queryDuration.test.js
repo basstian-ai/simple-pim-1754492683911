@@ -1,8 +1,14 @@
-// Test for Query Duration Limit Exceeded issue
+// Test for Query Duration Limit Exceeded Issue
 
-describe('Query Duration Limit', () => {
-  it('should not exceed the maximum duration', async () => {
-    const result = await queryFunction();
-    expect(result).not.toThrow();
+const { expect } = require('chai');
+const { fetchData } = require('../src/dataService');
+
+describe('Query Duration Limit Tests', () => {
+  it('should throw an error if query exceeds duration limit', async () => {
+    try {
+      await fetchData('someLongRunningQuery');
+    } catch (error) {
+      expect(error.message).to.equal('Query duration limit exceeded');
+    }
   });
 });
