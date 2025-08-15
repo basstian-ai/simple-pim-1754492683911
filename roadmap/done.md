@@ -71,3 +71,4 @@
 - 2025-08-15T08:45:29.913Z: ✅  — feat(dry-run): improve and standardize error messages for JSON preview
 - 2025-08-15T08:57:39.278Z: ✅  — feat(i18n): add RTL utilities, direction hook and tests
 - 2025-08-15T09:16:52.882Z: ✅  — chore(roadmap): add usability testing task + session materials for Dashboard Widgets
+- 2025-08-15T09:35:21.527Z: ✅  — feat(ui): add cancellable query hook + demo CancellableSearch component with last-result fallback
