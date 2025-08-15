@@ -1,4 +1,27 @@
-- Pruned `/roadmap` to keep only `new.md`, `tasks.md`, `done.md`, and `bugs.md`; removed transient `.state` and `.lock` files.
-- Scoped `/audits` with a nested `.gitignore` so only docs stay versioned.
-- Canonical vision now at root `vision.md`; removed `roadmap/vision.md`.
-- Consolidated tests under `/tests`; removed legacy `/__tests__` and `/test` directories.
+# Repo Structure
+Scanned 367 files across 79 directories.
+
+## Top-level
+- .github
+- audits
+- client
+- components
+- config
+- data
+- dev
+- docs
+- features
+- lib
+- observability
+- pages
+- roadmap
+- scripts
+- server
+- src
+- templates
+- tests
+- tools
+- utils
+
+## Duplicate dir candidates
+- none
