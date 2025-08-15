@@ -1,153 +1,121 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { loadFilters, saveFilters, RecentFailureFeedSavedFilters } from '../utils/persistence';
+import React from 'react';
 
-export type TimeWindow = '24h' | '7d' | '30d';
-
-export type RecentFailureFeedFilters = {
-  channels: string[];
-  envs: string[];
-  timeWindow: TimeWindow;
+export type Failure = {
+  id: string;
+  channel?: string;
+  timestamp?: string;
+  message: string;
 };
 
-export type RecentFailureFeedProps = {
-  // Available options to render in the filter UI
-  availableChannels: string[];
-  availableEnvs: string[];
-  // Called when filters are applied / changed
-  onApply?: (filters: RecentFailureFeedFilters) => void;
-  // Optional key to separate persisted scopes (defaults to 'recentFailureFeed')
-  persistenceKey?: string;
+type Props = {
+  failures?: Failure[];
+  onRefresh?: () => void;
+  docsUrl?: string;
 };
 
-const DEFAULT: RecentFailureFeedFilters = {
-  channels: [],
-  envs: [],
-  timeWindow: '24h',
+const containerStyle: React.CSSProperties = {
+  borderRadius: 8,
+  padding: 20,
+  background: '#fff',
+  boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
 };
 
-export const RecentFailureFeed: React.FC<RecentFailureFeedProps> = ({
-  availableChannels,
-  availableEnvs,
-  onApply,
-  persistenceKey = 'recentFailureFeed',
-}) => {
-  // load persisted filters (if any) and merge with defaults
-  const saved = useMemo(() => loadFilters(persistenceKey), [persistenceKey]);
-  const [filters, setFilters] = useState<RecentFailureFeedFilters>(() => ({ ...DEFAULT, ...(saved ?? {}) }));
+const emptyStateStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 12,
+  padding: 28,
+  color: '#333',
+};
 
-  // Persist whenever filters change so investigators get fast state restore
-  useEffect(() => {
-    saveFilters(persistenceKey, filters);
-  }, [filters, persistenceKey]);
+const titleStyle: React.CSSProperties = {
+  fontSize: 18,
+  fontWeight: 600,
+};
 
-  // helper toggles
-  const toggleChannel = (ch: string) => {
-    setFilters((prev) => {
-      const has = prev.channels.includes(ch);
-      return { ...prev, channels: has ? prev.channels.filter((c) => c !== ch) : [...prev.channels, ch] };
-    });
-  };
+const hintStyle: React.CSSProperties = {
+  fontSize: 13,
+  color: '#555',
+  textAlign: 'center',
+  maxWidth: 520,
+};
 
-  const toggleEnv = (e: string) => {
-    setFilters((prev) => {
-      const has = prev.envs.includes(e);
-      return { ...prev, envs: has ? prev.envs.filter((x) => x !== e) : [...prev.envs, e] };
-    });
-  };
+const buttonStyle: React.CSSProperties = {
+  padding: '8px 12px',
+  borderRadius: 6,
+  border: '1px solid #ddd',
+  background: '#f7f7f8',
+  cursor: 'pointer',
+};
 
-  const setTimeWindow = (w: TimeWindow) => setFilters((p) => ({ ...p, timeWindow: w }));
+export default function RecentFailureFeed({
+  failures = [],
+  onRefresh,
+  docsUrl = '/docs/publish-health',
+}: Props) {
+  const isEmpty = failures.length === 0;
 
-  const apply = () => {
-    onApply?.(filters);
-  };
+  if (isEmpty) {
+    return (
+      <div style={containerStyle} role="region" aria-label="Recent Failure Feed">
+        <div style={emptyStateStyle}>
+          <div aria-hidden style={{ fontSize: 40 }}>
+            ✅
+          </div>
+          <div style={titleStyle}>All clear — no recent failures</div>
+          <div style={hintStyle}>
+            There are currently no recent publish failures. If you're expecting activity, try refreshing or
+            check the Publish Health documentation for troubleshooting tips and next steps.
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+            <button
+              type="button"
+              style={buttonStyle}
+              onClick={() => onRefresh && onRefresh()}
+              aria-label="Refresh failures"
+            >
+              Refresh
+            </button>
+
+            <a
+              href={docsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none' }}
+              aria-label="Open Publish Health docs"
+            >
+              <button type="button" style={buttonStyle}>View Publish Health docs</button>
+            </a>
+          </div>
+
+          <ul style={{ marginTop: 12, color: '#666', fontSize: 13, textAlign: 'left' }}>
+            <li>Check channel credentials and recent job logs.</li>
+            <li>Confirm payloads are valid for the target channel.</li>
+            <li>Search the Recent Failure Feed for job IDs or product IDs.</li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ border: '1px solid #e5e7eb', padding: 12, borderRadius: 6, maxWidth: 560 }}>
-      <h3 style={{ margin: '0 0 8px 0' }}>Recent Failure Feed — Filters</h3>
-
-      <div style={{ marginBottom: 8 }}>
-        <div style={{ fontSize: 13, marginBottom: 6 }}>Channels</div>
-        <div data-testid="channels-list">
-          {availableChannels.length === 0 ? (
-            <div style={{ color: '#6b7280' }}>No channels available</div>
-          ) : (
-            availableChannels.map((ch) => (
-              <label key={ch} style={{ display: 'inline-flex', alignItems: 'center', marginRight: 12 }}>
-                <input
-                  data-testid={`channel-${ch}`}
-                  type="checkbox"
-                  checked={filters.channels.includes(ch)}
-                  onChange={() => toggleChannel(ch)}
-                />
-                <span style={{ marginLeft: 6 }}>{ch}</span>
-              </label>
-            ))
-          )}
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 8 }}>
-        <div style={{ fontSize: 13, marginBottom: 6 }}>Environments</div>
-        <div data-testid="envs-list">
-          {availableEnvs.length === 0 ? (
-            <div style={{ color: '#6b7280' }}>No environments available</div>
-          ) : (
-            availableEnvs.map((e) => (
-              <label key={e} style={{ display: 'inline-flex', alignItems: 'center', marginRight: 12 }}>
-                <input
-                  data-testid={`env-${e}`}
-                  type="checkbox"
-                  checked={filters.envs.includes(e)}
-                  onChange={() => toggleEnv(e)}
-                />
-                <span style={{ marginLeft: 6 }}>{e}</span>
-              </label>
-            ))
-          )}
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 13, marginBottom: 6 }}>Time window</div>
-        <div>
-          {(['24h', '7d', '30d'] as TimeWindow[]).map((w) => (
-            <button
-              key={w}
-              data-testid={`tw-${w}`}
-              onClick={() => setTimeWindow(w)}
-              style={{
-                marginRight: 8,
-                padding: '6px 10px',
-                borderRadius: 4,
-                border: filters.timeWindow === w ? '1px solid #2563eb' : '1px solid #d1d5db',
-                background: filters.timeWindow === w ? '#e0f2ff' : 'white',
-                cursor: 'pointer',
-              }}
-            >
-              {w}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button data-testid="apply" onClick={apply} style={{ padding: '8px 12px', cursor: 'pointer' }}>
-          Apply
-        </button>
-        <button
-          data-testid="clear"
-          onClick={() => setFilters(DEFAULT)}
-          style={{ padding: '8px 12px', cursor: 'pointer', background: '#f3f4f6' }}
-        >
-          Clear
-        </button>
-      </div>
-
-      <div style={{ marginTop: 12, color: '#6b7280', fontSize: 12 }} data-testid="summary">
-        Selected: {filters.channels.length} channel(s), {filters.envs.length} env(s), last {filters.timeWindow}
-      </div>
+    <div style={containerStyle} role="region" aria-label="Recent Failure Feed">
+      <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {failures.map((f) => (
+          <li
+            key={f.id}
+            style={{ padding: 12, borderRadius: 6, border: '1px solid #f0f0f0', background: '#fff' }}
+            data-testid={`failure-item-${f.id}`}
+          >
+            <div style={{ fontWeight: 600 }}>{f.channel ?? 'Unknown channel'}</div>
+            <div style={{ color: '#444', marginTop: 6 }}>{f.message}</div>
+            {f.timestamp && <div style={{ color: '#888', marginTop: 6, fontSize: 12 }}>{f.timestamp}</div>}
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
-
-export default RecentFailureFeed;
+}
