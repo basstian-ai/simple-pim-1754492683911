@@ -25,4 +25,16 @@ queue:
       **Description:** The system is generating an error when a query exceeds the allowed duration limit of 5 minutes,
       resulting in failed database operations.
     created: '2025-08-15T06:25:54.930Z'
+  - id: BUG-dpl_HK-1755261088528
+    title: App runtime errors & warnings from latest deployment
+    details: >-
+      ### Exceeded query duration limit (5 minutes)
+
+
+      Query executions that run longer than 5 minutes are being terminated, producing errors and incomplete results.
+      Reproducible with long-running/complex queries on large datasets.  
+
+      Expected: queries either complete, timeouts are configurable, or long jobs are handled asynchronously; mitigate by
+      query optimization, batching/pagination, or exposing a configurable timeout/queueing mechanism.
+    created: '2025-08-15T12:31:28.528Z'
 ```
