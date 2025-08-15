@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: improvement
-    title: Add inline timeout guidance banner for long queries
-    desc: >
-      Show a contextual banner when queries approach or hit duration limits explaining limits, quick optimization tips,
-      and a link to docs. Aim to reduce support tickets and frustrated users.
-    source: vision
-    created: '2025-08-15T09:52:00Z'
-    priority: 2
   - type: feature
     title: Add Recent Failure Feed widget (Publish Health)
     desc: >
