@@ -1,4 +1,4 @@
-// TransformPreview.tsx
+// TransformPreview component for dry-run JSON preview
 import React from 'react';
 
 const TransformPreview = ({ json }) => {
