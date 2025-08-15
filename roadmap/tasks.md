@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Preserve scroll + filter state when returning from Job Details
-    desc: >
-      Store and restore feed scroll offset and filter state (history state) so users return to the same position after
-      drill-downs. Improves workflow continuity during triage and reduces context-switch pain.
-    source: review
-    created: '2025-08-15T11:19:00Z'
-    priority: 4
-  - type: improvement
     title: Wire QueryTimeoutBanner into Search and Reports views
     desc: >
       Integrate the cancellable-query hook so the Query Timeout Banner surfaces in Search and Reports on timeouts. Offer
