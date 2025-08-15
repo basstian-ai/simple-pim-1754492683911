@@ -1,5 +1,5 @@
 # Repo Structure
-Scanned 367 files across 79 directories.
+Scanned 381 files across 90 directories.
 
 ## Top-level
 - .github
