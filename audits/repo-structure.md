@@ -1,0 +1,1 @@
+- Consolidated tests under `/tests`; removed legacy `/__tests__` and `/test` directories.

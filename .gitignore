@@ -1,3 +1,10 @@
 node_modules/
 .next/
 out/
+
+# Logs
+*.log
+vercel_build_issues.json
+vercel_runtime.log
+local_build.log
+vercel_build.log
