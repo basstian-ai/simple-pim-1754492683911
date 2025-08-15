@@ -1,1 +1,2 @@
+- Canonical vision now at root `vision.md`; removed `roadmap/vision.md`.
 - Consolidated tests under `/tests`; removed legacy `/__tests__` and `/test` directories.

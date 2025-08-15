@@ -1,1 +1,0 @@
-feat(api): add /api/products/variants/generate endpoint for server-side variant generation with validation and tests

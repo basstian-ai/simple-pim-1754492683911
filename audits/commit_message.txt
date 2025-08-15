@@ -1,1 +1,0 @@
-FEATURE: Add basic Products API with in-memory store, rich sample product data, admin products page for listing/creating products, and a minimal API test script.

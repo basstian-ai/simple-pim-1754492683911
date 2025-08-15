@@ -58,4 +58,7 @@ Run tests with `npm test`.
 
 - Roadmap items live in `/roadmap/*.md` (`new.md`, `tasks.md`, `done.md`, `bugs.md`).
 - Automation and build artifacts are kept in `/audits/`.
-- To validate a task, run simple checks like visiting an admin URL if provided or `curl`ing the related API endpoint.
+- To validate a task, run simple checks like visiting an admin URL if provided or curling the related API endpoint.
+
+### Canonical Vision
+The canonical vision document is `./vision.md`. Avoid adding or editing `roadmap/vision.md`; that path is intentionally removed.
