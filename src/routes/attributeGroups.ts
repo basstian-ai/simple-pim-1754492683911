@@ -1,28 +1,31 @@
-import express from 'express'
-import { getSampleAttributeGroups, buildFlatCSV, buildGroupedCSV } from '../services/attributeGroups'
+import express, { Request, Response, NextFunction } from 'express';
+import { searchAttributeGroups } from '../services/attributeGroupsService';
 
-const router = express.Router()
+const router = express.Router();
 
-// GET /attribute-groups/exports/flat
-router.get('/exports/flat', (_req, res) => {
-  const groups = getSampleAttributeGroups()
-  const csv = buildFlatCSV(groups)
+// GET /api/attribute-groups
+// Query params: code, label, type, required (true|false), page, pageSize
+router.get('/', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { code, label, type, required, page, pageSize } = req.query;
 
-  const filename = `attribute-groups-flat-${Date.now()}.csv`
-  res.setHeader('Content-Type', 'text/csv; charset=utf-8')
-  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
-  res.send(csv)
-})
+    const filters: any = {};
+    if (typeof code === 'string' && code.trim() !== '') filters.code = code;
+    if (typeof label === 'string' && label.trim() !== '') filters.label = label;
+    if (typeof type === 'string' && type.trim() !== '') filters.type = type;
+    if (typeof required === 'string') {
+      if (required === 'true') filters.required = true;
+      else if (required === 'false') filters.required = false;
+    }
 
-// GET /attribute-groups/exports/grouped
-router.get('/exports/grouped', (_req, res) => {
-  const groups = getSampleAttributeGroups()
-  const csv = buildGroupedCSV(groups)
+    const p = page ? parseInt(String(page), 10) : 1;
+    const ps = pageSize ? parseInt(String(pageSize), 10) : 10;
 
-  const filename = `attribute-groups-grouped-${Date.now()}.csv`
-  res.setHeader('Content-Type', 'text/csv; charset=utf-8')
-  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
-  res.send(csv)
-})
+    const result = searchAttributeGroups(filters, p, ps);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
 
-export default router
+export default router;
