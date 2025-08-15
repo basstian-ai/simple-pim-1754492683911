@@ -1,1 +1,1 @@
-Implement inline validation for user inputs in the Channel Mapping UI to enhance user experience.
+Implement retry mechanism for export jobs to handle query duration limit exceeded issues.
