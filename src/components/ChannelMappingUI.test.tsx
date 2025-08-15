@@ -1,1 +1,1 @@
-Add tests for the inline validation functionality in the Channel Mapping UI.
+Add tests for the retry mechanism in Channel Mapping UI to ensure stability and performance.
