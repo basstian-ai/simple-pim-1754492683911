@@ -1,1 +1,1 @@
-- 2025-08-13T21:47:26.070Z Implemented: Global search + advanced filters + saved views
+- 2025-08-15T07:00:35.430Z Implemented: Add User Feedback Mechanism for Dry-Run Previews
