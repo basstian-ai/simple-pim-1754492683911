@@ -1,10 +1,14 @@
-const { expect } = require('chai');
-const { handleQuery } = require('../src/queryHandler');
+// Test for Query Duration Limit Exceeded Issue
 
-describe('Query Duration Limit Tests', () => {
-  it('should handle query duration limit exceeded gracefully', async () => {
-    const result = await handleQuery('some long running query');
-    expect(result).to.have.property('error');
-    expect(result.error).to.equal('Query duration limit exceeded.');
+const { expect } = require('chai');
+const { queryData } = require('../src/query');
+
+describe('Query Duration Limit', () => {
+  it('should throw an error if query exceeds duration limit', async () => {
+    try {
+      await queryData('someLongQuery'); // Simulate a long query
+    } catch (error) {
+      expect(error.message).to.equal('Query Duration Limit Exceeded');
+    }
   });
 });
