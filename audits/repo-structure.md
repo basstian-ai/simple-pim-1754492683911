@@ -1,5 +1,5 @@
 # Repo Structure
-Scanned 381 files across 90 directories.
+Scanned 383 files across 93 directories.
 
 ## Top-level
 - .github
@@ -24,4 +24,9 @@ Scanned 381 files across 90 directories.
 - utils
 
 ## Duplicate dir candidates
-- none
+- server
+  - server
+  - src/server
+- routes
+  - src/routes
+  - src/server/routes
