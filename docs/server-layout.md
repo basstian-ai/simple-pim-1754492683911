@@ -1,23 +1,25 @@
-# Server layout guideline
+# Server layout convention
 
-Canonical layout: src/server
+Canonical decision
+- Use src/server/ as the canonical location for server-side application code.
 
-Rationale:
-- Keeps server code colocated with source, consistent with TypeScript/ESM projects.
-- Avoids ambiguity between top-level server/ and src/server/ which can cause duplicate runtime codepaths, confusing imports, and deployment differences.
+Why
+- Avoids duplicate code paths and ambiguous imports (e.g. imports that reference both "server/" and "src/server/").
+- Keeps top-level project root cleaner and groups source under "src/" like other application code.
 
-What this change adds:
-- A lightweight checker (scripts/check-server-layout.js) that fails CI if both server/ and src/server/ (or src/routes vs src/server/routes) exist.
-- A small test harness (tests/check-server-layout.test.js) that validates the checker.
+Migration guidance (safe, manual steps)
+1. Create src/server/ if it does not exist.
+2. Move files from server/ into src/server/ with a single mv operation where possible:
+   - mv server/* src/server/
+   - mv server/.??* src/server/  # if you have dotfiles (be cautious)
+3. Update import paths in the codebase that referenced the old location. Typical patterns to update:
+   - require('../server/...')  -> require('../../src/server/...')  (or use project-relative paths if configured)
+   - import ... from '../../server/...' -> import ... from '../../src/server/...'
+   Consider mass-rewrites with grep + sed or an editor-aware refactor. Run the test suite after changes.
+4. Remove the old directory after verifying tests and runtime behavior:
+   - rm -rf server
 
-Migration steps (suggested):
-1) Pick the canonical location (recommended: src/server).
-2) Move files from server/ into src/server/ preserving history: git mv server/* src/server/ or create src/server and git mv.
-3) Update imports that referenced '/server' to '/src/server' or to the new relative import paths. Use a codemod or automated search/replace where possible.
-4) Remove the old server/ directory once all references are updated.
-5) Run the layout check and CI to ensure no duplicate directories remain.
+CI guard
+- A small CI check (scripts/check-server-layout.js) will fail if both server/ and src/server/ exist. This is intended to prevent accidental duplication and regressions.
 
-CI protection:
-- A workflow is included to run the layout check on PRs and pushes. This prevents accidental re-introduction of duplicate server/route trees.
-
-If you need help migrating large codebases, consider using ts-morph, jscodeshift, or ripgrep + script-based replace to update imports reliably.
+If you prefer the opposite canonical layout (server/ at project root), document it here and update the CI check accordingly. The main goal is to have a single canonical directory for server code.
