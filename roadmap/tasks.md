@@ -43,4 +43,45 @@ items:
     source: vision
     created: '2025-08-15T15:33:27.457Z'
     priority: 5
+  - type: improvement
+    title: Consolidate duplicate server & route directories
+    desc: >
+      Remove or merge duplicate server code paths (server vs src/server and src/routes vs src/server/routes), update
+      imports, and add CI checks to prevent regressions. Ensure a single canonical source for server logic and document
+      the chosen layout.
+    source: review
+    created: '2025-08-15T15:40:00.000Z'
+    priority: 6
+  - type: improvement
+    title: Standardize API route conventions and documentation
+    desc: >
+      Define and enforce a consistent API route layout (pages/api vs server routes), naming conventions, and
+      request/response schemas. Add route-level docs, examples, and linting/validation to the repo.
+    source: review
+    created: '2025-08-15T15:41:00.000Z'
+    priority: 7
+  - type: feature
+    title: AI-assisted attribute suggestions in Admin
+    desc: >
+      Add an AI-backed suggestions panel to propose attribute groups, attribute values, and mapping hints based on
+      product text and historical data. Include opt-in telemetry, preview mode, and an API route for suggestions.
+    source: vision
+    created: '2025-08-15T15:42:00.000Z'
+    priority: 8
+  - type: improvement
+    title: SKU & slug uniqueness validation and collision handling
+    desc: >
+      Add robust validation to ensure SKU and slug uniqueness at creation and on edits; surface friendly errors, provide
+      auto-suffixing options, and add tests for race conditions and concurrent writes.
+    source: user
+    created: '2025-08-15T15:43:00.000Z'
+    priority: 9
+  - type: improvement
+    title: Accessibility audit and fixes for admin UI
+    desc: >
+      Run an a11y audit for key admin pages (products, attribute-groups, bulk-tags, dashboard), fix issues found (ARIA,
+      keyboard focus, color contrast), and add automated accessibility checks to CI.
+    source: review
+    created: '2025-08-15T15:44:00.000Z'
+    priority: 10
 ```
