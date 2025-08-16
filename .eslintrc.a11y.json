@@ -1,0 +1,32 @@
+{
+  "root": true,
+  "plugins": [
+    "jsx-a11y"
+  ],
+  "extends": [
+    "plugin:jsx-a11y/recommended"
+  ],
+  "rules": {
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/anchor-is-valid": [
+      "error",
+      {
+        "components": ["Link", "A"],
+        "specialLink": ["to", "hrefLeft", "hrefRight"],
+        "aspects": ["invalidHref", "preferButton"]
+      }
+    ],
+    "jsx-a11y/no-noninteractive-tabindex": ["error", { "tags": [], "roles": [] }],
+    "jsx-a11y/label-has-associated-control": [
+      "error",
+      {
+        "required": {
+          "some": ["nesting", "id"]
+        }
+      }
+    ],
+    "jsx-a11y/interactive-supports-focus": "error",
+    "jsx-a11y/click-events-have-key-events": "error",
+    "jsx-a11y/no-static-element-interactions": "warn"
+  }
+}
