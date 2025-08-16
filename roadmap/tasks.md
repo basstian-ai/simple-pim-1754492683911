@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: feature
-    title: Bulk Tagging Preview and Apply in Admin UI
-    desc: >
-      Build a bulk-tagging workflow that previews tag additions/removals for a list of SKUs before applying changes in
-      batch. Include API preview endpoint and UI tests.
-    source: vision
-    created: '2025-08-15T15:00:00.000Z'
-    priority: 1
-  - type: feature
     title: Dashboard with Key Product & Tag Metrics
     desc: >
       Implement an admin dashboard surface showing total products, in-stock counts, tag usage stats and recent activity
