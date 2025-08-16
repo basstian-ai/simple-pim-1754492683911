@@ -1,5 +1,5 @@
 # Repo Structure
-Scanned 404 files across 94 directories.
+Scanned 424 files across 95 directories.
 
 ## Top-level
 - .github
@@ -24,6 +24,4 @@ Scanned 404 files across 94 directories.
 - utils
 
 ## Duplicate dir candidates
-- server
-  - server
-  - src/server
+- none
