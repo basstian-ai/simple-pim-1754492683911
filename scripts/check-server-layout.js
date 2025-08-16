@@ -1,6 +1,3 @@
-// scripts/check-server-layout.js
-// Runtime: Node.js (CommonJS)
-// Exports a function for test harnesses and can be invoked as a CLI.
 const fs = require('fs');
 const path = require('path');
 
@@ -12,39 +9,47 @@ function isDir(p) {
   }
 }
 
-function checkLayout(root = process.cwd()) {
-  const serverDir = path.join(root, 'server');
-  const srcServerDir = path.join(root, 'src', 'server');
-  const hasServer = isDir(serverDir);
-  const hasSrcServer = isDir(srcServerDir);
+const cwd = process.cwd();
+const candidates = {
+  topServer: path.join(cwd, 'server'),
+  srcServer: path.join(cwd, 'src', 'server'),
+  srcRoutes: path.join(cwd, 'src', 'routes'),
+  srcServerRoutes: path.join(cwd, 'src', 'server', 'routes')
+};
 
-  if (hasServer && hasSrcServer) {
-    const msg = [];
-    msg.push('Duplicate server directories detected: both "server/" and "src/server/" exist.');
-    msg.push('This repository should have a single canonical server directory to avoid ambiguity and import drift.');
-    msg.push('Recommended canonical location: "src/server/"');
-    msg.push('See docs/server-layout.md for migration guidance.');
-    msg.push('To resolve, move code from "server/" into "src/server/" (or vice-versa), update imports, then remove the redundant directory.');
-    msg.push('Automated CI check failed to prevent regressions — please consolidate before merging.');
+const problems = [];
 
-    const error = new Error(msg.join('\n'));
-    error.code = 'DUPLICATE_SERVER_DIRS';
-    throw error;
-  }
-
-  // If only one exists or none exist, that's acceptable for this check.
-  return true;
+if (isDir(candidates.topServer) && isDir(candidates.srcServer)) {
+  problems.push("Both top-level 'server/' and 'src/server/' directories exist. Choose and keep a single canonical location (recommended: 'src/server/') and consolidate code.");
 }
 
-module.exports = { checkLayout };
-
-if (require.main === module) {
-  try {
-    checkLayout(process.cwd());
-    console.log('OK: server layout check passed.');
-    process.exit(0);
-  } catch (err) {
-    console.error('ERROR: ' + (err && err.message ? err.message : String(err)));
-    process.exit(2);
-  }
+if (isDir(candidates.srcRoutes) && isDir(candidates.srcServerRoutes)) {
+  problems.push("Both 'src/routes/' and 'src/server/routes/' exist. Consolidate routes under a single routes directory (recommended: 'src/server/routes/').");
 }
+
+if (problems.length === 0) {
+  console.log('OK: No duplicate server/route directories detected.');
+  process.exit(0);
+}
+
+console.error('\nERROR: Duplicate server/route directories detected:\n');
+problems.forEach((p, i) => console.error(`${i + 1}. ${p}\n`));
+
+console.error('Suggested resolution steps:\n');
+console.error(" - Pick 'src/server/' as the canonical server directory (recommended).\n");
+console.error(" - Move or merge files from the alternate location into the canonical location.\n");
+console.error(" - Update imports and path aliases (e.g. search for 'server/...' and replace with 'src/server/...' or update tsconfig/jsconfig paths).\n");
+console.error(" - Remove the duplicate directory after migration is verified.\n");
+console.error(" - Re-run this check: node scripts/check-server-layout.js\n");
+
+console.error('Automation notes:\n');
+console.error(" - The CI check will fail if duplicates are present.\n");
+console.error(" - To temporarily allow duplicates (not recommended), set CHECK_SERVER_LAYOUT_WARN=1 or ALLOW_DUPLICATES=1 in the environment; the script will exit 0 but print a warning.\n");
+
+const allowWarn = process.env.CHECK_SERVER_LAYOUT_WARN === '1' || process.env.ALLOW_DUPLICATES === '1';
+if (allowWarn) {
+  console.warn('\nWARNING: Duplicates detected but continuing because CHECK_SERVER_LAYOUT_WARN or ALLOW_DUPLICATES is set.');
+  process.exit(0);
+}
+
+process.exit(1);
