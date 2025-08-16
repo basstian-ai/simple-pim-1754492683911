@@ -1,53 +1,72 @@
-
 #!/usr/bin/env node
-// scripts/check-duplicate-server-paths.js
-// Exit non-zero if duplicate server/route directories are present.
-// This is a lightweight guard to prevent duplicate server source trees (e.g. server/ vs src/server/)
-
 const fs = require('fs');
 const path = require('path');
 
-function exists(rel) {
-  return fs.existsSync(path.resolve(process.cwd(), rel));
+function exists(p) {
+  try { return fs.statSync(p).isDirectory(); } catch (e) { return false; }
 }
 
-const checks = [
-  { a: 'server', b: 'src/server' },
-  { a: 'src/routes', b: 'src/server/routes' },
-  { a: 'routes', b: 'src/routes' }
-];
+function findDuplicates(root) {
+  // Candidate groups to detect overlapping/duplicate server+route directories
+  const candidates = {
+    server: [path.join(root, 'server'), path.join(root, 'src', 'server')],
+    routes: [
+      path.join(root, 'routes'),
+      path.join(root, 'src', 'routes'),
+      path.join(root, 'src', 'server', 'routes'),
+      path.join(root, 'server', 'routes')
+    ]
+  };
 
-let problems = [];
+  const found = {};
+  for (const key of Object.keys(candidates)) {
+    found[key] = candidates[key].filter(exists).map(p => path.relative(root, p) || p);
+  }
 
-for (const { a, b } of checks) {
-  if (exists(a) && exists(b)) {
-    problems.push({ a, b });
+  const duplicates = [];
+  for (const k of Object.keys(found)) {
+    if (found[k].length > 1) duplicates.push({ type: k, paths: found[k] });
+  }
+  return duplicates;
+}
+
+if (require.main === module) {
+  const argv = process.argv.slice(2);
+  if (argv.includes('--test')) {
+    runTests();
+    process.exit(0);
+  }
+
+  const root = process.cwd();
+  const dups = findDuplicates(root);
+  if (dups.length === 0) {
+    console.log('No duplicate server/route paths found.');
+    process.exit(0);
+  } else {
+    console.error('\nERROR: Duplicate server/route directories detected:');
+    for (const d of dups) {
+      console.error(`- ${d.type}:`);
+      for (const p of d.paths) console.error(`  - ${p}`);
+    }
+    console.error('\nRecommendation: choose a single canonical path for each type (recommended: src/server and src/server/routes) and move/merge code.');
+    console.error('Run this check locally and in CI to prevent regressions.');
+    process.exit(2);
   }
 }
 
-if (problems.length === 0) {
-  console.log('check-duplicate-server-paths: OK — no duplicate server/route directories detected.');
-  process.exit(0);
+function runTests() {
+  // Lightweight self-test using a temporary directory to ensure detection logic works.
+  const os = require('os');
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'dup-check-'));
+  const serverA = path.join(tmpRoot, 'server');
+  const serverB = path.join(tmpRoot, 'src', 'server');
+  fs.mkdirSync(serverA, { recursive: true });
+  fs.mkdirSync(serverB, { recursive: true });
+
+  const res = findDuplicates(tmpRoot);
+  if (!Array.isArray(res) || res.length === 0) {
+    console.error('self-test failed: expected to find duplicates but found none');
+    process.exit(3);
+  }
+  console.log('self-test passed: duplicate detection logic working');
 }
-
-console.error('\ncheck-duplicate-server-paths: ERROR — duplicate server/route directories detected.\n');
-console.error('Found the following duplicate sets:');
-for (const p of problems) {
-  console.error(`  - Both "${p.a}" and "${p.b}" exist`);
-}
-
-console.error('\nWhy this matters:');
-console.error('  Having multiple copies of server logic causes confusion, broken imports, and inconsistent behavior across environments.');
-
-console.error('\nRecommended canonical layout:');
-console.error('  Choose one canonical location for server code. The project CI expects "src/server" as the canonical path.');
-
-console.error('\nMigration guidance:');
-console.error('  1) Pick a canonical directory (prefer "src/server").');
-console.error('  2) Move files from the non-canonical directory into the canonical one keeping relative structure.');
-console.error('  3) Update imports: search for imports like "../server" or "../routes" and point them to the chosen path.');
-console.error('  4) Run the tests and this check locally to verify there are no duplicates.');
-
-console.error('\nIf you intentionally keep both during a staged migration, add a short-lived exception in .github/workflows/check-server-layout.yml or modify this script to allow your path combo.');
-
-process.exit(1);
