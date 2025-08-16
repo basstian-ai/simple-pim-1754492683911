@@ -1,40 +1,23 @@
-# Server layout consolidation
+# Server layout guideline
 
-This project enforces a single canonical location for server code to avoid duplication and conflicting import paths. Duplicates commonly appear as a mix of top-level and src/ directories:
+Canonical layout: src/server
 
-- server/  (top-level)
-- routes/  (top-level)
-- src/server/
-- src/server/routes/
-- src/routes/
+Rationale:
+- Keeps server code colocated with source, consistent with TypeScript/ESM projects.
+- Avoids ambiguity between top-level server/ and src/server/ which can cause duplicate runtime codepaths, confusing imports, and deployment differences.
 
-Recommendation
-- Canonical layout: src/server (and src/server/routes for route files).
-- Reasons: keeps source code under src/, aligns with common build/tooling patterns, and reduces ambiguity for imports.
+What this change adds:
+- A lightweight checker (scripts/check-server-layout.js) that fails CI if both server/ and src/server/ (or src/routes vs src/server/routes) exist.
+- A small test harness (tests/check-server-layout.test.js) that validates the checker.
 
-CI check
-- A lightweight check (scripts/check-server-layout.js) is added and run in CI to detect ambiguous/duplicate server & routes directories and fail the build until the repository is consolidated.
+Migration steps (suggested):
+1) Pick the canonical location (recommended: src/server).
+2) Move files from server/ into src/server/ preserving history: git mv server/* src/server/ or create src/server and git mv.
+3) Update imports that referenced '/server' to '/src/server' or to the new relative import paths. Use a codemod or automated search/replace where possible.
+4) Remove the old server/ directory once all references are updated.
+5) Run the layout check and CI to ensure no duplicate directories remain.
 
-Migration steps (example)
-1) Choose canonical target: src/server
+CI protection:
+- A workflow is included to run the layout check on PRs and pushes. This prevents accidental re-introduction of duplicate server/route trees.
 
-2) Move files with git to preserve history:
-
-  # move a top-level server into src/server
-  mkdir -p src
-  git mv server src/server
-
-  # move top-level routes under src/server
-  git mv routes src/server/routes
-
-  # or move src/routes into src/server/routes
-  git mv src/routes src/server/routes
-
-3) Update imports that referenced the old paths (search for require/import patterns). Prefer relative imports from the new location or update path aliases.
-
-4) Run tests and CI. The check script will fail if ambiguous duplicates remain.
-
-Guidance for reviewers
-- When reviewing PRs that add or move server code, ensure changes use the canonical path (src/server). If a PR introduces both server/ and src/server/ or routes/ and src/server/routes/, request consolidation.
-
-If you need help migrating larger codebases or want to adopt a different canonical layout, document the chosen layout here and update the CI check script accordingly.
+If you need help migrating large codebases, consider using ts-morph, jscodeshift, or ripgrep + script-based replace to update imports reliably.
