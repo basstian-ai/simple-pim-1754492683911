@@ -1,55 +1,50 @@
+#!/usr/bin/env node
+'use strict';
 const fs = require('fs');
 const path = require('path');
 
-function isDir(p) {
-  try {
-    return fs.statSync(p).isDirectory();
-  } catch (e) {
-    return false;
+const root = process.cwd();
+
+const checks = [
+  // canonical choice: prefer `src/server`
+  {a: 'server', b: 'src/server'},
+  {a: 'src/routes', b: 'src/server/routes'},
+  {a: 'server/routes', b: 'src/server/routes'}
+];
+
+const collisions = [];
+
+for (const {a, b} of checks) {
+  const pa = path.join(root, a);
+  const pb = path.join(root, b);
+  if (fs.existsSync(pa) && fs.existsSync(pb)) {
+    collisions.push({a, b});
   }
 }
 
-const cwd = process.cwd();
-const candidates = {
-  topServer: path.join(cwd, 'server'),
-  srcServer: path.join(cwd, 'src', 'server'),
-  srcRoutes: path.join(cwd, 'src', 'routes'),
-  srcServerRoutes: path.join(cwd, 'src', 'server', 'routes')
-};
-
-const problems = [];
-
-if (isDir(candidates.topServer) && isDir(candidates.srcServer)) {
-  problems.push("Both top-level 'server/' and 'src/server/' directories exist. Choose and keep a single canonical location (recommended: 'src/server/') and consolidate code.");
-}
-
-if (isDir(candidates.srcRoutes) && isDir(candidates.srcServerRoutes)) {
-  problems.push("Both 'src/routes/' and 'src/server/routes/' exist. Consolidate routes under a single routes directory (recommended: 'src/server/routes/').");
-}
-
-if (problems.length === 0) {
-  console.log('OK: No duplicate server/route directories detected.');
+if (collisions.length === 0) {
+  console.log('OK: no duplicate server/route directories detected.');
   process.exit(0);
 }
 
-console.error('\nERROR: Duplicate server/route directories detected:\n');
-problems.forEach((p, i) => console.error(`${i + 1}. ${p}\n`));
-
-console.error('Suggested resolution steps:\n');
-console.error(" - Pick 'src/server/' as the canonical server directory (recommended).\n");
-console.error(" - Move or merge files from the alternate location into the canonical location.\n");
-console.error(" - Update imports and path aliases (e.g. search for 'server/...' and replace with 'src/server/...' or update tsconfig/jsconfig paths).\n");
-console.error(" - Remove the duplicate directory after migration is verified.\n");
-console.error(" - Re-run this check: node scripts/check-server-layout.js\n");
-
-console.error('Automation notes:\n');
-console.error(" - The CI check will fail if duplicates are present.\n");
-console.error(" - To temporarily allow duplicates (not recommended), set CHECK_SERVER_LAYOUT_WARN=1 or ALLOW_DUPLICATES=1 in the environment; the script will exit 0 but print a warning.\n");
-
-const allowWarn = process.env.CHECK_SERVER_LAYOUT_WARN === '1' || process.env.ALLOW_DUPLICATES === '1';
-if (allowWarn) {
-  console.warn('\nWARNING: Duplicates detected but continuing because CHECK_SERVER_LAYOUT_WARN or ALLOW_DUPLICATES is set.');
-  process.exit(0);
+console.error('ERROR: duplicate server/route directories detected.');
+console.error('Please consolidate to a single canonical layout. This project uses `src/server` as the canonical server location.');
+console.error('Collisions found:');
+for (const c of collisions) {
+  console.error(` - both "${c.a}" and "${c.b}" exist`);
 }
 
-process.exit(1);
+console.error('\nSuggested safe manual migration steps:');
+console.error('  1) Review differences and commit or stash local changes.');
+console.error('  2) Copy any missing files into src/server (the canonical location). Example:');
+console.error('       rsync -av --exclude node_modules --exclude ".git" "./server/" "./src/server/"');
+console.error('     or for routes:');
+console.error('       rsync -av "./server/routes/" "./src/server/routes/"');
+console.error('  3) Update imports that reference the old paths (search for `require("../server` or `from "server/"`).');
+console.error('     If you use TypeScript path mappings, add or update `tsconfig.json` `paths` to map `server/*` -> `src/server/*` temporarily.');
+console.error('  4) Remove the duplicate directory once everything is consolidated and tests pass:');
+console.error('       git rm -r server || rm -rf server');
+console.error('       git rm -r src/server/routes (if you consolidated into server)  # careful');
+console.error('\nCI note: a workflow will run this script to prevent new duplicates from being introduced.\n');
+
+process.exit(2);
