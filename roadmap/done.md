@@ -108,3 +108,4 @@
 - 2025-08-16T22:57:58.958Z: ✅  — feat(ai): add AI-assisted attribute suggestions API + admin preview UI
 - 2025-08-16T23:14:11.958Z: ✅  — feat(products): add SKU/slug uniqueness validation with auto-suffixing and concurrency-safe handling
 - 2025-08-16T23:28:56.932Z: ✅  — chore(config): make DB/query timeout configurable via QUERY_TIMEOUT_MS with safe bounds
+- 2025-08-16T23:38:56.166Z: ✅  — fix(db): mitigate long-running unbounded SELECTs by enforcing a default LIMIT
