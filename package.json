@@ -1,8 +1,11 @@
 {
-  "name": "repo-layout-helpers",
+  "name": "db-query-runner",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "check:server-layout": "node scripts/check_server_layout.js"
+    "test": "jest --runInBand"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
   }
 }
