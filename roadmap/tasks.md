@@ -3,15 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Consolidate duplicate server & route directories
-    desc: >
-      Remove or merge duplicate server code paths (server vs src/server and src/routes vs src/server/routes), update
-      imports, and add CI checks to prevent regressions. Ensure a single canonical source for server logic and document
-      the chosen layout.
-    source: review
-    created: '2025-08-15T15:40:00.000Z'
-    priority: 1
-  - type: improvement
     title: Standardize API route conventions and documentation
     desc: >
       Define and enforce a consistent API route layout (pages/api vs server routes), naming conventions, and
