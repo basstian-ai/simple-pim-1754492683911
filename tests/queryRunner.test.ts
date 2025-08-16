@@ -1,36 +1,48 @@
-import assert from 'assert';
-import { runQuery } from '../src/db/queryRunner';
+import { runQueryWithTimeout, QueryTimeoutError } from '../src/db/queryRunner';
 
-function sleep(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
+// Jest-style test. This test verifies that when a long-running query times out,
+// the runner attempts to capture an EXPLAIN (for SELECT statements) and attaches
+// the explain result to the thrown QueryTimeoutError.
 
-describe('queryRunner', () => {
-  it('captures EXPLAIN on timeout and throws QueryTimeoutError', async () => {
-    let explainCalled = false;
-
-    const client = {
-      async query(sql: string, _params?: any[]) {
-        if (sql.trim().toUpperCase().startsWith('EXPLAIN')) {
-          explainCalled = true;
-          return { rows: [{ mock: 'explain' }] };
-        }
-        // simulate a long-running query
-        await sleep(200);
-        return { rows: [{ id: 1 }] };
-      },
-    } as any;
-
-    let threw = false;
-    try {
-      await runQuery(client, 'SELECT pg_sleep(0.2)', [], { timeoutMs: 50 });
-    } catch (err: any) {
-      threw = true;
-      // Should be a timeout error with message mentioning timeout
-      assert.ok(/timeout/i.test(String(err.message)) || err.name === 'QueryTimeoutError');
+test('captures EXPLAIN on timeout for SELECT queries (best-effort)', async () => {
+  // Mock client.query to simulate a hanging initial query and a succeeding EXPLAIN call.
+  const mockQuery = jest.fn((sql: string, params?: any[]) => {
+    if (/^\s*explain/i.test(sql)) {
+      // Simulate explain returning quickly
+      return Promise.resolve({ rows: [{ plan: 'mock-plan' }], rowCount: 1 });
     }
+    // Simulate a query that never resolves (hang)
+    return new Promise(() => {
+      /* never resolves */
+    });
+  });
 
-    assert.ok(threw, 'expected runQuery to throw on timeout');
-    assert.ok(explainCalled, 'expected EXPLAIN to be called after timeout');
-  }).timeout(5000);
+  const client = { query: mockQuery } as any;
+  const logger = { warn: jest.fn(), error: jest.fn() };
+
+  try {
+    await runQueryWithTimeout(client, 'SELECT * FROM users WHERE id = $1', [1], {
+      timeoutMs: 50,
+      explainOnTimeout: true,
+      logger,
+    });
+    // If we get here the test failed because the hung query should timeout
+    throw new Error('expected query to timeout');
+  } catch (err: any) {
+    expect(err).toBeInstanceOf(QueryTimeoutError);
+    // The runner should have tried an EXPLAIN and attached the result (best-effort)
+    expect(err.explain).toBeDefined();
+    expect(err.explain.rows).toBeDefined();
+
+    // Ensure our mock was called at least twice: original sql + EXPLAIN
+    expect(mockQuery.mock.calls.length).toBeGreaterThanOrEqual(2);
+
+    const explainCall = mockQuery.mock.calls.find((call) => /^\s*EXPLAIN/i.test(call[0]));
+    expect(explainCall).toBeDefined();
+    // EXPLAIN should be invoked with the same params array we passed
+    expect(explainCall![1]).toEqual([1]);
+
+    // Logger should have been warned about capturing EXPLAIN
+    expect(logger.warn).toHaveBeenCalledWith('Captured EXPLAIN for timed-out query');
+  }
 });
