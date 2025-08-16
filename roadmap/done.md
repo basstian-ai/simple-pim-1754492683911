@@ -105,3 +105,4 @@
 - 2025-08-16T22:32:49.565Z: ✅  — fix(db): capture EXPLAIN on query timeout (best-effort) and add test
 - 2025-08-16T22:44:44.122Z: ✅  — fix(db): capture EXPLAIN plan on query timeout (best-effort) + tests
 - 2025-08-16T22:52:06.694Z: ✅  — chore(api): add API route conventions docs + lightweight validator
+- 2025-08-16T22:57:58.958Z: ✅  — feat(ai): add AI-assisted attribute suggestions API + admin preview UI
