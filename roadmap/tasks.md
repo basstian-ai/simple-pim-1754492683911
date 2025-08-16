@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - type: bug
-    title: Query duration limit exceeded (BUG-dpl_8G-1755384666884)
-    desc: >
-      Queries are being terminated after hitting the 5-minute execution cap, leading to incomplete responses. Likely
-      causes: inefficient joins, missing indexes or unbounded scans—optimize queries, add pagination, and improve
-      monitoring.
-    source: logs
-    created: '2025-08-16T22:51:06.884Z'
-    priority: 2
   - type: improvement
     title: Accessibility audit and fixes for admin UI
     desc: >
