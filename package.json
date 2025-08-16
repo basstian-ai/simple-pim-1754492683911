@@ -1,11 +1,12 @@
 {
-  "name": "db-query-runner",
-  "version": "0.0.0",
+  "name": "pim-admin-a11y",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "jest --runInBand"
+    "test:a11y": "node tests/a11y/runA11y.js"
   },
   "devDependencies": {
-    "jest": "^29.0.0"
+    "axe-core": "^4.8.0",
+    "jsdom": "^22.1.0"
   }
 }
