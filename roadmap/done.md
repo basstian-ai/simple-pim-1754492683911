@@ -100,3 +100,4 @@
 - 2025-08-16T10:58:40.086Z: ✅  — fix(db): add cancellable query runner with timeout, retries and slow-query EXPLAIN capture
 - 2025-08-16T11:13:30.876Z: ✅  — feat(attribute-groups): add searchable/paginated attribute-groups API + tests
 - 2025-08-16T11:26:31.479Z: ✅  — fix(db): enforce query timeout, capture EXPLAIN plans & add tests
+- 2025-08-16T11:41:45.940Z: ✅  — fix(db): capture EXPLAIN plan when queries time out
