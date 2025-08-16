@@ -107,3 +107,4 @@
 - 2025-08-16T22:52:06.694Z: ✅  — chore(api): add API route conventions docs + lightweight validator
 - 2025-08-16T22:57:58.958Z: ✅  — feat(ai): add AI-assisted attribute suggestions API + admin preview UI
 - 2025-08-16T23:14:11.958Z: ✅  — feat(products): add SKU/slug uniqueness validation with auto-suffixing and concurrency-safe handling
+- 2025-08-16T23:28:56.932Z: ✅  — chore(config): make DB/query timeout configurable via QUERY_TIMEOUT_MS with safe bounds
