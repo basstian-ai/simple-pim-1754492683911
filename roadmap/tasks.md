@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: Attribute Groups Search (filters & pagination)
-    desc: >
-      Provide searchable API and admin UI for attribute groups with filters (code, label, type, required) and
-      server-side pagination. Include robust error handling, API + UI tests and documentation updates.
-    source: vision
-    created: '2025-08-15T15:33:27.457Z'
-    priority: 4
-  - type: improvement
     title: Consolidate duplicate server & route directories
     desc: >
       Remove or merge duplicate server code paths (server vs src/server and src/routes vs src/server/routes), update
