@@ -2,6 +2,15 @@
 
 ```yaml
 items:
+  - type: bug
+    title: App runtime errors & warnings from latest deployment
+    desc: >
+      Long-running query(s) exceeded the 5-minute execution cap and were terminated, causing runtime errors and warnings
+      in the deployed app. Likely causes: missing indexes, full-table scans, or inefficient query plans. Recommended:
+      capture EXPLAIN plans, add indexes/filters, paginate/batch work, and add monitoring/alerts.
+    source: logs
+    created: '2025-08-15T14:09:27.960Z'
+    priority: 1
   - type: improvement
     title: Consolidate duplicate server & route directories
     desc: >
