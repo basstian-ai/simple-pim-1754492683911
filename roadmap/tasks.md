@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: improvement
-    title: Filtered CSV Export for Products
-    desc: >
-      Ensure product CSV export respects current list filters (search, tags, in-stock) and pagination. Update export
-      endpoints, admin export link behavior and add tests to validate CSV contents match applied filters.
-    source: vision
-    created: '2025-08-15T15:00:02.000Z'
-    priority: 1
   - type: feature
     title: Bulk Tagging Preview and Apply in Admin UI
     desc: >
