@@ -36,4 +36,13 @@ queue:
       Investigate and profile the query, add indexes/pagination or optimize the logic; consider adjusting timeout policy
       only if safe.
     created: '2025-08-16T22:17:20.949Z'
+  - id: BUG-dpl_8G-1755384666884
+    title: App runtime errors & warnings from latest deployment
+    details: >-
+      ### Query duration limit exceeded
+
+      Long-running queries are terminated after hitting the 5-minute execution cap, resulting in failed or incomplete
+      responses. Likely causes include inefficient queries, missing indexes, or large unbounded scans. Fixes: optimize
+      the query (add indexes, reduce scanned data, paginate), or adjust the timeout/config if appropriate and safe.
+    created: '2025-08-16T22:51:06.884Z'
 ```
