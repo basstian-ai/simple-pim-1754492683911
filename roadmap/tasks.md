@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: improvement
-    title: Standardize API route conventions and documentation
-    desc: >
-      Define and enforce a consistent API route layout (pages/api vs server routes), naming conventions, and
-      request/response schemas. Add route-level docs, examples, and linting/validation to the repo.
-    source: review
-    created: '2025-08-15T15:41:00.000Z'
-    priority: 2
   - type: feature
     title: AI-assisted attribute suggestions in Admin
     desc: >
