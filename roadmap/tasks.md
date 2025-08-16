@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - type: bug
-    title: Query duration exceeded (long-running queries terminated)
-    desc: >
-      Investigate and fix long-running queries that are being terminated after the 5-minute execution cap. Actions:
-      capture slow query text + EXPLAIN plans, add/migrate indexes, add filters/pagination or batched processing, and
-      add safeguards (timeouts, cancellations, retries) and regression tests.
-    source: logs
-    created: '2025-08-15T14:09:27.960Z'
-    priority: 3
   - type: improvement
     title: Attribute Groups Search (filters & pagination)
     desc: >
