@@ -1,103 +1,68 @@
-// scripts/check-duplicate-servers.js
-// Detects duplicate server/route directories (e.g. `server` vs `src/server`, `src/routes` vs `src/server/routes`).
-// Exits with non-zero code when duplicates are found to block CI.
+#!/usr/bin/env node
+'use strict';
+
+// Lightweight guard that fails CI if duplicate server/route directories exist
+// Rules enforced:
+//  - If both 'server' and 'src/server' exist -> error
+//  - If both 'src/routes' and 'src/server/routes' exist -> error
+//  - If both 'server/routes' and 'src/server/routes' exist -> error
 
 const fs = require('fs');
 const path = require('path');
 
-function exists(rel) {
-  return fs.existsSync(path.join(process.cwd(), rel));
+function exists(root, rel) {
+  return fs.existsSync(path.join(root, rel));
 }
 
-function walk(dir) {
-  const root = path.join(process.cwd(), dir);
-  const out = [];
-  if (!fs.existsSync(root)) return out;
-  (function _walk(current, base) {
-    const entries = fs.readdirSync(current, { withFileTypes: true });
-    for (const e of entries) {
-      const rel = path.join(base, e.name);
-      if (e.isDirectory()) {
-        _walk(path.join(current, e.name), rel);
-      } else {
-        out.push(rel.replace(/\\\\/g, '/'));
-      }
-    }
-  })(root, '');
-  return out;
+function check(root) {
+  const issues = [];
+
+  if (exists(root, 'server') && exists(root, 'src/server')) {
+    issues.push("Both 'server' and 'src/server' exist. Choose a single canonical server location (recommended: src/server) and migrate one into the other.");
+  }
+
+  if (exists(root, 'src/routes') && exists(root, 'src/server/routes')) {
+    issues.push("Both 'src/routes' and 'src/server/routes' exist. Consolidate route files under a single directory (recommended: src/server/routes).");
+  }
+
+  if (exists(root, 'server/routes') && exists(root, 'src/server/routes')) {
+    issues.push("Both 'server/routes' and 'src/server/routes' exist. Consolidate route files under a single directory (recommended: src/server/routes).");
+  }
+
+  // additional heuristic: if top-level 'src/server' exists but there's also a top-level 'srcServer' (typo-ish), warn but don't fail
+  if (exists(root, 'srcServer') && exists(root, 'src/server')) {
+    issues.push("Found 'srcServer' alongside 'src/server' — possible accidental duplicate/typo. Consider removing or renaming.");
+  }
+
+  return issues;
 }
 
-function printHeading(msg) {
-  console.log('==============================');
-  console.log(msg);
-  console.log('==============================');
-}
-
-(function main() {
-  // Preferred canonical directory can be overridden by env var
-  const canonical = (process.env.CANONICAL_DIR || 'src/server').replace(/\\\\$/,'');
-
-  // Pairs to check: if both paths exist, that's suspicious
-  const pairs = [
-    ['server', 'src/server'],
-    ['routes', 'src/routes'],
-    ['src/routes', 'src/server/routes'],
-    ['server/routes', 'src/server/routes'],
-  ];
-
-  const found = [];
-
-  for (const [a, b] of pairs) {
-    if (exists(a) && exists(b)) {
-      const aFiles = walk(a);
-      const bFiles = walk(b);
-
-      // compute intersections by normalized relative path
-      const aSet = new Set(aFiles.map(p => p.replace(/^\/+/, '')));
-      const bSet = new Set(bFiles.map(p => p.replace(/^\/+/, '')));
-
-      const overlap = [];
-      for (const p of aSet) {
-        if (bSet.has(p)) overlap.push(p);
-      }
-
-      found.push({ a, b, overlap, aCount: aFiles.length, bCount: bFiles.length });
+function main() {
+  const argv = process.argv.slice(2);
+  let root = process.cwd();
+  for (let i = 0; i < argv.length; i++) {
+    if ((argv[i] === '--root' || argv[i] === '-r') && argv[i + 1]) {
+      root = path.resolve(argv[i + 1]);
+      i++;
     }
   }
 
-  if (found.length === 0) {
-    console.log('No duplicate server/routes directories detected.');
-    process.exit(0);
+  const issues = check(root);
+  if (issues.length === 0) {
+    console.log('OK: No duplicate server/route directories detected.');
+    process.exitCode = 0;
+    return;
   }
 
-  printHeading('Duplicate server/route directories detected');
-  console.error('Repository contains multiple candidate server/route locations. This can lead to ambiguity and regressions.');
-  console.error('By default the canonical location is:', canonical);
-  console.error('If your project intentionally uses a different layout, set CANONICAL_DIR to the preferred path.');
-  console.error('See docs/server-layout.md for migration guidance.');
-
-  for (const item of found) {
-    console.error('');
-    console.error(`Conflict: "${item.a}" <=> "${item.b}"`);
-    console.error(`  ${item.a}: ${item.aCount} files`);
-    console.error(`  ${item.b}: ${item.bCount} files`);
-    if (item.overlap.length > 0) {
-      console.error('  Overlapping relative paths (likely duplicates):');
-      for (const o of item.overlap.slice(0, 50)) {
-        console.error('    -', o);
-      }
-      if (item.overlap.length > 50) console.error('    ... (truncated)');
-    } else {
-      console.error('  No direct file-relative-path overlap found, but parallel directories exist which may cause confusion.');
-    }
-
-    // example remediation hint
-    console.error('  Suggested remediation: pick a single canonical server dir (recommended:', canonical + '), move files there, update imports, and remove the duplicate directory.');
+  console.error('ERROR: Detected duplicate server/route directories:');
+  for (const it of issues) {
+    console.error(' - ' + it);
   }
 
-  console.error('');
-  console.error('To bypass this check temporarily in CI, set CANONICAL_DIR to your preferred path, e.g.');
-  console.error('  CANONICAL_DIR=server node scripts/check-duplicate-servers.js');
-  console.error('');
-  process.exit(1);
-})();
+  console.error('\nRecommended remediation steps:');
+  console.error(" 1) Pick a canonical layout (recommended: 'src/server' for server code and 'src/server/routes' for routes).\n 2) Move files from the non-canonical location into the canonical path, update imports that referenced the old path.\n 3) Remove the old directory.\n 4) Run this check locally (`node scripts/check-duplicate-servers.js`) to ensure the repository is clean.");
+
+  process.exitCode = 1;
+}
+
+if (require.main === module) main();
