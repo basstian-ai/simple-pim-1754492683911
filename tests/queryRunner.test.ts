@@ -1,62 +1,36 @@
-import { runQueryWithTimeoutAndRetry } from '../src/queryRunner';
-import { QueryTimeoutError } from '../src/errors';
+import assert from 'assert';
+import { runQuery } from '../src/db/queryRunner';
 
-jest.setTimeout(20000);
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
 
-describe('runQueryWithTimeoutAndRetry', () => {
-  test('resolves when query completes before timeout', async () => {
-    const result = await runQueryWithTimeoutAndRetry(
-      async (signal) => {
-        // quick work that does not observe the signal (still completes quickly)
-        await new Promise((r) => setTimeout(r, 50));
-        if (signal.aborted) throw new Error('should not be aborted');
-        return 'ok';
+describe('queryRunner', () => {
+  it('captures EXPLAIN on timeout and throws QueryTimeoutError', async () => {
+    let explainCalled = false;
+
+    const client = {
+      async query(sql: string, _params?: any[]) {
+        if (sql.trim().toUpperCase().startsWith('EXPLAIN')) {
+          explainCalled = true;
+          return { rows: [{ mock: 'explain' }] };
+        }
+        // simulate a long-running query
+        await sleep(200);
+        return { rows: [{ id: 1 }] };
       },
-      { timeoutMs: 1000, retries: 1 }
-    );
+    } as any;
 
-    expect(result).toBe('ok');
-  });
+    let threw = false;
+    try {
+      await runQuery(client, 'SELECT pg_sleep(0.2)', [], { timeoutMs: 50 });
+    } catch (err: any) {
+      threw = true;
+      // Should be a timeout error with message mentioning timeout
+      assert.ok(/timeout/i.test(String(err.message)) || err.name === 'QueryTimeoutError');
+    }
 
-  test('times out and retries, ultimately throws QueryTimeoutError', async () => {
-    const attempts: number[] = [];
-
-    // query that never resolves but rejects when aborted via signal
-    const fn = (signal: AbortSignal) =>
-      new Promise<string>((_resolve, reject) => {
-        const id = setTimeout(() => {
-          // never resolves
-        }, 10000);
-
-        signal.addEventListener('abort', () => {
-          clearTimeout(id);
-          reject(new Error('aborted')); // simulate cooperative cancellation
-        }, { once: true });
-
-        attempts.push(Date.now());
-      });
-
-    const start = Date.now();
-
-    await expect(
-      runQueryWithTimeoutAndRetry(fn, { timeoutMs: 100, retries: 2, backoffMs: 20 })
-    ).rejects.toThrow(QueryTimeoutError);
-
-    // Ensure we took at least timeout * attempts time (approx)
-    const elapsed = Date.now() - start;
-    expect(elapsed).toBeGreaterThanOrEqual(100);
-    // We should have attempted multiple times (>= 2 attempts because retries=2)
-    expect(attempts.length).toBeGreaterThanOrEqual(1);
-  });
-
-  test('propagates non-timeout errors immediately on final attempt', async () => {
-    const fn = async (signal: AbortSignal) => {
-      await new Promise((r) => setTimeout(r, 20));
-      throw new Error('db connection lost');
-    };
-
-    await expect(
-      runQueryWithTimeoutAndRetry(fn, { timeoutMs: 100, retries: 1 })
-    ).rejects.toThrow('db connection lost');
-  });
+    assert.ok(threw, 'expected runQuery to throw on timeout');
+    assert.ok(explainCalled, 'expected EXPLAIN to be called after timeout');
+  }).timeout(5000);
 });
