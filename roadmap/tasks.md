@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - type: bug
-    title: Long-running queries hit 5-minute execution cap (BUG-dpl_8G-1755382640949)
-    desc: >-
-      A query exceeded the 5-minute execution limit and was terminated, causing runtime failures and incomplete results.
-      Investigate the query plan (EXPLAIN/trace), add indexes/filters or paginate/batch work, and capture EXPLAIN on
-      timeout for diagnostics.
-    source: logs
-    created: '2025-08-16T22:17:20.949Z'
-    priority: 1
   - type: improvement
     title: Standardize API route conventions and documentation
     desc: >
