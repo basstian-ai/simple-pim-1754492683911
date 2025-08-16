@@ -1,112 +1,55 @@
 // scripts/check-server-layout.js
-// Exit non-zero when duplicate/ambiguous server/layouts are detected.
+// Exit non-zero if duplicate server/route directory layouts are present.
+// Intended as a lightweight CI guard to prevent regressions while consolidating
+// server code to a single canonical location (see docs/CONTRIBUTING-SERVER-LAYOUT.md).
 
 const fs = require('fs');
 const path = require('path');
 
 function exists(p) {
   try {
-    return fs.existsSync(p);
+    return fs.existsSync(path.resolve(process.cwd(), p));
   } catch (e) {
     return false;
   }
 }
 
-function listFiles(dir) {
-  const out = [];
-  if (!exists(dir)) return out;
-  const walk = (cur, base) => {
-    const entries = fs.readdirSync(cur, { withFileTypes: true });
-    for (const e of entries) {
-      const full = path.join(cur, e.name);
-      const rel = path.join(base, e.name);
-      if (e.isDirectory()) {
-        walk(full, rel);
-      } else if (e.isFile()) {
-        out.push(rel.replace(/\\\\/g, '/'));
-      }
-    }
-  };
-  walk(dir, '');
-  return out;
-}
+const pairsToCheck = [
+  // top-level vs src/
+  ['server', 'src/server'],
+  ['routes', 'src/server/routes'],
+  ['routes', 'src/routes'],
+  // older layouts
+  ['src/server', 'server'],
+  ['src/server/routes', 'src/routes']
+];
 
-function isShim(filePath) {
-  try {
-    const content = fs.readFileSync(filePath, 'utf8');
-    return content.includes('SHIM - DO NOT EDIT');
-  } catch (e) {
-    return false;
+const duplicates = [];
+for (const [a, b] of pairsToCheck) {
+  if (exists(a) && exists(b)) {
+    duplicates.push([a, b]);
   }
 }
 
-function fail(msg) {
-  console.error('ERROR: ' + msg);
-  process.exitCode = 2;
-  throw new Error(msg);
+if (duplicates.length === 0) {
+  console.log('check-server-layout: OK — no duplicate server/route directories detected.');
+  process.exit(0);
 }
 
-(function main() {
-  const TOP = process.cwd();
-  const TOP_SERVER = path.join(TOP, 'server');
-  const SRC_SERVER = path.join(TOP, 'src', 'server');
-  const SRC_ROUTES = path.join(TOP, 'src', 'routes');
-  const SRC_SERVER_ROUTES = path.join(SRC_SERVER, 'routes');
+console.error('check-server-layout: ERROR — duplicate server/route directories detected.\n');
+for (const [a, b] of duplicates) {
+  console.error(`  - Both "${a}" and "${b}" exist`);
+}
 
-  const serverFiles = listFiles(TOP_SERVER);
-  const srcServerFiles = listFiles(SRC_SERVER);
-  const srcRoutesFiles = listFiles(SRC_ROUTES);
-  const srcServerRoutesFiles = listFiles(SRC_SERVER_ROUTES);
+console.error('\nThis repository enforces a single canonical server layout to avoid import ambiguity, duplicate
+compilation targets, and developer confusion. See docs/CONTRIBUTING-SERVER-LAYOUT.md for the canonical
+layout and migration guidance.');
 
-  // If neither location has files, nothing to check
-  if (serverFiles.length === 0 && srcServerFiles.length === 0 && srcRoutesFiles.length === 0 && srcServerRoutesFiles.length === 0) {
-    console.log('OK: no server/src-server/src-routes detected.');
-    return;
-  }
+console.error('\nSuggested immediate actions:');
+console.error('  1) Choose the canonical layout (recommended: src/server + src/server/routes).');
+console.error('  2) Move or merge files from the non-canonical path into the canonical path.');
+console.error('  3) Update imports and any build scripts, then commit the changes.');
+console.error('  4) Re-run this check locally: node scripts/check-server-layout.js');
 
-  // Determine canonical location preference: prefer src/server when present
-  const canonical = srcServerFiles.length > 0 ? 'src/server' : (serverFiles.length > 0 ? 'server' : null);
-
-  if (!canonical) {
-    console.log('OK: no canonical server detected.');
-    return;
-  }
-
-  // If both server and src/server contain files, ensure server only contains shim files or re-exports.
-  if (serverFiles.length > 0 && srcServerFiles.length > 0) {
-    const problematic = [];
-    for (const rel of serverFiles) {
-      const full = path.join(TOP, 'server', rel);
-      if (!isShim(full)) {
-        // If a file exists with same relative path in src/server, that's a duplicate implementation
-        if (srcServerFiles.includes(rel)) {
-          problematic.push(rel);
-        } else {
-          // Also treat non-shim top-level server files as problematic because repo should centralize under src/server
-          problematic.push(rel);
-        }
-      }
-    }
-    if (problematic.length > 0) {
-      fail(
-        'Duplicate/ambiguous server implementation detected. Files found both in server/ and src/server/:\n' +
-          problematic.map(p => '  - ' + p).join('\n') +
-          '\n\nRecommendation: consolidate server code under src/server/ and keep server/ limited to lightweight shims (these use `// SHIM - DO NOT EDIT` header). Move implementation files from server/ into src/server/ and remove duplicates. See docs/server-layout.md for details.'
-      );
-    }
-  }
-
-  // Check for duplicate routes between src/routes and src/server/routes
-  if (srcRoutesFiles.length > 0 && srcServerRoutesFiles.length > 0) {
-    const overlap = srcRoutesFiles.filter(f => srcServerRoutesFiles.includes(f));
-    if (overlap.length > 0) {
-      fail(
-        'Duplicate routes detected in src/routes/ and src/server/routes/:\n' +
-          overlap.map(p => '  - ' + p).join('\n') +
-          '\n\nRecommendation: choose a single routes directory (prefer src/server/routes) and move the other contents there.'
-      );
-    }
-  }
-
-  console.log('OK: server/layout check passed. canonical=' + canonical);
-})();
+// Exit non-zero so CI fails and the team is alerted to consolidate before merging.
+process.exit(2);
