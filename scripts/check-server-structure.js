@@ -1,91 +1,52 @@
-// scripts/check-server-structure.js
-// Exit non-zero if duplicate server/route directories are detected.
-// Canonical layout chosen by this repo: src/server (and src/server/routes)
+'use strict';
 
 const fs = require('fs');
 const path = require('path');
 
+// Root can be overridden for tests via CHECK_ROOT
+const ROOT = process.env.CHECK_ROOT ? path.resolve(process.env.CHECK_ROOT) : process.cwd();
+
+const pairs = [
+  // canonical chosen: src/server
+  ['server', 'src/server'],
+  // routes may live at top-level 'routes' or under 'src' or under 'src/server'
+  ['routes', 'src/server/routes'],
+  ['src/routes', 'src/server/routes']
+];
+
 function exists(p) {
   try {
-    return fs.statSync(p).isDirectory();
+    return fs.existsSync(path.join(ROOT, p));
   } catch (e) {
     return false;
   }
 }
 
-function rel(p) {
-  return path.relative(process.cwd(), p) || '.';
+let duplicates = [];
+for (const [a, b] of pairs) {
+  if (exists(a) && exists(b)) {
+    duplicates.push({a, b});
+  }
 }
 
-const repoRoot = process.cwd();
-
-const candidates = [
-  {name: 'root-server', p: path.join(repoRoot, 'server')},
-  {name: 'src-server', p: path.join(repoRoot, 'src', 'server')},
-  {name: 'root-routes', p: path.join(repoRoot, 'routes')},
-  {name: 'src-server-routes', p: path.join(repoRoot, 'src', 'server', 'routes')}
-];
-
-const present = {};
-for (const c of candidates) present[c.name] = exists(c.p);
-
-let ok = true;
-const errors = [];
-
-// Duplicate server directories: both ./server and ./src/server
-if (present['root-server'] && present['src-server']) {
-  ok = false;
-  errors.push({
-    title: 'Duplicate server directories found',
-    detail: `Both "${rel(candidates[0].p)}" and "${rel(candidates[1].p)}" exist. Use a single canonical location for server code (recommended: src/server).`
-  });
-}
-
-// Duplicate routes directories: ./src/routes vs ./src/server/routes (or root routes)
-if (exists(path.join(repoRoot, 'src', 'routes')) && present['src-server-routes']) {
-  ok = false;
-  errors.push({
-    title: 'Duplicate routes directories found',
-    detail: `Both "${rel(path.join(repoRoot,'src','routes'))}" and "${rel(candidates[3].p)}" exist. Consolidate routes under a single location (recommended: src/server/routes).`
-  });
-}
-
-// Root-level routes vs src/server/routes
-if (present['root-routes'] && present['src-server-routes']) {
-  ok = false;
-  errors.push({
-    title: 'Duplicate routes directories found',
-    detail: `Both "${rel(candidates[2].p)}" and "${rel(candidates[3].p)}" exist. Consolidate routes under a single location (recommended: src/server/routes).`
-  });
-}
-
-// Root-level server vs src/routes (odd mixes)
-if (present['root-server'] && exists(path.join(repoRoot, 'src', 'routes')) ) {
-  ok = false;
-  errors.push({
-    title: 'Mixed server/route layout',
-    detail: `Found "${rel(candidates[0].p)}" and "${rel(path.join(repoRoot,'src','routes'))}". Prefer a single canonical layout to reduce ambiguity (recommended: move server into src/server and routes into src/server/routes).`
-  });
-}
-
-if (ok) {
-  console.log('OK: No duplicate server/route directories detected.');
+if (duplicates.length === 0) {
+  console.log('OK: no duplicate server/route directories detected');
   process.exit(0);
 }
 
-console.error('ERROR: Repository layout guard failed. See details below:\n');
-for (const e of errors) {
-  console.error(`- ${e.title}:`);
-  console.error(`  ${e.detail}\n`);
+console.error('ERROR: duplicate server/route directory layout detected');
+console.error('Found the following overlapping paths:');
+for (const d of duplicates) {
+  console.error(` - ${d.a}  <-->  ${d.b}`);
 }
 
-console.error('Suggested migration (example):');
-console.error('  # Move root server into src/server (preserve history):');
-console.error('  git mv server src/server || mkdir -p src && git mv server src/server');
-console.error('  # Or move src/server to server if you choose root as canonical:');
-console.error('  git mv src/server server');
-console.error('  # Move/merge routes accordingly:');
-console.error('  git mv routes src/server/routes || git mv src/routes src/server/routes');
-console.error('\nAfter performing moves, update imports and run tests. This CI guard enforces a single canonical place for server logic.');
+console.error('\nThis repository enforces a single canonical server layout (src/server).');
+console.error('Please consolidate duplicate paths by moving code into src/server and removing the duplicate directories.');
+console.error('Helpful steps:');
+console.error('  1) Move files from the non-canonical path into src/server (preserve history with git mv when possible).');
+console.error('  2) Update imports/require paths to point to the new locations (search for references to the old path).');
+console.error('  3) Run tests and linting, and ensure CI passes.');
+console.error('\nSee docs/server-structure.md for migration guidance.');
 
+// Non-zero exit to fail CI
 process.exit(2);
