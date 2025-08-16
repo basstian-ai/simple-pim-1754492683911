@@ -2,15 +2,6 @@
 
 ```yaml
 items:
-  - type: bug
-    title: App runtime errors & warnings from latest deployment
-    desc: >
-      Long-running queries are exceeding the 5-minute runtime cap causing terminated jobs and runtime errors.
-      Investigate slow queries, add indexes or pagination, capture EXPLAIN plans, and add guards/tests to prevent
-      recurrence.
-    source: logs
-    created: '2025-08-15T14:09:27.960Z'
-    priority: 1
   - type: improvement
     title: Consolidate duplicate server & route directories
     desc: >
