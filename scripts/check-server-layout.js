@@ -1,109 +1,43 @@
 'use strict';
+
 const fs = require('fs');
 const path = require('path');
 
-// Script to detect duplicate/ambiguous server & routes directories
-// Canonical choice: src/server (+ src/server/routes)
-// Fail CI if ambiguous duplicates detected (e.g. both server and src/server)
+const cwd = process.cwd();
 
-function exists(p) {
-  try {
-    return fs.existsSync(p) && fs.statSync(p).isDirectory();
-  } catch (e) {
-    return false;
+const pairs = [
+  { a: 'server', b: path.join('src', 'server'), label: 'server' },
+  { a: path.join('src', 'routes'), b: path.join('src', 'server', 'routes'), label: 'routes' }
+];
+
+const found = [];
+
+for (const p of pairs) {
+  const aExists = fs.existsSync(path.join(cwd, p.a));
+  const bExists = fs.existsSync(path.join(cwd, p.b));
+  if (aExists && bExists) {
+    found.push({ pair: p, a: path.join(cwd, p.a), b: path.join(cwd, p.b) });
   }
 }
 
-function rel(p) {
-  return path.relative(process.cwd(), p) || '.';
+if (found.length === 0) {
+  console.log('Layout check passed: no duplicate server/route directories found.');
+  process.exit(0);
 }
 
-function main() {
-  const root = path.resolve(__dirname, '..');
-  const candidates = {
-    top_server: path.join(root, 'server'),
-    top_routes: path.join(root, 'routes'),
-    src_server: path.join(root, 'src', 'server'),
-    src_server_routes: path.join(root, 'src', 'server', 'routes'),
-    src_routes: path.join(root, 'src', 'routes')
-  };
-
-  const found = Object.entries(candidates).filter(([, p]) => exists(p)).map(([k, p]) => ({ key: k, path: p }));
-
-  if (found.length === 0) {
-    console.log('OK: No server/routes directories detected (nothing to consolidate).');
-    process.exit(0);
-  }
-
-  // Rules: prefer src/server as canonical. Error when more than one of the following namespaces exist:
-  // {server, src/server}, {routes, src/server/routes}, {src/routes, src/server/routes}
-
-  const problems = [];
-
-  const has = key => found.some(f => f.key === key);
-
-  if (has('top_server') && has('src_server')) {
-    problems.push({
-      reason: 'Duplicate server directories',
-      details: [`Both '${rel(candidates.top_server)}' and '${rel(candidates.src_server)}' exist.`],
-      suggestion: `Choose a canonical location (recommended: 'src/server'). To move top-level server into src/server:
-
-  git mv ${rel(candidates.top_server)} ${rel(path.join(root, 'src'))}/server
-  # then update imports that used absolute top-level paths, run tests.
-`
-    });
-  }
-
-  if ((has('top_routes') || has('src_routes')) && has('src_server_routes')) {
-    const dupPaths = [];
-    if (has('top_routes')) dupPaths.push(rel(candidates.top_routes));
-    if (has('src_routes')) dupPaths.push(rel(candidates.src_routes));
-    problems.push({
-      reason: 'Duplicate routes directories',
-      details: [`${dupPaths.join(' and ')} and ${rel(candidates.src_server_routes)} exist.`],
-      suggestion: `Consolidate route files under 'src/server/routes' (recommended). Example move:
-
-  git mv ${dupPaths.map(p => p).join(' ')} ${rel(path.join(root, 'src', 'server'))}/routes
-  # ensure imports referencing '/routes' are updated accordingly
-`
-    });
-  }
-
-  // If both top-level server and top-level routes exist but src/server does not, suggest canonical src/server
-  if (has('top_server') && has('top_routes') && !has('src_server')) {
-    problems.push({
-      reason: 'Top-level server+routes found',
-      details: [`Both '${rel(candidates.top_server)}' and '${rel(candidates.top_routes)}' are present.`],
-      suggestion: `Consider migrating to 'src/server' as canonical server code path. Example:
-
-  mkdir -p src/server
-  git mv ${rel(candidates.top_server)} src/server
-  git mv ${rel(candidates.top_routes)} src/server/routes
-`
-    });
-  }
-
-  if (problems.length === 0) {
-    console.log('OK: No conflicting server/routes layouts detected. Present directories:');
-    found.forEach(f => console.log(` - ${rel(f.path)}`));
-    process.exit(0);
-  }
-
-  console.error('\nERROR: Ambiguous server/routes layout detected. Please consolidate to a single canonical location (recommended: src/server).\n');
-  problems.forEach(p => {
-    console.error('---');
-    console.error('Issue:', p.reason);
-    p.details.forEach(d => console.error('  ', d));
-    console.error('\nSuggested remediation:\n');
-    console.error(p.suggestion);
-  });
-
-  console.error('\nGuidance: pick a single canonical path for server logic (we recommend src/server and src/server/routes).');
-  process.exit(1);
+console.error('Duplicate server/route directories detected. To avoid ambiguous imports and multiple codepaths, pick one canonical layout (recommended: src/server) and consolidate.');
+for (const f of found) {
+  console.error('\n- Duplicate type: %s', f.pair.label);
+  console.error('  Paths:');
+  console.error('    %s', f.a);
+  console.error('    %s', f.b);
 }
 
-if (require.main === module) {
-  main();
-}
+console.error('\nSuggested steps:');
+console.error('  1) Move files into the canonical directory (recommended: src/server).');
+console.error('     Example: git mv server/* src/server/ || mkdir -p src/server && git mv server src/server');
+console.error('  2) Update imports (automate with a codemod or search/replace).');
+console.error('  3) Remove the duplicate directory and run the layout check.');
+console.error('\nThis repository includes a CI check to prevent re-introducing duplicates.');
 
-module.exports = { main };
+process.exit(1);
