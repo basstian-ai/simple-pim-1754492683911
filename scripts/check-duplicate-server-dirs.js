@@ -1,56 +1,51 @@
-// checks for duplicate server/route directories and fails with guidance
-// Intended to be run in CI and locally: `node scripts/check-duplicate-server-dirs.js`
+#!/usr/bin/env node
+// scripts/check-duplicate-server-dirs.js
+// Simple CI check to detect duplicate server/route directories that can cause ambiguity
+// and import confusion. Exits with non-zero code when duplicates are found.
+
 const fs = require('fs');
 const path = require('path');
 
-function exists(p) {
+function existsDir(rel) {
   try {
-    return fs.statSync(p).isDirectory();
+    const s = fs.statSync(path.resolve(process.cwd(), rel));
+    return s.isDirectory() || s.isSymbolicLink();
   } catch (err) {
     return false;
   }
 }
 
-function rel(p) {
-  return path.relative(process.cwd(), p) || '.';
+const pairs = [
+  ["server", path.join("src", "server")],
+  ["routes", path.join("src", "routes")],
+  [path.join("server", "routes"), path.join("src", "server", "routes")]
+];
+
+const conflicts = [];
+for (const [a, b] of pairs) {
+  if (existsDir(a) && existsDir(b)) {
+    conflicts.push({a, b});
+  }
 }
 
-function reportAndExit(messages) {
-  console.error('\nERROR: duplicate server/routes directories detected (canonical layout: src/server)\n');
-  messages.forEach((m) => console.error(' - ' + m));
-  console.error('\nResolution guidance:');
-  console.error('  * Choose the canonical location: src/server (preferred).');
-  console.error('  * Move code from the duplicate directory into src/server and update imports.');
-  console.error('  * Remove (or archive) the duplicate top-level directory to avoid confusion.');
-  console.error('  * Run the CI job again.');
-  console.error('\nIf this repository intentionally uses a different canonical layout, update the CI check or docs accordingly.');
-  process.exit(1);
-}
-
-(async function main() {
-  const pairs = [
-    ['server', 'src/server'],
-    ['src/routes', 'src/server/routes']
-  ];
-
-  const cwd = process.cwd();
-  const problems = [];
-
-  for (const [a, b] of pairs) {
-    const pa = path.join(cwd, a);
-    const pb = path.join(cwd, b);
-    const hasA = exists(pa);
-    const hasB = exists(pb);
-
-    if (hasA && hasB) {
-      problems.push(`Both "${rel(pa)}" and "${rel(pb)}" exist. Remove or merge one to have a single canonical source.`);
-    }
-  }
-
-  if (problems.length) {
-    reportAndExit(problems);
-  }
-
-  console.log('OK: No duplicate server/routes directories found.');
+if (conflicts.length === 0) {
+  console.log("✅ No duplicate server/route directories detected.");
   process.exit(0);
-})();
+}
+
+console.error("\n❌ Duplicate server/route directory layout detected. Please consolidate to a single canonical layout.\n");
+for (const c of conflicts) {
+  console.error(`- Both '${c.a}' and '${c.b}' exist.`);
+}
+
+console.error("\nRecommended canonical layout: 'src/server' (and 'src/server/routes' / 'src/routes' under src).\n");
+console.error("Suggested remediation (review before running):");
+console.error("  1) Decide the canonical location (recommended: src/server).");
+console.error("  2) Move sources from the non-canonical dir into src/, updating imports as needed. Example:");
+console.error("       git mv server src/server    # if you choose src/server as canonical\n");
+console.error("  3) Run tests and dev server to validate changes.\n");
+console.error("If you intentionally maintain both layouts for compatibility, add a comment in repo docs explaining why and update CI to exempt this check.\n");
+
+// Offer a hint to developers about a local quick-check command
+console.error("Run: node scripts/check-duplicate-server-dirs.js\n");
+process.exit(1);
