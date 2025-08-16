@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: bug
-    title: Query timed out after 5 minutes (BUG-dpl_8G-1755382640949)
-    desc: >
-      A long-running query timed out after the configured 5-minute limit, causing user requests or jobs to fail. Profile
-      and optimize the query, add indexes/pagination, and consider safe timeout policy adjustments if required.
-    source: logs
-    created: '2025-08-16T22:17:20.949Z'
-    priority: 1
-  - type: bug
     title: Query duration limit exceeded (BUG-dpl_8G-1755384666884)
     desc: >
       Queries are being terminated after hitting the 5-minute execution cap, leading to incomplete responses. Likely
