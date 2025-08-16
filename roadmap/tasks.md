@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: AI-assisted attribute suggestions in Admin
-    desc: >
-      Add an AI-backed suggestions panel to propose attribute groups, attribute values, and mapping hints based on
-      product text and historical data. Include opt-in telemetry, preview mode, and an API route for suggestions.
-    source: vision
-    created: '2025-08-15T15:42:00.000Z'
-    priority: 3
   - type: improvement
     title: SKU & slug uniqueness validation and collision handling
     desc: >
