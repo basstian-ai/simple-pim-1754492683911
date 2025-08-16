@@ -103,3 +103,4 @@
 - 2025-08-16T11:41:45.940Z: ✅  — fix(db): capture EXPLAIN plan when queries time out
 - 2025-08-16T22:18:23.981Z: ✅  — Consolidate duplicate server & route directories
 - 2025-08-16T22:32:49.565Z: ✅  — fix(db): capture EXPLAIN on query timeout (best-effort) and add test
+- 2025-08-16T22:44:44.122Z: ✅  — fix(db): capture EXPLAIN plan on query timeout (best-effort) + tests
