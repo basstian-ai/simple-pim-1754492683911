@@ -1,15 +1,8 @@
-'use strict';
-
-class TimeoutError extends Error {
-  constructor(message, meta = {}) {
+class QueryTimeoutError extends Error {
+  constructor(message = 'Query timed out') {
     super(message);
-    this.name = 'TimeoutError';
-    this.isTimeout = true;
-    // attach metadata for callers (attempts, perAttemptTimeout, lastError)
-    Object.assign(this, meta);
+    this.name = 'QueryTimeoutError';
   }
 }
 
-module.exports = {
-  TimeoutError
-};
+module.exports = { QueryTimeoutError };
