@@ -1,25 +1,30 @@
-# Server layout convention
+# Server layout (canonical)
 
-Canonical decision
-- Use src/server/ as the canonical location for server-side application code.
+Chosen canonical location for server-side application code: src/server
 
 Why
-- Avoids duplicate code paths and ambiguous imports (e.g. imports that reference both "server/" and "src/server/").
-- Keeps top-level project root cleaner and groups source under "src/" like other application code.
+- Keeps source files under src/ (consistent with modern JS/TS conventions).
+- Avoids duplication and import confusion when consumers import top-level vs namespaced paths.
 
-Migration guidance (safe, manual steps)
-1. Create src/server/ if it does not exist.
-2. Move files from server/ into src/server/ with a single mv operation where possible:
-   - mv server/* src/server/
-   - mv server/.??* src/server/  # if you have dotfiles (be cautious)
-3. Update import paths in the codebase that referenced the old location. Typical patterns to update:
-   - require('../server/...')  -> require('../../src/server/...')  (or use project-relative paths if configured)
-   - import ... from '../../server/...' -> import ... from '../../src/server/...'
-   Consider mass-rewrites with grep + sed or an editor-aware refactor. Run the test suite after changes.
-4. Remove the old directory after verifying tests and runtime behavior:
-   - rm -rf server
+Rules enforced by CI
+- Do not have both server/ and src/server/ in the repository simultaneously.
+- Do not have both src/routes/ and src/server/routes/ simultaneously.
 
-CI guard
-- A small CI check (scripts/check-server-layout.js) will fail if both server/ and src/server/ exist. This is intended to prevent accidental duplication and regressions.
+If CI fails
+1. Move files from the non-canonical location into src/server (keep history via git mv when possible):
+   - git mv server/* src/server/   (or)
+   - git mv src/routes/* src/server/routes/
+2. Update imports (examples):
+   - from require('../server/foo')  -> require('../src/server/foo')
+   - or better: from '@/server/foo' if the repo uses path aliases; run your repo's codemod or search/replace.
+3. Run the layout check locally: node scripts/check-server-layout.js
 
-If you prefer the opposite canonical layout (server/ at project root), document it here and update the CI check accordingly. The main goal is to have a single canonical directory for server code.
+Migration tips
+- Use git mv to preserve history when moving files.
+- If many imports need updating, consider running a small codemod (jscodeshift) or a disciplined search/replace.
+
+CI
+- A lightweight check script is run in CI to prevent regressions. The goal is to make merges that reintroduce duplicate folders fail fast and with a clear message.
+
+If you believe an exception is required (very rare)
+- Add a documented rationale in an engineering RFC and update docs/server-layout.md to include the exception and add a TODO to the CI script to allow that pattern explicitly.
