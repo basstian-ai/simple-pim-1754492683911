@@ -96,3 +96,4 @@
 - 2025-08-15T17:57:45.068Z: ✅  — feat(attribute-groups): add search service, route and tests (filters & pagination)
 - 2025-08-16T10:34:36.917Z: ✅  — feat(admin): filtered CSV export for products (respect filters + pagination)
 - 2025-08-16T10:45:33.920Z: ✅  — feat(admin): add bulk-tagging preview & apply endpoints + tests
+- 2025-08-16T10:51:59.113Z: ✅  — feat(dashboard): add admin dashboard API + service with caching and tests
