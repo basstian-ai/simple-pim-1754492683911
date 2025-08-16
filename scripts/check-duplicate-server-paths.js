@@ -1,109 +1,53 @@
-// Check for duplicate server & routes directory layouts
-// Exports checkPaths(baseDir) for programmatic use and acts as a CLI when run directly.
-const fs = require('fs').promises;
+
+#!/usr/bin/env node
+// scripts/check-duplicate-server-paths.js
+// Exit non-zero if duplicate server/route directories are present.
+// This is a lightweight guard to prevent duplicate server source trees (e.g. server/ vs src/server/)
+
+const fs = require('fs');
 const path = require('path');
 
-async function exists(p) {
-  try {
-    await fs.access(p);
-    return true;
-  } catch (_) {
-    return false;
+function exists(rel) {
+  return fs.existsSync(path.resolve(process.cwd(), rel));
+}
+
+const checks = [
+  { a: 'server', b: 'src/server' },
+  { a: 'src/routes', b: 'src/server/routes' },
+  { a: 'routes', b: 'src/routes' }
+];
+
+let problems = [];
+
+for (const { a, b } of checks) {
+  if (exists(a) && exists(b)) {
+    problems.push({ a, b });
   }
 }
 
-async function listFiles(root) {
-  const out = [];
-  async function walk(dir, prefix = '') {
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-    for (const e of entries) {
-      const full = path.join(dir, e.name);
-      const rel = path.posix.join(prefix, e.name);
-      if (e.isDirectory()) {
-        await walk(full, rel);
-      } else if (e.isFile()) {
-        out.push(rel);
-      }
-    }
-  }
-  await walk(root);
-  return out;
+if (problems.length === 0) {
+  console.log('check-duplicate-server-paths: OK — no duplicate server/route directories detected.');
+  process.exit(0);
 }
 
-async function checkPaths(baseDir = process.cwd()) {
-  baseDir = path.resolve(baseDir);
-  const rootServer = path.join(baseDir, 'server');
-  const srcServer = path.join(baseDir, 'src', 'server');
-  const srcRoutes = path.join(baseDir, 'src', 'routes');
-  const srcServerRoutes = path.join(baseDir, 'src', 'server', 'routes');
-
-  const problems = [];
-
-  if (await exists(rootServer) && await exists(srcServer)) {
-    const rootFiles = await listFiles(rootServer);
-    const srcFiles = await listFiles(srcServer);
-    const collisions = rootFiles.filter(f => srcFiles.includes(f));
-    problems.push({
-      pair: 'server vs src/server',
-      paths: [rootServer, srcServer],
-      collisions
-    });
-  }
-
-  if (await exists(srcRoutes) && await exists(srcServerRoutes)) {
-    const routeFiles = await listFiles(srcRoutes);
-    const serverRouteFiles = await listFiles(srcServerRoutes);
-    const collisions = routeFiles.filter(f => serverRouteFiles.includes(f));
-    problems.push({
-      pair: 'src/routes vs src/server/routes',
-      paths: [srcRoutes, srcServerRoutes],
-      collisions
-    });
-  }
-
-  if (problems.length === 0) {
-    console.log('OK: No duplicate server/routes paths detected.');
-    return { ok: true };
-  }
-
-  // Build helpful message for maintainers
-  const lines = [];
-  lines.push('Duplicate server/routes path layout detected.');
-  lines.push('This repository should consolidate to a single canonical layout (recommended: src/server + src/server/routes).');
-  lines.push('');
-  for (const p of problems) {
-    lines.push(`Conflict: ${p.pair}`);
-    lines.push(` - Paths: ${p.paths[0]}  AND  ${p.paths[1]}`);
-    if (p.collisions && p.collisions.length) {
-      lines.push(' - Overlapping file paths:');
-      for (const c of p.collisions.slice(0, 50)) {
-        lines.push(`    • ${c}`);
-      }
-      if (p.collisions.length > 50) lines.push(`    ...and ${p.collisions.length - 50} more`);
-    } else {
-      lines.push(' - No filename collisions detected, but both directories exist which risks ambiguity and import regressions.');
-    }
-    lines.push('');
-  }
-  lines.push('Guidance:');
-  lines.push(' - Choose the canonical layout (recommended: src/server).');
-  lines.push(' - Move files from the alternate location into the canonical location and update imports.');
-  lines.push(' - Remove the duplicate directory once imports/build pass.');
-  lines.push(' - This CI check will block merges until duplicates are resolved.');
-
-  const message = lines.join('\n');
-  const err = new Error(message);
-  err.problems = problems;
-  throw err;
+console.error('\ncheck-duplicate-server-paths: ERROR — duplicate server/route directories detected.\n');
+console.error('Found the following duplicate sets:');
+for (const p of problems) {
+  console.error(`  - Both "${p.a}" and "${p.b}" exist`);
 }
 
-// CLI entry
-if (require.main === module) {
-  checkPaths().then(() => process.exit(0)).catch(err => {
-    console.error('\nERROR: Duplicate server/routes layout detected.');
-    console.error(err.message);
-    process.exit(2);
-  });
-}
+console.error('\nWhy this matters:');
+console.error('  Having multiple copies of server logic causes confusion, broken imports, and inconsistent behavior across environments.');
 
-module.exports = { checkPaths };
+console.error('\nRecommended canonical layout:');
+console.error('  Choose one canonical location for server code. The project CI expects "src/server" as the canonical path.');
+
+console.error('\nMigration guidance:');
+console.error('  1) Pick a canonical directory (prefer "src/server").');
+console.error('  2) Move files from the non-canonical directory into the canonical one keeping relative structure.');
+console.error('  3) Update imports: search for imports like "../server" or "../routes" and point them to the chosen path.');
+console.error('  4) Run the tests and this check locally to verify there are no duplicates.');
+
+console.error('\nIf you intentionally keep both during a staged migration, add a short-lived exception in .github/workflows/check-server-layout.yml or modify this script to allow your path combo.');
+
+process.exit(1);
