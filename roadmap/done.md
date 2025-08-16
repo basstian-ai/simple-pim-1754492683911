@@ -98,3 +98,4 @@
 - 2025-08-16T10:45:33.920Z: ✅  — feat(admin): add bulk-tagging preview & apply endpoints + tests
 - 2025-08-16T10:51:59.113Z: ✅  — feat(dashboard): add admin dashboard API + service with caching and tests
 - 2025-08-16T10:58:40.086Z: ✅  — fix(db): add cancellable query runner with timeout, retries and slow-query EXPLAIN capture
+- 2025-08-16T11:13:30.876Z: ✅  — feat(attribute-groups): add searchable/paginated attribute-groups API + tests
