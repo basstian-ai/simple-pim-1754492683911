@@ -10,7 +10,7 @@ items:
       the chosen layout.
     source: review
     created: '2025-08-15T15:40:00.000Z'
-    priority: 2
+    priority: 1
   - type: improvement
     title: Standardize API route conventions and documentation
     desc: >
@@ -18,7 +18,7 @@ items:
       request/response schemas. Add route-level docs, examples, and linting/validation to the repo.
     source: review
     created: '2025-08-15T15:41:00.000Z'
-    priority: 3
+    priority: 2
   - type: feature
     title: AI-assisted attribute suggestions in Admin
     desc: >
@@ -26,7 +26,7 @@ items:
       product text and historical data. Include opt-in telemetry, preview mode, and an API route for suggestions.
     source: vision
     created: '2025-08-15T15:42:00.000Z'
-    priority: 4
+    priority: 3
   - type: improvement
     title: SKU & slug uniqueness validation and collision handling
     desc: >
@@ -34,7 +34,7 @@ items:
       auto-suffixing options, and add tests for race conditions and concurrent writes.
     source: user
     created: '2025-08-15T15:43:00.000Z'
-    priority: 5
+    priority: 4
   - type: improvement
     title: Accessibility audit and fixes for admin UI
     desc: >
@@ -42,5 +42,5 @@ items:
       keyboard focus, color contrast), and add automated accessibility checks to CI.
     source: review
     created: '2025-08-15T15:44:00.000Z'
-    priority: 6
+    priority: 5
 ```
