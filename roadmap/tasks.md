@@ -3,14 +3,6 @@
 ```yaml
 items:
   - type: improvement
-    title: SKU & slug uniqueness validation and collision handling
-    desc: >
-      Add robust validation to ensure SKU and slug uniqueness at creation and on edits; surface friendly errors, provide
-      auto-suffixing options, and add tests for race conditions and concurrent writes.
-    source: user
-    created: '2025-08-15T15:43:00.000Z'
-    priority: 4
-  - type: improvement
     title: Accessibility audit and fixes for admin UI
     desc: >
       Run an a11y audit for key admin pages (products, attribute-groups, bulk-tags, dashboard), fix issues found (ARIA,
