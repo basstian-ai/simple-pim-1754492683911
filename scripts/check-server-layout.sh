@@ -1,50 +1,35 @@
 #!/usr/bin/env bash
+# Check for duplicate server/route directory layouts that cause ambiguity
+# - This script fails (exit code 2) when pairs of duplicate directories are present.
+# - Intended to be run in CI and locally.
+
 set -euo pipefail
 
-# Check for duplicate server/route directories to enforce a single canonical source
-# Exit codes:
-# 0 - ok
-# 2 - consolidation problem found
+duplicates=()
 
-duplicates=0
-
-# Helper to print a recommendation block
-print_recommendation() {
-  cat <<EOF
-
-Recommendation:
- - Pick a single canonical location for server code. We recommend: src/server
- - Move files with: git mv server src/server
- - Update imports/paths (examples in docs/server-layout.md)
- - Run this check again and ensure CI passes
-
-EOF
+check_pair() {
+  a="$1"
+  b="$2"
+  label="$3"
+  if [ -d "$a" ] && [ -d "$b" ]; then
+    echo "ERROR: Duplicate directories found for $label:" >&2
+    echo "  - $a" >&2
+    echo "  - $b" >&2
+    duplicates+=("$a|$b")
+  fi
 }
 
-# Check pairs described in the roadmap task
-if [ -d "server" ] && [ -d "src/server" ]; then
-  echo "ERROR: Both 'server/' and 'src/server/' directories exist."
-  echo "This repository has duplicate server code paths. Please consolidate into a single canonical location (prefer 'src/server/')."
-  duplicates=1
-fi
+# Common ambiguous pairs we want to prevent
+check_pair "server" "src/server" "server (root vs src/server)"
+check_pair "routes" "src/routes" "routes (root vs src/routes)"
+check_pair "server/routes" "src/server/routes" "server/routes vs src/server/routes"
+check_pair "src/routes" "src/server/routes" "src/routes vs src/server/routes"
 
-if [ -d "src/routes" ] && [ -d "src/server/routes" ]; then
-  echo "ERROR: Both 'src/routes/' and 'src/server/routes/' directories exist."
-  echo "These appear to be duplicate route trees. Consolidate routes under the canonical server location (prefer 'src/server/routes/')."
-  duplicates=1
-fi
-
-if [ -d "server/routes" ] && [ -d "src/server/routes" ]; then
-  echo "ERROR: Both 'server/routes/' and 'src/server/routes/' directories exist."
-  echo "Consolidate to a single routes directory under the canonical server layout."
-  duplicates=1
-fi
-
-if [ $duplicates -ne 0 ]; then
-  print_recommendation
-  echo "Consolidation check failed."
+if [ ${#duplicates[@]} -gt 0 ]; then
+  echo "" >&2
+  echo "To fix: consolidate into 'src/server' (recommended canonical location) and remove the duplicate directory. See docs/server-layout.md for a migration checklist." >&2
+  echo "Run this script locally to validate after making changes: bash ./scripts/check-server-layout.sh" >&2
   exit 2
+else
+  echo "OK: No duplicate server/route directories detected."
 fi
-
-echo "Server layout check passed. No duplicate server/route directories detected."
-exit 0
