@@ -2,14 +2,6 @@
 
 ```yaml
 items:
-  - type: feature
-    title: Dashboard with Key Product & Tag Metrics
-    desc: >
-      Implement an admin dashboard surface showing total products, in-stock counts, tag usage stats and recent activity
-      with API aggregation, caching and error handling.
-    source: vision
-    created: '2025-08-15T15:00:00.000Z'
-    priority: 2
   - type: bug
     title: Query duration exceeded (long-running queries terminated)
     desc: >
