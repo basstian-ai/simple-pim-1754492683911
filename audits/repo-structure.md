@@ -1,5 +1,5 @@
 # Repo Structure
-Scanned 433 files across 97 directories.
+Scanned 463 files across 101 directories.
 
 ## Top-level
 - .github
@@ -19,6 +19,7 @@ Scanned 433 files across 97 directories.
 - server
 - src
 - templates
+- test
 - tests
 - tools
 - utils
