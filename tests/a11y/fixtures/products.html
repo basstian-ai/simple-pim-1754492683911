@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin - Products</title>
+</head>
+<body>
+  <header>
+    <h1 id="page-title">Products</h1>
+    <nav aria-label="Admin navigation">
+      <ul>
+        <li><a href="/admin/products" aria-current="page">Products</a></li>
+        <li><a href="/admin/attribute-groups">Attribute groups</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main aria-labelledby="page-title">
+    <form aria-label="Product search">
+      <label for="q">Search products</label>
+      <input id="q" name="q" type="search" />
+      <button type="submit">Search</button>
+    </form>
+
+    <section aria-labelledby="list-heading">
+      <h2 id="list-heading">Product list</h2>
+      <table>
+        <caption class="sr-only">Products</caption>
+        <thead>
+          <tr>
+            <th scope="col">SKU</th>
+            <th scope="col">Name</th>
+            <th scope="col">Stock</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SKU-001</td>
+            <td>Example product</td>
+            <td>12</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; Example Corp</p>
+  </footer>
+</body>
+</html>
