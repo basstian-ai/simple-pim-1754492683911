@@ -45,4 +45,13 @@ queue:
       responses. Likely causes include inefficient queries, missing indexes, or large unbounded scans. Fixes: optimize
       the query (add indexes, reduce scanned data, paginate), or adjust the timeout/config if appropriate and safe.
     created: '2025-08-16T22:51:06.884Z'
+  - id: BUG-dpl_D4-1755388921179
+    title: '- **Query duration limit exceeded (5 minutes)**'
+    details: >-
+      Long-running query was terminated after exceeding the 5-minute execution cap, causing the request to fail and no
+      results to be returned. Likely causes include inefficient SQL (full table scans, unindexed joins), overly large
+      data scans, or missing pagination. Reproduce by running the same query; fix by optimizing the query (add indexes,
+      reduce scanned rows, break into smaller batches), or move to an async/background job or increase the execution
+      limit if appropriate.
+    created: '2025-08-17T00:02:01.179Z'
 ```
