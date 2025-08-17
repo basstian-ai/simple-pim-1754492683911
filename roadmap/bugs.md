@@ -54,4 +54,10 @@ queue:
       reduce scanned rows, break into smaller batches), or move to an async/background job or increase the execution
       limit if appropriate.
     created: '2025-08-17T00:02:01.179Z'
+  - id: BUG-dpl_47-1755393386313
+    title: App runtime errors & warnings from latest deployment
+    details: |-
+      - **Query execution exceeded 5-minute limit**  
+        A query was terminated after surpassing the configured 5-minute execution timeout, causing the request to fail. Likely root causes: unoptimized/complex queries, missing indexes, or unexpectedly large data scans. Capture the offending query, add indexing or pagination, and add monitoring/alerts to identify and fix long-running queries.
+    created: '2025-08-17T01:16:26.313Z'
 ```
