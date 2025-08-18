@@ -1,12 +1,13 @@
 {
-  "name": "project-a11y-audit",
+  "name": "project-a11y",
   "private": true,
-  "devDependencies": {
-    "@playwright/test": "^1.43.0",
-    "axe-playwright": "^1.2.0"
-  },
   "scripts": {
-    "test:a11y": "npx playwright test tests/accessibility --config=playwright.config.ts",
-    "a11y:ci": "npm run test:a11y"
+    "a11y": "npx playwright test --project=chromium",
+    "a11y:report": "npx playwright show-report",
+    "a11y:install-browsers": "npx playwright install --with-deps"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.1.0",
+    "@playwright/test": "^1.46.0"
   }
 }
