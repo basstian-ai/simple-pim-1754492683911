@@ -1,26 +1,12 @@
 {
-  "name": "pim-admin-a11y",
+  "name": "project-accessibility",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "jest --runInBand",
-    "test:watch": "jest --watch",
-    "a11y:ci": "npm test"
+    "a11y": "node tests/run-a11y.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.0",
-    "@babel/preset-env": "^7.24.0",
-    "@babel/preset-react": "^7.24.0",
-    "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/react": "^14.0.0",
-    "axe-core": "^4.8.0",
-    "babel-jest": "^29.7.0",
-    "jest": "^29.7.0",
-    "jest-axe": "^7.1.0",
-    "jest-environment-jsdom": "^29.7.0"
-  },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "playwright": "^1.40.0",
+    "@axe-core/playwright": "^4.1.0"
   }
 }
