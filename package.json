@@ -1,13 +1,26 @@
 {
-  "name": "project-a11y",
+  "name": "pim-admin-a11y",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "a11y": "npx playwright test --project=chromium",
-    "a11y:report": "npx playwright show-report",
-    "a11y:install-browsers": "npx playwright install --with-deps"
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "a11y:ci": "npm test"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.1.0",
-    "@playwright/test": "^1.46.0"
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "@babel/preset-react": "^7.24.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "axe-core": "^4.8.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-axe": "^7.1.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }
