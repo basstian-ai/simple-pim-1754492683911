@@ -1,12 +1,14 @@
 {
-  "name": "project",
-  "version": "0.0.0",
+  "name": "a11y-admin-samples",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "a11y": "node tests/a11y/run-a11y.js"
+    "start": "npx http-server public -p 3000",
+    "a11y:ci": "npx pa11y-ci --config ./pa11yci.json"
   },
   "devDependencies": {
-    "axe-core": "^4.7.3",
-    "playwright": "^1.40.0"
+    "http-server": "14.1.1",
+    "pa11y-ci": "6.0.0",
+    "wait-on": "7.0.1"
   }
 }
