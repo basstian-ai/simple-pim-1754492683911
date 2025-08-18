@@ -1,17 +1,24 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests/accessibility',
-  timeout: 60_000,
+  testDir: 'tests',
+  timeout: 60 * 1000,
+  expect: { timeout: 5000 },
+  forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    headless: true,
+    // BASE_URL can be provided via env (CI or local): BASE_URL=http://localhost:3000
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
-    viewport: { width: 1280, height: 800 },
-    actionTimeout: 10_000,
-    navigationTimeout: 30_000
+    headless: true,
+    viewport: { width: 1280, height: 720 },
+    ignoreHTTPSErrors: true,
+    actionTimeout: 30 * 1000
   },
   projects: [
-    { name: 'chromium', use: { browserName: 'chromium' } }
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] }
+    }
   ]
 });
