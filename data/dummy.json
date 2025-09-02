@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "name": "Widget",
+    "price": 19.99,
+    "in_stock": true
+  },
+  {
+    "id": 2,
+    "name": "Gadget",
+    "price": 29.99,
+    "in_stock": false
+  }
+]
