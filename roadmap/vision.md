@@ -1,50 +1,45 @@
 # 🌟 Vision: Recipe Finder
 
-This project is a Recipe Finder web app built with Next.js and deployed on Vercel.
+This project is a **Recipe Finder web app** built with Next.js and deployed on Vercel.  
 The goal is to create a small, polished app where users can explore, search, and save recipes — simple enough to build fast, but engaging enough to feel like a real product.
 
 ## Core Idea
 
-### A minimal recipe app that:
+A minimal recipe app that:
+- 🍳 Lets users **search for recipes** from a public API.  
+- 📖 Shows recipe details like ingredients, instructions, and images.  
+- ❤️ Allows users to **save favorites** in local storage.  
+- ⚡ Loads quickly and works well on mobile and desktop.  
 
-🍳 Lets users search for recipes from a public API.
+## Scope
 
-📖 Shows recipe details like ingredients, instructions, and images.
+### ✅ MVP (v1.0)
+- **Homepage** with search input and trending/popular recipes.  
+- **Recipe detail page** with ingredients and steps.  
+- **Favorites page** storing recipes locally.  
+- **About page** describing the project.  
 
-❤️ Allows users to save favorites in local storage.
+### 🚀 Future Ideas
+- Search filtering (by category, cuisine, diet type).  
+- Shareable recipe links.  
+- Dark mode toggle.  
+- Offline access to saved recipes.  
 
-⚡ Loads quickly and works well on mobile and desktop.
+## Why This Matters
 
-### Example Scope
+Cooking is universal — everyone relates to recipes.  
+This app is designed to be:
+- 🧑‍🍳 Useful: quick inspiration for meals, accessible anywhere.  
+- 💻 Educational: demonstrates fetching data from an API, using dynamic routes, managing client-side state, and deploying seamlessly on Vercel.  
+- 🎨 Delightful: a clean, simple UI that feels like a real product.  
 
-For version 1.0, the app will include:
-- Homepage with search input and trending/popular recipes.
-- Recipe detail page with ingredients and steps.
-- Favorites page storing recipes locally.
-- About page describing the project.
+## Data Source
 
-## Why this matters
+**TheMealDB** — [https://www.themealdb.com](https://www.themealdb.com)  
+- Search meals by name, ingredient, or category.  
+- Get full details (ingredients, instructions, images, even YouTube cooking videos).  
+- No authentication required for free tier.  
 
-Cooking is universal — everyone relates to recipes. This app demonstrates how to:
-Fetch and display data from a public API.
-Use dynamic routes in Next.js.
-Manage simple client-side state.
-Deploy a clean, usable app quickly on Vercel.
-⚡ In short: a small, beautiful app that makes finding recipes quick and fun.
-
-# Integrates to 
-
-TheMealDB
-URL: https://www.themealdb.com
-
-Features:
-Search meals by name, ingredient, or category.
-
-Get full details (ingredients, instructions, images, even YouTube cooking videos).
-
-No auth required for the basic free tier.
-
-Example:
+**Example Request:**  
+```bash
 https://www.themealdb.com/api/json/v1/1/search.php?s=chicken
-
-
