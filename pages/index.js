@@ -1,192 +1,189 @@
-import React, { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 export default function Home() {
-  const [query, setQuery] = useState('');
-  const [meals, setMeals] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [query, setQuery] = useState('')
+  const [meals, setMeals] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  // Fetch a default set of "trending" meals on first load
   useEffect(() => {
-    fetchTrending();
-  }, []);
+    // Optionally load a few popular / trending recipes on mount
+    // We'll call the API with an empty query which returns a small set
+    fetchMeals('')
+  }, [])
 
-  async function fetchTrending() {
-    setLoading(true);
-    setError(null);
+  async function fetchMeals(q) {
+    setLoading(true)
+    setError(null)
     try {
-      // TheMealDB: using a common search term to present a set of meals on first load
-      const res = await fetch('https://www.themealdb.com/api/json/v1/1/search.php?s=chicken');
-      const data = await res.json();
-      setMeals(data.meals || []);
+      const res = await fetch(
+        `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(q)}`
+      )
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      const data = await res.json()
+      setMeals(data.meals || [])
     } catch (err) {
-      setError('Failed to load trending recipes.');
+      console.error(err)
+      setError('Unable to fetch recipes. Please try again.')
+      setMeals([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
-  async function handleSearch(e) {
-    e.preventDefault();
-    if (!query.trim()) {
-      fetchTrending();
-      return;
-    }
+  function handleSubmit(e) {
+    e.preventDefault()
+    fetchMeals(query.trim())
+  }
 
-    setLoading(true);
-    setError(null);
+  function saveFavorite(meal) {
     try {
-      const res = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      setMeals(data.meals || []);
+      const raw = localStorage.getItem('favorites')
+      const favs = raw ? JSON.parse(raw) : []
+      if (!favs.find((m) => m.idMeal === meal.idMeal)) {
+        favs.push(meal)
+        localStorage.setItem('favorites', JSON.stringify(favs))
+        alert(`${meal.strMeal} saved to favorites`)
+      } else {
+        alert(`${meal.strMeal} is already in favorites`)
+      }
     } catch (err) {
-      setError('Search failed. Please try again.');
-    } finally {
-      setLoading(false);
+      console.error('Failed to save favorite', err)
+      alert('Could not save favorite')
     }
   }
 
   return (
-    <div style={styles.container}>
+    <main style={styles.container}>
       <header style={styles.header}>
         <h1 style={styles.title}>Recipe Finder</h1>
-        <p style={styles.subtitle}>Search recipes from TheMealDB</p>
-        <form onSubmit={handleSearch} style={styles.form}>
+        <nav style={styles.nav}>
+          <Link href="/favorites">Favorites</Link>
+          <span style={{ margin: '0 8px' }}>·</span>
+          <Link href="/about">About</Link>
+        </nav>
+      </header>
+
+      <section style={styles.searchSection}>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <label htmlFor="q" style={{ display: 'none' }}>
+            Search recipes
+          </label>
           <input
-            aria-label="Search recipes"
+            id="q"
             placeholder="Search recipes (e.g. chicken, beef, pasta)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             style={styles.input}
           />
-          <button type="submit" style={styles.button}>
-            Search
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? 'Searching…' : 'Search'}
           </button>
         </form>
-      </header>
+        {error && <p style={styles.error}>{error}</p>}
+      </section>
 
-      <main style={styles.main}>
-        {loading && <p>Loading recipes…</p>}
-        {error && <p style={{ color: 'crimson' }}>{error}</p>}
-
-        {!loading && meals.length === 0 && (
-          <p>No recipes found. Try a different search term.</p>
+      <section style={styles.results}>
+        {meals.length === 0 && !loading ? (
+          <p style={{ color: '#666' }}>No recipes found. Try a different search.</p>
+        ) : (
+          <ul style={styles.list}>
+            {meals.map((meal) => (
+              <li key={meal.idMeal} style={styles.card}>
+                <img
+                  src={meal.strMealThumb}
+                  alt={meal.strMeal}
+                  style={styles.thumb}
+                />
+                <div style={styles.cardBody}>
+                  <h3 style={styles.mealTitle}>{meal.strMeal}</h3>
+                  <p style={styles.meta}>
+                    {meal.strCategory || '—'} • {meal.strArea || '—'}
+                  </p>
+                  <div style={styles.actions}>
+                    <Link href={`/recipe/${meal.idMeal}`}>
+                      <a style={styles.link}>View details</a>
+                    </Link>
+                    <button
+                      onClick={() => saveFavorite(meal)}
+                      style={styles.saveButton}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
-
-        <ul style={styles.grid}>
-          {meals.map((meal) => (
-            <li key={meal.idMeal} style={styles.card}>
-              <img
-                src={meal.strMealThumb}
-                alt={meal.strMeal}
-                style={styles.thumb}
-              />
-              <div style={styles.cardBody}>
-                <h3 style={styles.mealTitle}>{meal.strMeal}</h3>
-                <p style={styles.meta}>{meal.strCategory || ''} • {meal.strArea || ''}</p>
-                <p style={styles.excerpt}>{(meal.strInstructions || '').slice(0, 140)}{(meal.strInstructions || '').length > 140 ? '…' : ''}</p>
-                {/* In a full app this would link to a recipe detail page at /recipes/[id] */}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </main>
+      </section>
 
       <footer style={styles.footer}>
-        <small>Data from TheMealDB • No authentication required</small>
+        <small>Data from TheMealDB • Example project</small>
       </footer>
-    </div>
-  );
+    </main>
+  )
 }
 
 const styles = {
   container: {
-    fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial',
-    padding: '24px',
-    maxWidth: 980,
-    margin: '0 auto',
+    maxWidth: 900,
+    margin: '24px auto',
+    padding: '0 16px',
+    fontFamily:
+      "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
   },
   header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 20,
   },
-  title: {
-    margin: 0,
-    fontSize: 28,
+  title: { margin: 0, fontSize: 28 },
+  nav: { fontSize: 14, color: '#0366d6' },
+  searchSection: {
+    marginBottom: 20,
   },
-  subtitle: {
-    margin: '6px 0 12px 0',
-    color: '#555',
-  },
-  form: {
-    display: 'flex',
-    gap: 8,
-    alignItems: 'center',
-  },
+  form: { display: 'flex', gap: 8, alignItems: 'center' },
   input: {
     flex: 1,
-    padding: '8px 10px',
+    padding: '10px 12px',
     borderRadius: 6,
     border: '1px solid #ddd',
-    fontSize: 14,
+    fontSize: 16,
   },
   button: {
-    padding: '8px 12px',
+    padding: '10px 14px',
     borderRadius: 6,
     border: 'none',
-    background: '#111827',
+    background: '#0b6cff',
     color: 'white',
     cursor: 'pointer',
   },
-  main: {
-    marginTop: 18,
-  },
-  grid: {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0,
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-    gap: 16,
-  },
+  error: { color: 'crimson' },
+  results: { marginTop: 8 },
+  list: { listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 12 },
   card: {
+    display: 'flex',
+    gap: 12,
+    padding: 12,
     border: '1px solid #eee',
     borderRadius: 8,
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  thumb: { width: 96, height: 96, objectFit: 'cover', borderRadius: 6 },
+  cardBody: { flex: 1 },
+  mealTitle: { margin: '0 0 6px 0', fontSize: 18 },
+  meta: { margin: 0, color: '#666', fontSize: 13 },
+  actions: { marginTop: 8, display: 'flex', gap: 8, alignItems: 'center' },
+  link: { color: '#0b6cff', textDecoration: 'none' },
+  saveButton: {
+    padding: '6px 10px',
+    borderRadius: 6,
+    border: '1px solid #ddd',
     background: 'white',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+    cursor: 'pointer',
   },
-  thumb: {
-    width: '100%',
-    height: 160,
-    objectFit: 'cover',
-  },
-  cardBody: {
-    padding: 12,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    flex: 1,
-  },
-  mealTitle: {
-    margin: 0,
-    fontSize: 16,
-  },
-  meta: {
-    margin: 0,
-    color: '#666',
-    fontSize: 12,
-  },
-  excerpt: {
-    margin: 0,
-    color: '#333',
-    fontSize: 13,
-    flex: 1,
-  },
-  footer: {
-    marginTop: 28,
-    textAlign: 'center',
-    color: '#777',
-  },
-};
+  footer: { marginTop: 28, color: '#888', textAlign: 'center' },
+}
