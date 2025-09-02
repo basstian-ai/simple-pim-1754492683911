@@ -2,6 +2,7 @@
 
 It is gonna be great
 
+Deploys to Vercel
 Next.js
 API first
 MACH principles
