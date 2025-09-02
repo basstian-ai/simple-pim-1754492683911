@@ -1,1 +1,0 @@
-Implement inline validation logic for the Completeness Rule Builder UI.

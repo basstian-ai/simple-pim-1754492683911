@@ -86,8 +86,6 @@ Build a modern, vendor-neutral Product Information Management (PIM) platform tha
 * Rich CMS/web rendering.
 * Complex pricing/promotions engines.
 
-> **Governance note:** This vision is a stable artifact. Update tasks/ideas in `roadmap/tasks.md` or `roadmap/new.md`; do **not** edit this file directly.
-
 
 ## Channel Mapping UI
 
