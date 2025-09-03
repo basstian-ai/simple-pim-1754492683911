@@ -1,59 +1,68 @@
 {
-  "generatedAt": "2025-09-03T12:00:00Z",
-  "branch": "chore/repo-audit",
-  "scannedFiles": [],
+  "scannedAt": "2025-09-03T12:00:00Z",
+  "scannedBy": "assistant/automation",
+  "summary": {
+    "totalChecked": 10,
+    "present": 0,
+    "missing": 10
+  },
   "artifacts": {
     "README.md": {
       "present": false,
-      "path": null,
-      "recommendation": "Add a project README describing the app, how to run locally, and deployment notes."
+      "path": "README.md",
+      "note": "Project README is missing"
     },
     "package.json": {
       "present": false,
-      "path": null,
-      "recommendation": "Create package.json with project metadata, scripts (dev/build/start/test) and dependencies."
+      "path": "package.json",
+      "note": "No package.json detected"
     },
-    "lockfile": {
+    "lockfiles": {
       "package-lock.json": false,
       "yarn.lock": false,
       "pnpm-lock.yaml": false,
-      "recommendation": "Commit the lockfile produced by your package manager to ensure reproducible installs."
+      "note": "No lockfile detected"
     },
     "tests": {
       "present": false,
-      "path": null,
-      "recommendation": "Add a basic test harness (Jest/React Testing Library/Vitest) and at least one smoke test for the app."
+      "pathsChecked": ["test", "tests", "__tests__", "jest.config.js", "vitest.config.js"],
+      "note": "No test files or test config detected"
     },
     "ci": {
       "present": false,
-      "path": ".github/workflows or other CI config",
-      "recommendation": "Add CI (GitHub Actions) to run installs, lint, tests, and optionally deploy previews."
+      "pathsChecked": [".github/workflows", ".gitlab-ci.yml", "ci"],
+      "note": "No CI workflow or config detected"
     },
     "LICENSE": {
       "present": false,
-      "path": null,
-      "recommendation": "Add a license file (e.g., MIT) to clarify reuse terms."
+      "path": "LICENSE",
+      "note": "No license file detected"
     },
     ".gitignore": {
       "present": false,
-      "path": null,
-      "recommendation": "Add .gitignore to omit node_modules, build artifacts, and local env files."
+      "path": ".gitignore",
+      "note": "No .gitignore detected"
     },
-    "nextjs_indicators": {
-      "next.config.js": false,
-      "pages_or_src": false,
-      "recommendation": "If this is a Next.js project, include next.config.js or a pages/src tree and note that in README."
+    "nextjs": {
+      "present": false,
+      "pathsChecked": ["next.config.js", "app", "pages", "public"],
+      "note": "No Next.js app files detected"
+    },
+    "public": {
+      "present": false,
+      "path": "public",
+      "note": "No public assets directory detected"
     }
   },
-  "summary": {
-    "totalArtifactsChecked": 9,
-    "missing": 9
-  },
+  "notes": "This audit marks artifacts as missing because no repository file tree was provided to the auditor. To produce an accurate audit, provide a repository listing or run a local scan.",
   "recommendedNextSteps": [
-    "Create package.json and install dependencies (next, react, react-dom) so the project can be run locally.",
-    "Add a README.md with quickstart, scripts, and deployment notes for Vercel.",
-    "Add a .gitignore and commit the appropriate lockfile for your package manager.",
-    "Add a LICENSE (MIT recommended for sample apps) and basic CI workflow (GitHub Actions) to run tests and builds.",
-    "Add a minimal test (e.g., a smoke test) and a test script so CI can run it."
+    "Add README.md describing the project, vision, and usage",
+    "Initialize package.json and install dependencies (npm init)",
+    "Commit a lockfile (package-lock.json / yarn.lock / pnpm-lock.yaml)",
+    "Add a LICENSE (e.g., MIT) if open source",
+    "Add .gitignore to exclude node_modules, .next, etc.",
+    "Add a basic CI workflow (e.g., GitHub Actions) to run tests and linting",
+    "Add a test harness (Jest, Vitest) and at least one test file",
+    "Add Next.js app files (app/ or pages/) and public assets"
   ]
 }
