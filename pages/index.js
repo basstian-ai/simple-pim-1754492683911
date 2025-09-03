@@ -1,78 +1,60 @@
-import { useState, useEffect } from 'react'
+import React, { useState } from 'react'
+import Head from 'next/head'
 import Link from 'next/link'
 
 export default function Home() {
   const [query, setQuery] = useState('')
-  const [meals, setMeals] = useState([])
+  const [meals, setMeals] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    // Optionally load a few popular / trending recipes on mount
-    // We'll call the API with an empty query which returns a small set
-    fetchMeals('')
-  }, [])
+  async function handleSearch(e) {
+    e.preventDefault()
+    const q = query.trim()
+    if (!q) return
 
-  async function fetchMeals(q) {
     setLoading(true)
     setError(null)
+    setMeals(null)
+
     try {
       const res = await fetch(
         `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(q)}`
       )
-      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      if (!res.ok) throw new Error(`Network response was not ok (${res.status})`)
       const data = await res.json()
-      setMeals(data.meals || [])
+      setMeals(data.meals)
     } catch (err) {
-      console.error(err)
-      setError('Unable to fetch recipes. Please try again.')
-      setMeals([])
+      setError(err.message || 'Unknown error')
     } finally {
       setLoading(false)
     }
   }
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    fetchMeals(query.trim())
-  }
-
-  function saveFavorite(meal) {
-    try {
-      const raw = localStorage.getItem('favorites')
-      const favs = raw ? JSON.parse(raw) : []
-      if (!favs.find((m) => m.idMeal === meal.idMeal)) {
-        favs.push(meal)
-        localStorage.setItem('favorites', JSON.stringify(favs))
-        alert(`${meal.strMeal} saved to favorites`)
-      } else {
-        alert(`${meal.strMeal} is already in favorites`)
-      }
-    } catch (err) {
-      console.error('Failed to save favorite', err)
-      alert('Could not save favorite')
-    }
-  }
-
   return (
-    <main style={styles.container}>
+    <div style={styles.container}>
+      <Head>
+        <title>Recipe Finder</title>
+        <meta name="description" content="Search recipes from TheMealDB" />
+      </Head>
+
       <header style={styles.header}>
-        <h1 style={styles.title}>Recipe Finder</h1>
-        <nav style={styles.nav}>
-          <Link href="/favorites">Favorites</Link>
-          <span style={{ margin: '0 8px' }}>·</span>
-          <Link href="/about">About</Link>
+        <h1 style={{ margin: 0 }}>Recipe Finder</h1>
+        <nav>
+          <Link href="/about">
+            <a style={styles.navLink}>About</a>
+          </Link>
+          <Link href="/favorites">
+            <a style={styles.navLink}>Favorites</a>
+          </Link>
         </nav>
       </header>
 
-      <section style={styles.searchSection}>
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <label htmlFor="q" style={{ display: 'none' }}>
-            Search recipes
-          </label>
+      <main style={styles.main}>
+        <form onSubmit={handleSearch} style={styles.form}>
           <input
-            id="q"
-            placeholder="Search recipes (e.g. chicken, beef, pasta)"
+            aria-label="Search recipes"
+            placeholder="Search recipes (e.g. chicken, pasta)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             style={styles.input}
@@ -81,109 +63,132 @@ export default function Home() {
             {loading ? 'Searching…' : 'Search'}
           </button>
         </form>
-        {error && <p style={styles.error}>{error}</p>}
-      </section>
 
-      <section style={styles.results}>
-        {meals.length === 0 && !loading ? (
-          <p style={{ color: '#666' }}>No recipes found. Try a different search.</p>
-        ) : (
-          <ul style={styles.list}>
+        {error && <p style={styles.error}>Error: {error}</p>}
+
+        {meals === null && !loading && (
+          <p style={styles.hint}>Try searching for a recipe to get started.</p>
+        )}
+
+        {meals && meals.length === 0 && (
+          <p style={styles.hint}>No recipes found for "{query}".</p>
+        )}
+
+        {meals && meals.length > 0 && (
+          <section style={styles.grid}>
             {meals.map((meal) => (
-              <li key={meal.idMeal} style={styles.card}>
+              <article key={meal.idMeal} style={styles.card}>
                 <img
                   src={meal.strMealThumb}
                   alt={meal.strMeal}
                   style={styles.thumb}
                 />
                 <div style={styles.cardBody}>
-                  <h3 style={styles.mealTitle}>{meal.strMeal}</h3>
-                  <p style={styles.meta}>
+                  <h3 style={{ margin: '0 0 8px 0' }}>{meal.strMeal}</h3>
+                  <p style={{ margin: 0, fontSize: 12, color: '#666' }}>
                     {meal.strCategory || '—'} • {meal.strArea || '—'}
                   </p>
-                  <div style={styles.actions}>
+                  <div style={{ marginTop: 10 }}>
                     <Link href={`/recipe/${meal.idMeal}`}>
-                      <a style={styles.link}>View details</a>
+                      <a style={styles.detailsLink}>View details</a>
                     </Link>
-                    <button
-                      onClick={() => saveFavorite(meal)}
-                      style={styles.saveButton}
-                    >
-                      Save
-                    </button>
                   </div>
                 </div>
-              </li>
+              </article>
             ))}
-          </ul>
+          </section>
         )}
-      </section>
+      </main>
 
-      <footer style={styles.footer}>
-        <small>Data from TheMealDB • Example project</small>
-      </footer>
-    </main>
+      <footer style={styles.footer}>Built with TheMealDB • Minimal Recipe Finder</footer>
+    </div>
   )
 }
 
 const styles = {
   container: {
-    maxWidth: 900,
-    margin: '24px auto',
-    padding: '0 16px',
     fontFamily:
-      "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+      "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column'
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    padding: '20px 24px',
+    borderBottom: '1px solid #eee'
   },
-  title: { margin: 0, fontSize: 28 },
-  nav: { fontSize: 14, color: '#0366d6' },
-  searchSection: {
-    marginBottom: 20,
+  navLink: {
+    marginLeft: 12,
+    color: '#0070f3',
+    textDecoration: 'none'
   },
-  form: { display: 'flex', gap: 8, alignItems: 'center' },
+  main: {
+    padding: '24px'
+  },
+  form: {
+    display: 'flex',
+    gap: 8,
+    marginBottom: 20
+  },
   input: {
     flex: 1,
     padding: '10px 12px',
-    borderRadius: 6,
     border: '1px solid #ddd',
-    fontSize: 16,
+    borderRadius: 6
   },
   button: {
     padding: '10px 14px',
-    borderRadius: 6,
+    background: '#0070f3',
+    color: '#fff',
     border: 'none',
-    background: '#0b6cff',
-    color: 'white',
-    cursor: 'pointer',
+    borderRadius: 6,
+    cursor: 'pointer'
   },
-  error: { color: 'crimson' },
-  results: { marginTop: 8 },
-  list: { listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 12 },
+  error: {
+    color: '#b00020'
+  },
+  hint: {
+    color: '#666'
+  },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+    gap: 16
+  },
   card: {
-    display: 'flex',
-    gap: 12,
-    padding: 12,
     border: '1px solid #eee',
     borderRadius: 8,
-    alignItems: 'center',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column'
   },
-  thumb: { width: 96, height: 96, objectFit: 'cover', borderRadius: 6 },
-  cardBody: { flex: 1 },
-  mealTitle: { margin: '0 0 6px 0', fontSize: 18 },
-  meta: { margin: 0, color: '#666', fontSize: 13 },
-  actions: { marginTop: 8, display: 'flex', gap: 8, alignItems: 'center' },
-  link: { color: '#0b6cff', textDecoration: 'none' },
-  saveButton: {
+  thumb: {
+    width: '100%',
+    height: 140,
+    objectFit: 'cover'
+  },
+  cardBody: {
+    padding: 12,
+    flex: 1
+  },
+  detailsLink: {
+    display: 'inline-block',
     padding: '6px 10px',
+    background: '#fafafa',
+    border: '1px solid #eee',
     borderRadius: 6,
-    border: '1px solid #ddd',
-    background: 'white',
-    cursor: 'pointer',
+    color: '#333',
+    textDecoration: 'none',
+    fontSize: 13
   },
-  footer: { marginTop: 28, color: '#888', textAlign: 'center' },
+  footer: {
+    marginTop: 'auto',
+    padding: '16px 24px',
+    borderTop: '1px solid #eee',
+    fontSize: 13,
+    color: '#666'
+  }
 }
