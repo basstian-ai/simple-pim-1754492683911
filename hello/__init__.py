@@ -17,3 +17,4 @@ def greet(name: Optional[str] = "world") -> str:
     'Hello, world!'
     """
     return f"Hello, {name}!"
+
