@@ -1,0 +1,59 @@
+{
+  "generatedAt": "2025-09-03T12:00:00Z",
+  "branch": "chore/repo-audit",
+  "scannedFiles": [],
+  "artifacts": {
+    "README.md": {
+      "present": false,
+      "path": null,
+      "recommendation": "Add a project README describing the app, how to run locally, and deployment notes."
+    },
+    "package.json": {
+      "present": false,
+      "path": null,
+      "recommendation": "Create package.json with project metadata, scripts (dev/build/start/test) and dependencies."
+    },
+    "lockfile": {
+      "package-lock.json": false,
+      "yarn.lock": false,
+      "pnpm-lock.yaml": false,
+      "recommendation": "Commit the lockfile produced by your package manager to ensure reproducible installs."
+    },
+    "tests": {
+      "present": false,
+      "path": null,
+      "recommendation": "Add a basic test harness (Jest/React Testing Library/Vitest) and at least one smoke test for the app."
+    },
+    "ci": {
+      "present": false,
+      "path": ".github/workflows or other CI config",
+      "recommendation": "Add CI (GitHub Actions) to run installs, lint, tests, and optionally deploy previews."
+    },
+    "LICENSE": {
+      "present": false,
+      "path": null,
+      "recommendation": "Add a license file (e.g., MIT) to clarify reuse terms."
+    },
+    ".gitignore": {
+      "present": false,
+      "path": null,
+      "recommendation": "Add .gitignore to omit node_modules, build artifacts, and local env files."
+    },
+    "nextjs_indicators": {
+      "next.config.js": false,
+      "pages_or_src": false,
+      "recommendation": "If this is a Next.js project, include next.config.js or a pages/src tree and note that in README."
+    }
+  },
+  "summary": {
+    "totalArtifactsChecked": 9,
+    "missing": 9
+  },
+  "recommendedNextSteps": [
+    "Create package.json and install dependencies (next, react, react-dom) so the project can be run locally.",
+    "Add a README.md with quickstart, scripts, and deployment notes for Vercel.",
+    "Add a .gitignore and commit the appropriate lockfile for your package manager.",
+    "Add a LICENSE (MIT recommended for sample apps) and basic CI workflow (GitHub Actions) to run tests and builds.",
+    "Add a minimal test (e.g., a smoke test) and a test script so CI can run it."
+  ]
+}
