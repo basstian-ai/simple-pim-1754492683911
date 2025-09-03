@@ -17,7 +17,8 @@ A minimal recipe app that:
 - **Homepage** with search input and trending/popular recipes.  
 - **Recipe detail page** with ingredients and steps.  
 - **Favorites page** storing recipes locally.  
-- **About page** describing the project.  
+- **About page** describing the project.
+- **Prioritize visible features** in FE.
 
 ### 🚀 Future Ideas
 - Search filtering (by category, cuisine, diet type).  
