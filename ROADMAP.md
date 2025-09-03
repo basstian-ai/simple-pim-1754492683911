@@ -31,4 +31,5 @@ This file captures a short roadmap for the Recipe Finder app. It is intentionall
 
 ## Notes
 
+
 Keep the scope small and deliver value visibly: prioritize features users interact with (search, view, save).
