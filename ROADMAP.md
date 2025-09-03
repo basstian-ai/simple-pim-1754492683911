@@ -15,6 +15,7 @@ This file captures a short roadmap for the Recipe Finder app. It is intentionall
   - Favorites page (persisted to localStorage)
   - About page and basic SEO/meta
   - Deployed to Vercel
+    
 
 - v1.x — Polish
   - Responsive UI improvements
