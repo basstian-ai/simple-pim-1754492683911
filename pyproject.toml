@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hello-module"
+version = "0.1.0"
+description = "A minimal hello world module for CI tests"
+authors = [ { name = "Dev", email = "dev@example.com" } ]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.8"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
