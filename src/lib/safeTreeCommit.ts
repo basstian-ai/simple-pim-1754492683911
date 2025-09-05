@@ -1,5 +1,3 @@
-import { Octokit } from "octokit";
-
 export async function safeTreeCommit({
   token,
   owner,
@@ -19,6 +17,10 @@ export async function safeTreeCommit({
   encoding?: "utf-8" | "base64";
   force?: boolean;
 }) {
+  if (!owner?.trim() || !repo?.trim()) {
+    throw new Error("Both `owner` and `repo` must be provided separately.");
+  }
+  const { Octokit } = await import("octokit");
   const octokit = new Octokit({ auth: token });
 
   // 1) Resolve branch head → commit SHA
