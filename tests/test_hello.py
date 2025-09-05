@@ -6,4 +6,5 @@ def test_greet_with_name():
 
 
 def test_greet_default():
-    assert hello.greet() == "Hello, world!"
+    # The default greeting should capitalize the world name.
+    assert hello.greet() == "Hello, World!"

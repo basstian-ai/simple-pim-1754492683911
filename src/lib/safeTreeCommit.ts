@@ -29,7 +29,7 @@ export async function safeTreeCommit({
   });
   const parentCommitSha = ref.object.sha;
 
-  // 2) Get the commit → tree SHA (this is the correct base_tree)
+  // 2) Get the commit → tree SHA and verify it exists
   let baseTreeSha: string | undefined;
   try {
     const { data: headCommit } = await octokit.rest.git.getCommit({
@@ -37,9 +37,19 @@ export async function safeTreeCommit({
       repo,
       commit_sha: parentCommitSha,
     });
-    baseTreeSha = headCommit.tree.sha; // <-- IMPORTANT
+    // The commit object only references a tree SHA. If that tree has been
+    // garbage‑collected or otherwise doesn't exist, createTree would fail
+    // with a 404. We defensively fetch the tree to ensure it exists before
+    // using it as the base.
+    const { data: headTree } = await octokit.rest.git.getTree({
+      owner,
+      repo,
+      tree_sha: headCommit.tree.sha,
+    });
+    baseTreeSha = headTree.sha;
   } catch {
-    // If we fail to resolve the base tree, we’ll omit it
+    // If we fail to resolve or fetch the base tree, omit it so we create a
+    // tree from scratch. This still allows commits with only new files.
     baseTreeSha = undefined;
   }
 
