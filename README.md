@@ -23,7 +23,7 @@ A minimal recipe app that:
 ### 🚀 Future Ideas
 - Search filtering (by category, cuisine, diet type).  
 - Shareable recipe links.  
-- Dark mode toggle.  
+- Dark mode toggle. 
 - Offline access to saved recipes.  
 
 ## Why This Matters
