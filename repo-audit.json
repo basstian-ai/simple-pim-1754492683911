@@ -1,0 +1,68 @@
+{
+  "scannedAt": "2025-09-03T12:00:00Z",
+  "scannedBy": "assistant/automation",
+  "summary": {
+    "totalChecked": 10,
+    "present": 0,
+    "missing": 10
+  },
+  "artifacts": {
+    "README.md": {
+      "present": false,
+      "path": "README.md",
+      "note": "Project README is missing"
+    },
+    "package.json": {
+      "present": false,
+      "path": "package.json",
+      "note": "No package.json detected"
+    },
+    "lockfiles": {
+      "package-lock.json": false,
+      "yarn.lock": false,
+      "pnpm-lock.yaml": false,
+      "note": "No lockfile detected"
+    },
+    "tests": {
+      "present": false,
+      "pathsChecked": ["test", "tests", "__tests__", "jest.config.js", "vitest.config.js"],
+      "note": "No test files or test config detected"
+    },
+    "ci": {
+      "present": false,
+      "pathsChecked": [".github/workflows", ".gitlab-ci.yml", "ci"],
+      "note": "No CI workflow or config detected"
+    },
+    "LICENSE": {
+      "present": false,
+      "path": "LICENSE",
+      "note": "No license file detected"
+    },
+    ".gitignore": {
+      "present": false,
+      "path": ".gitignore",
+      "note": "No .gitignore detected"
+    },
+    "nextjs": {
+      "present": false,
+      "pathsChecked": ["next.config.js", "app", "pages", "public"],
+      "note": "No Next.js app files detected"
+    },
+    "public": {
+      "present": false,
+      "path": "public",
+      "note": "No public assets directory detected"
+    }
+  },
+  "notes": "This audit marks artifacts as missing because no repository file tree was provided to the auditor. To produce an accurate audit, provide a repository listing or run a local scan.",
+  "recommendedNextSteps": [
+    "Add README.md describing the project, vision, and usage",
+    "Initialize package.json and install dependencies (npm init)",
+    "Commit a lockfile (package-lock.json / yarn.lock / pnpm-lock.yaml)",
+    "Add a LICENSE (e.g., MIT) if open source",
+    "Add .gitignore to exclude node_modules, .next, etc.",
+    "Add a basic CI workflow (e.g., GitHub Actions) to run tests and linting",
+    "Add a test harness (Jest, Vitest) and at least one test file",
+    "Add Next.js app files (app/ or pages/) and public assets"
+  ]
+}

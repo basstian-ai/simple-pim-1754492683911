@@ -44,3 +44,4 @@ This app is designed to be:
 **Example Request:**  
 ```bash
 https://www.themealdb.com/api/json/v1/1/search.php?s=chicken
+```
