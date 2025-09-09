@@ -1,0 +1,45 @@
+name: Feature request
+description: Suggest a new feature, enhancement or improvement.
+title: "[FEATURE] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for the idea! Please describe the feature and the problem it solves. The maintainers will review and discuss next steps."
+  - type: input
+    id: summary
+    attributes:
+      label: Short summary
+      description: One-line summary of the feature request
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Explain the pain point or user need
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the proposed behavior and UX
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature?
+      options:
+        - high
+        - medium
+        - low
+      required: true
+  - type: input
+    id: related
+    attributes:
+      label: Related issues / links
+      description: Links to related issues, PRs or designs
+  - type: attachments
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Mockups, screenshots or other files

@@ -1,0 +1,48 @@
+name: Bug report
+description: Create an issue to report a bug in the app (search, pages, favorites, etc.).
+title: "[BUG] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for reporting a bug! Please fill out the details below so we can reproduce and fix it quickly."
+  - type: input
+    id: summary
+    attributes:
+      label: Short summary
+      description: A concise one-line summary of the bug
+      placeholder: "e.g. Search returns no results for common query"
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Step-by-step instructions to reproduce the bug
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser / OS / device and app version if known
+      placeholder: "e.g. Chrome 116 on macOS 13"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error messages / console output
+      description: Any error messages or console output
+  - type: attachments
+    id: screenshots
+    attributes:
+      label: Screenshots / files
+      description: Attach screenshots, recordings or files that help explain the issue

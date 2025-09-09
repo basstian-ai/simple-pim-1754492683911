@@ -1,0 +1,28 @@
+name: Triage / Maintenance
+description: Use this template for housekeeping, metadata fixes, or triage tasks.
+title: "[MAINTENANCE] "
+labels:
+  - maintenance
+body:
+  - type: markdown
+    attributes:
+      value: "Use this to propose non-feature, non-bug work (docs, CI, dependency updates, etc.). Provide context and any required steps."
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What needs to be done and why
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      options:
+        - low
+        - medium
+        - high
+      description: Expected impact of this work
